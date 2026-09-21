@@ -1,28 +1,27 @@
 @import "tailwindcss";
 
-:root {
-  --background: #09090b;
-  --foreground: #f4f4f5;
+@theme {
+  --color-pathclear-primary: #046c4e;
+  --color-pathclear-secondary: #0e9f6e;
+  --color-pathclear-bg: #f5f8fa;
+  --color-pathclear-surface: #ffffff;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root {
+  --background: #f5f8fa;
+  --foreground: #111827;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  overflow-x: hidden;
 }
 
 /* Accessibility Focus States */
 button:focus-visible,
 a:focus-visible,
-input:focus-visible {
-  outline: 3px solid #38bdf8;
+input:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--color-pathclear-secondary);
   outline-offset: 2px;
 }
