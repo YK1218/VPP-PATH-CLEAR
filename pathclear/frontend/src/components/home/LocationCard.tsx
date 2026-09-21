@@ -1,5 +1,6 @@
 import { Building2, TrainFront, CheckCircle2, ChevronRight, CornerDownRight } from "lucide-react";
 import React from "react";
+import Link from "next/link";
 
 export type LocationType = "building" | "transit";
 
@@ -9,6 +10,7 @@ export interface BadgeInfo {
 }
 
 export interface LocationCardProps {
+  id: string;
   type: LocationType;
   title: string;
   subtitle: string;
@@ -19,6 +21,7 @@ export interface LocationCardProps {
 }
 
 export default function LocationCard({
+  id,
   type,
   title,
   subtitle,
@@ -28,7 +31,7 @@ export default function LocationCard({
   distance,
 }: LocationCardProps) {
   return (
-    <button className="w-full bg-white rounded-2xl p-4 md:p-5 flex items-center justify-between shadow-sm border border-gray-100 hover:shadow-md transition-shadow group text-left">
+    <Link href={`/navigation/${id}`} className="w-full bg-white rounded-2xl p-4 md:p-5 flex items-center justify-between shadow-sm border border-gray-100 hover:shadow-md transition-shadow group text-left focus-visible:outline-pathclear-primary">
       <div className="flex items-start gap-4 flex-1 min-w-0">
         
         {/* Left Icon */}
@@ -70,6 +73,6 @@ export default function LocationCard({
           <CornerDownRight size={16} />
         </div>
       </div>
-    </button>
+    </Link>
   );
 }

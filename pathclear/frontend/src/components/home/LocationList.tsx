@@ -4,6 +4,7 @@ import { Activity } from "lucide-react";
 export default function LocationList() {
   const locations: LocationCardProps[] = [
     {
+      id: "jio-world-centre",
       type: "building",
       title: "Jio World Convention Centre",
       subLocation: "Gate 2",
@@ -17,6 +18,7 @@ export default function LocationList() {
       distance: "4.2 km away",
     },
     {
+      id: "bkc-metro-station",
       type: "transit",
       title: "Bandra Kurla Complex Metro Station",
       subtitle: "Line 3 Aqua Line",
@@ -29,6 +31,7 @@ export default function LocationList() {
       distance: "2.1 km away",
     },
     {
+      id: "bandra-west-station",
       type: "transit",
       title: "Bandra West Railway Station",
       subtitle: "West Accessible Footbridge",
