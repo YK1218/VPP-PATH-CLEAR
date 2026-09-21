@@ -22,6 +22,7 @@ export default function NavMapOverlay() {
             tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
             tileSize: 256,
             attribution: "&copy; OpenStreetMap",
+            maxzoom: 19, // Tells MapLibre to scale up level 19 tiles if zoomed further
           },
         },
         layers: [
@@ -30,12 +31,13 @@ export default function NavMapOverlay() {
             type: "raster",
             source: "osm",
             minzoom: 0,
-            maxzoom: 19,
+            maxzoom: 22, // allow layer to render at higher zooms
           },
         ],
       },
       center: [72.866, 19.066], // Mumbai Center (approx BKC)
       zoom: 16.5,
+      maxZoom: 20, // Prevents infinite zooming into a blurry mess
       pitch: 45, // Angled for navigation look
       bearing: -15,
       attributionControl: false,
@@ -92,7 +94,23 @@ export default function NavMapOverlay() {
         },
         paint: {
           "line-color": "#0e9f6e",
-          "line-width": 12,
+          "line-width": 14,
+        },
+      });
+
+      // Add inner dashed line for walking path visual
+      map.addLayer({
+        id: "route-dash",
+        type: "line",
+        source: "route",
+        layout: {
+          "line-join": "round",
+          "line-cap": "round",
+        },
+        paint: {
+          "line-color": "#ffffff",
+          "line-width": 4,
+          "line-dasharray": [1, 2],
         },
       });
 
@@ -126,6 +144,18 @@ export default function NavMapOverlay() {
 
       new maplibregl.Marker({ element: hazardEl })
         .setLngLat([72.8665, 19.0673])
+        .addTo(map);
+
+      // ---- Destination Marker ----
+      const destEl = document.createElement("div");
+      destEl.className = "relative w-11 h-11 bg-gray-900 border-[3px] border-white rounded-full shadow-2xl flex items-center justify-center text-white -top-3";
+      destEl.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>
+        <div class="absolute -bottom-[8px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[10px] border-t-gray-900"></div>
+      `;
+
+      new maplibregl.Marker({ element: destEl })
+        .setLngLat([72.868, 19.068])
         .addTo(map);
 
     });
