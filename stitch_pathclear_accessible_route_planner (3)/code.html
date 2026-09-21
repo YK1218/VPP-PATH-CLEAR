@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>PathClear - Accessible Route Planner</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;1,400&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-container":"#f5fff7","tertiary":"#006948","on-primary":"#ffffff","surface-container-lowest":"#ffffff","error":"#ba1a1a","surface-container-high":"#dce9ff","primary-container":"#008378","surface-container":"#e5eeff","primary-fixed-dim":"#6bd8cb","on-secondary":"#ffffff","primary":"#00685f","inverse-primary":"#6bd8cb","background":"#f8f9ff","surface-bright":"#f8f9ff","on-tertiary":"#ffffff","surface-container-highest":"#d3e4fe","inverse-on-surface":"#eaf1ff","tertiary-container":"#00855d","on-background":"#0b1c30","secondary-container":"#dae2fd","outline-variant":"#bcc9c6","inverse-surface":"#213145","on-error":"#ffffff","on-secondary-fixed-variant":"#3f465c","on-tertiary-fixed":"#002114","on-tertiary-fixed-variant":"#005137","surface-tint":"#006a61","surface-variant":"#d3e4fe","surface-dim":"#cbdbf5","on-secondary-fixed":"#131b2e","outline":"#6d7a77","tertiary-fixed":"#85f8c4","on-primary-container":"#f4fffc","on-primary-fixed-variant":"#005049","surface-container-low":"#eff4ff","primary-fixed":"#89f5e7","tertiary-fixed-dim":"#68dba9","on-error-container":"#93000a","secondary":"#565e74","on-surface":"#0b1c30","on-secondary-container":"#5c647a","on-surface-variant":"#3d4947","on-primary-fixed":"#00201d","surface":"#f8f9ff","secondary-fixed":"#dae2fd","error-container":"#ffdad6","secondary-fixed-dim":"#bec6e0"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"gutter":"1rem","space-lg":"1.5rem","gutter-desktop":"1.5rem","space-xs":"0.25rem","margin-tablet":"1.5rem","space-sm":"0.5rem","margin":"1rem","space-md":"1rem","space-xl":"2rem","margin-desktop":"2.5rem"},fontFamily:{"display-lg":["Atkinson Hyperlegible Next"],"headline-lg":["Atkinson Hyperlegible Next"],"headline-sm":["Atkinson Hyperlegible Next"],"label-lg":["Atkinson Hyperlegible Next"],"body-lg":["Atkinson Hyperlegible Next"],"display-lg-mobile":["Atkinson Hyperlegible Next"],"label-md":["Atkinson Hyperlegible Next"],"body-md":["Atkinson Hyperlegible Next"],"label-sm":["Atkinson Hyperlegible Next"],"body-sm":["Atkinson Hyperlegible Next"],"headline-lg-mobile":["Atkinson Hyperlegible Next"],"headline-md":["Atkinson Hyperlegible Next"]},fontSize:{"display-lg":["3rem",{lineHeight:"3.5rem",letterSpacing:"-0.02em",fontWeight:"700"}],"headline-lg":["2rem",{lineHeight:"2.5rem",letterSpacing:"-0.01em",fontWeight:"700"}],"headline-sm":["1.25rem",{lineHeight:"1.75rem",letterSpacing:"0",fontWeight:"600"}],"label-lg":["1.125rem",{lineHeight:"1.5rem",letterSpacing:"0.02em",fontWeight:"600"}],"body-lg":["1.125rem",{lineHeight:"1.75rem",letterSpacing:"0.01em",fontWeight:"400"}],"display-lg-mobile":["2rem",{lineHeight:"2.5rem",letterSpacing:"-0.01em",fontWeight:"700"}],"label-md":["0.9375rem",{lineHeight:"1.25rem",letterSpacing:"0.02em",fontWeight:"600"}],"body-md":["1rem",{lineHeight:"1.5rem",letterSpacing:"0.01em",fontWeight:"400"}],"label-sm":["0.8125rem",{lineHeight:"1rem",letterSpacing:"0.03em",fontWeight:"700"}],"body-sm":["0.875rem",{lineHeight:"1.25rem",letterSpacing:"0.015em",fontWeight:"400"}],"headline-lg-mobile":["1.5rem",{lineHeight:"2rem",letterSpacing:"0",fontWeight:"700"}],"headline-md":["1.5rem",{lineHeight:"2rem",letterSpacing:"0",fontWeight:"600"}]}}}}</script></head><body class="bg-surface font-body-md text-body-md text-on-surface min-h-screen"><header class="fixed top-0 w-full z-50 bg-surface-container-lowest/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-gutter md:px-margin-tablet lg:px-margin-desktop max-w-[1280px] mx-auto flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md shrink-0"><img alt="PathClear brand logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1UUyQWjhNmm5gX8fuQuJuR6GuA4g-YdkTwHTrOogLYAEYEhLUcBScQGKFTPsFXrgSn73T7wleVkMfI2Dq1zAgH6xfsXr_EXU_jRLuu6VJxY02zC9kKa-WYj3mQ1aM_2J5cIFzmaPc3qwwOLp5Yrrz8uDgupMEe6wm4swxZ67uujdDvg8YILk-JbBAQnghRaFvMBUwKu5cVxmjaQX39F8QPD775XRVD_1TM_YSeHQK7MXZ3Ja9XyPkqbCjFz"/><a class="font-headline-sm text-headline-sm text-on-surface tracking-tight font-bold" data-path="route-planner" href="#">PathClear</a><div class="hidden sm:flex items-center bg-surface-container-low px-space-sm py-1 rounded-lg gap-space-xs"><span class="material-symbols-outlined text-secondary text-sm">location_city</span><label class="sr-only" for="city-switcher">Select Indian City</label><select class="bg-transparent font-label-sm text-label-sm text-on-surface font-semibold focus:outline-none cursor-pointer pr-1" id="city-switcher"><option selected="" value="mumbai">Mumbai</option><option value="delhi">Delhi NCR</option><option value="bengaluru">Bengaluru</option><option value="pune">Pune</option><option value="hyderabad">Hyderabad</option></select></div></div><nav class="hidden lg:flex items-center gap-space-xs p-1 bg-surface-container-low rounded-xl" data-active-classes="bg-primary-container text-on-primary-container font-semibold rounded-lg shadow-sm"><a aria-current="page" class="px-space-md py-2 transition-colors bg-primary-container text-on-primary-container font-semibold rounded-lg shadow-sm" data-path="route-planner" href="#">Route Planner</a><a class="px-space-md py-2 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors rounded-lg" data-path="explore-stations" href="#">Transit Hubs</a><a class="px-space-md py-2 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors rounded-lg" data-path="community-reports" href="#">Obstacle Alerts</a><a class="px-space-md py-2 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors rounded-lg" data-path="city-guides" href="#">Accessibility Guides</a></nav><div class="flex items-center gap-space-sm shrink-0"><div class="flex items-center gap-1.5 px-space-sm py-1.5 bg-surface-container-low rounded-full"><span class="material-symbols-outlined text-primary text-base">accessible</span><span class="font-label-sm text-label-sm text-on-surface font-medium hidden md:inline">Step-Free · Wheelchair</span></div><div class="flex items-center gap-space-xs pl-space-xs"><img alt="User profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1X7sz9PvrSfB-mN06EcVyOeqtC6Q6EMtb-j2pOReEPSZ6ffuwB6im4hDRvneGXeA8vn6xRFBUpRa5S1aMDkIJCLzYahjCELDi3b3D_ds9SQTAsdYcOgBmUO5pNQnMiH5H4zcJZqM8Ntsby5bjhK699fzN68mryaShUygHFYHmPR1t4uvJKoQdHMim1IhNrIAFdkb94EkoTVUUO1MnZ6vSp6h5qeS1HR8CQXwtKLQp_iN1VeFIl5c_sumj6q"/></div></div></div></header><main class="w-full pt-16 bg-surface min-h-[calc(100vh-4rem)]"><div class="flex flex-col w-full relative min-h-[calc(100vh-4rem)] overflow-hidden">
+<!-- Subtle Mumbai Coastline & Transit Geometry Vector Canvas -->
+<div class="absolute inset-0 pointer-events-none select-none z-0 opacity-40">
+<svg aria-hidden="true" class="w-full h-full object-cover" fill="none" preserveaspectratio="xMidYMid slice" viewbox="0 0 1440 900" xmlns="http://www.w3.org/2000/svg">
+<!-- Water body (Arabian Sea & Mahim Bay) -->
+<path d="M0 0H520C510 120 480 210 420 310C370 395 390 480 430 560C460 620 450 710 390 780C340 840 280 900 240 900H0V0Z" fill="#EBF2FC"></path>
+<!-- Mahim Creek inlet -->
+<path d="M420 420C470 430 520 445 560 430C600 415 640 430 680 445C710 455 750 450 780 435L775 465C740 478 700 475 660 460C620 445 570 455 530 465C480 480 430 460 395 440L420 420Z" fill="#DDE8F8"></path>
+<!-- Bandra-Worli Sea Link Curve -->
+<path d="M375 365C350 430 330 510 375 580" opacity="0.6" stroke="#008378" stroke-dasharray="8 6" stroke-width="3"></path>
+<!-- Western Express Highway Arterial -->
+<path d="M560 0C570 180 590 320 620 460C645 580 670 740 680 900" stroke="#CBD5E1" stroke-width="2.5"></path>
+<!-- Metro Aqua Line 3 Accessible Underground Spine -->
+<path d="M510 210C530 310 575 420 610 520C635 600 645 720 630 900" stroke="#00685f" stroke-linecap="round" stroke-width="4"></path>
+<path d="M610 520L730 480C790 460 850 470 910 490" stroke="#008378" stroke-dasharray="6 4" stroke-width="2"></path>
+<!-- Subtle Landmarks -->
+<circle cx="610" cy="520" fill="#00685f" r="5" stroke="#ffffff" stroke-width="2"></circle>
+<text fill="#565e74" font-family="Atkinson Hyperlegible Next" font-size="11" font-weight="600" letter-spacing="0.04em" x="625" y="525">BKC HUB</text>
+<circle cx="490" cy="380" fill="#008378" r="4" stroke="#ffffff" stroke-width="2"></circle>
+<text fill="#565e74" font-family="Atkinson Hyperlegible Next" font-size="11" font-weight="600" letter-spacing="0.04em" x="430" y="375">BANDRA WEST</text>
+<circle cx="375" cy="580" fill="#565e74" r="4"></circle>
+<text fill="#565e74" font-family="Atkinson Hyperlegible Next" font-size="11" font-weight="600" letter-spacing="0.04em" x="310" y="595">WORLI CONNECTOR</text>
+</svg>
+</div>
+<!-- Primary Foreground Content -->
+<div class="relative z-10 w-full max-w-[860px] mx-auto px-gutter md:px-margin-tablet py-space-xl flex flex-col items-center">
+<!-- Active State Pill Selector -->
+<nav aria-label="City Navigation" class="w-full flex items-center justify-center mb-space-lg">
+<div class="inline-flex p-1.5 bg-surface-container-low rounded-xl gap-space-xs overflow-x-auto max-w-full shadow-sm" role="tablist">
+<button aria-selected="true" class="px-space-md py-2 text-label-sm font-label-sm rounded-lg bg-surface-container-lowest text-primary shadow-sm flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-primary" role="tab">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+          Mumbai
+        </button>
+<button aria-selected="false" class="px-space-md py-2 text-label-sm font-label-sm text-secondary hover:text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded-lg" role="tab">
+          Delhi NCR
+        </button>
+<button aria-selected="false" class="px-space-md py-2 text-label-sm font-label-sm text-secondary hover:text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded-lg" role="tab">
+          Bengaluru
+        </button>
+<button aria-selected="false" class="px-space-md py-2 text-label-sm font-label-sm text-secondary hover:text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded-lg" role="tab">
+          Pune
+        </button>
+<button aria-selected="false" class="px-space-md py-2 text-label-sm font-label-sm text-secondary hover:text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded-lg" role="tab">
+          Hyderabad
+        </button>
+<button aria-selected="false" class="px-space-md py-2 text-label-sm font-label-sm text-secondary hover:text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded-lg" role="tab">
+          Ahmedabad
+        </button>
+</div>
+</nav>
+<!-- Centered Focal Header -->
+<div class="flex flex-col items-center text-center mt-space-sm mb-space-lg">
+<!-- Status Badge -->
+<div class="inline-flex items-center gap-2 px-space-md py-1.5 rounded-full bg-on-tertiary-container text-tertiary shadow-sm mb-space-md">
+<span class="material-symbols-outlined text-base">accessible</span>
+<span class="font-label-sm text-label-sm font-bold tracking-wide">Wheelchair · Step-Free Active</span>
+</div>
+<h1 class="font-display-lg text-display-lg text-on-surface tracking-tight font-bold mb-space-xs">
+        Where are you going?
+      </h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xl">
+        Every route verified for elevator reliability, zero curb steps, and continuous ramp gradients.
+      </p>
+</div>
+<!-- Accessible Large Search Interface -->
+<div class="w-full mb-space-lg">
+<div class="w-full bg-surface-container-lowest rounded-xl shadow-md p-2 flex items-center gap-space-sm focus-within:ring-2 focus-within:ring-primary transition-all">
+<!-- Start Point Icon -->
+<div aria-hidden="true" class="w-12 h-12 rounded-lg bg-surface-container-low flex items-center justify-center shrink-0 text-primary">
+<span class="material-symbols-outlined text-2xl">search</span>
+</div>
+<label class="sr-only" for="route-search-input">Search an Indian destination, transit station, or building</label>
+<input autocomplete="off" class="w-full bg-transparent font-body-lg text-body-lg text-on-surface placeholder:text-secondary focus:outline-none py-3 px-1" id="route-search-input" placeholder="Search an Indian destination, transit station, or building" type="text" value=""/>
+<!-- Clear Search (Hidden when empty) -->
+<button aria-label="Clear destination input" class="hidden w-12 h-12 rounded-lg text-secondary hover:text-on-surface hover:bg-surface-container-low flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary" id="search-clear-btn" type="button">
+<span class="material-symbols-outlined text-xl">close</span>
+</button>
+<!-- Voice Search Input -->
+<button aria-label="Voice search destination" class="w-12 h-12 rounded-lg text-primary hover:bg-surface-container-low flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary transition-colors" id="voice-search-btn" title="Search by voice" type="button">
+<span class="material-symbols-outlined text-2xl">mic</span>
+</button>
+<!-- Search Action Button -->
+<button aria-label="Find accessible routes" class="h-12 px-space-lg rounded-lg bg-primary text-on-primary font-label-md text-label-md flex items-center gap-2 hover:bg-primary-container shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 shrink-0 transition-colors" type="button">
+<span>Find Route</span>
+<span class="material-symbols-outlined text-lg">arrow_forward</span>
+</button>
+</div>
+<!-- Quick Accessibility Preferences -->
+<fieldset aria-label="Route Preferences" class="mt-space-md flex flex-wrap items-center justify-center gap-space-sm">
+<legend class="sr-only">Step-Free Filters</legend>
+<label class="cursor-pointer select-none">
+<input checked="" class="sr-only peer" id="pref-incline" type="checkbox"/>
+<span class="inline-flex items-center gap-1.5 px-space-md py-2 rounded-lg bg-surface-container-lowest text-secondary peer-checked:bg-secondary-container peer-checked:text-on-secondary-fixed text-label-sm font-label-sm shadow-sm transition-all peer-focus-visible:ring-2 peer-focus-visible:ring-primary">
+<span class="material-symbols-outlined text-base">trending_down</span>
+            Max 3% Incline
+          </span>
+</label>
+<label class="cursor-pointer select-none">
+<input checked="" class="sr-only peer" id="pref-curbs" type="checkbox"/>
+<span class="inline-flex items-center gap-1.5 px-space-md py-2 rounded-lg bg-surface-container-lowest text-secondary peer-checked:bg-secondary-container peer-checked:text-on-secondary-fixed text-label-sm font-label-sm shadow-sm transition-all peer-focus-visible:ring-2 peer-focus-visible:ring-primary">
+<span class="material-symbols-outlined text-base">roundabout_right</span>
+            Require Dropped Curbs
+          </span>
+</label>
+<label class="cursor-pointer select-none">
+<input class="sr-only peer" id="pref-audible" type="checkbox"/>
+<span class="inline-flex items-center gap-1.5 px-space-md py-2 rounded-lg bg-surface-container-lowest text-secondary peer-checked:bg-secondary-container peer-checked:text-on-secondary-fixed text-label-sm font-label-sm shadow-sm transition-all peer-focus-visible:ring-2 peer-focus-visible:ring-primary">
+<span class="material-symbols-outlined text-base">volume_up</span>
+            Audible Crossings
+          </span>
+</label>
+<label class="cursor-pointer select-none">
+<input checked="" class="sr-only peer" id="pref-elevators" type="checkbox"/>
+<span class="inline-flex items-center gap-1.5 px-space-md py-2 rounded-lg bg-surface-container-lowest text-secondary peer-checked:bg-secondary-container peer-checked:text-on-secondary-fixed text-label-sm font-label-sm shadow-sm transition-all peer-focus-visible:ring-2 peer-focus-visible:ring-primary">
+<span class="material-symbols-outlined text-base">elevator</span>
+            Live Elevator Feed
+          </span>
+</label>
+</fieldset>
+</div>
+<!-- Verified Recent Accessible Destinations -->
+<section aria-labelledby="recent-destinations-heading" class="w-full flex flex-col gap-space-sm">
+<div class="flex items-center justify-between px-1 mb-1">
+<h2 class="font-label-sm text-label-sm text-secondary uppercase tracking-wider" id="recent-destinations-heading">
+          Verified Accessible Locations in Mumbai
+        </h2>
+<span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+          Live Audited
+        </span>
+</div>
+<!-- Destination 1: Jio World Convention Centre -->
+<a class="w-full bg-surface-container-lowest hover:bg-surface-container-low rounded-xl p-space-md shadow-sm transition-all duration-200 group flex items-center justify-between gap-space-md focus:outline-none focus:ring-2 focus:ring-primary" data-path="route-details-jwcc" href="#">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-lg bg-surface-container-low group-hover:bg-surface-container-lowest flex items-center justify-center shrink-0 text-primary transition-colors">
+<span class="material-symbols-outlined text-2xl">domain</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex flex-wrap items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate group-hover:text-primary transition-colors">
+                Jio World Convention Centre — Gate 2
+              </span>
+<span class="font-body-sm text-body-sm text-secondary">BKC, Mumbai</span>
+</div>
+<div class="flex flex-wrap items-center gap-space-xs mt-1 text-on-surface-variant font-body-sm text-body-sm">
+<span class="inline-flex items-center gap-1 text-tertiary font-medium">
+<span class="material-symbols-outlined text-base text-tertiary">check_circle</span>
+                Verified step-free ramp
+              </span>
+<span class="text-secondary">·</span>
+<span>Automatic doors</span>
+<span class="text-secondary">·</span>
+<span>Accessible restrooms L1</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-md shrink-0">
+<div class="text-right hidden sm:flex flex-col items-end">
+<span class="font-label-md text-label-md text-on-surface font-bold">18 min</span>
+<span class="font-label-sm text-label-sm text-secondary">4.2 km away</span>
+</div>
+<div class="w-10 h-10 rounded-lg flex items-center justify-center text-secondary group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">directions</span>
+</div>
+</div>
+</a>
+<!-- Destination 2: BKC Metro Station -->
+<a class="w-full bg-surface-container-lowest hover:bg-surface-container-low rounded-xl p-space-md shadow-sm transition-all duration-200 group flex items-center justify-between gap-space-md focus:outline-none focus:ring-2 focus:ring-primary" data-path="route-details-bkc-metro" href="#">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-lg bg-surface-container-low group-hover:bg-surface-container-lowest flex items-center justify-center shrink-0 text-primary transition-colors">
+<span class="material-symbols-outlined text-2xl">subway</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex flex-wrap items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate group-hover:text-primary transition-colors">
+                Bandra Kurla Complex Metro Station
+              </span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container-high text-primary font-medium">
+                Line 3 Aqua Line
+              </span>
+</div>
+<div class="flex flex-wrap items-center gap-space-xs mt-1 text-on-surface-variant font-body-sm text-body-sm">
+<span class="inline-flex items-center gap-1 text-tertiary font-medium">
+<span class="material-symbols-outlined text-base text-tertiary">elevator</span>
+                Both lifts operational
+              </span>
+<span class="text-secondary">·</span>
+<span>Tactile platform edge guide</span>
+<span class="text-secondary">·</span>
+<span>Direct concourse roll-in</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-md shrink-0">
+<div class="text-right hidden sm:flex flex-col items-end">
+<span class="font-label-md text-label-md text-on-surface font-bold">12 min</span>
+<span class="font-label-sm text-label-sm text-secondary">2.1 km away</span>
+</div>
+<div class="w-10 h-10 rounded-lg flex items-center justify-center text-secondary group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">directions</span>
+</div>
+</div>
+</a>
+<!-- Destination 3: Bandra West Railway Station -->
+<a class="w-full bg-surface-container-lowest hover:bg-surface-container-low rounded-xl p-space-md shadow-sm transition-all duration-200 group flex items-center justify-between gap-space-md focus:outline-none focus:ring-2 focus:ring-primary" data-path="route-details-bandra-west" href="#">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-lg bg-surface-container-low group-hover:bg-surface-container-lowest flex items-center justify-center shrink-0 text-primary transition-colors">
+<span class="material-symbols-outlined text-2xl">train</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex flex-wrap items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate group-hover:text-primary transition-colors">
+                Bandra West Railway Station
+              </span>
+<span class="font-body-sm text-body-sm text-secondary">West Accessible Footbridge</span>
+</div>
+<div class="flex flex-wrap items-center gap-space-xs mt-1 text-on-surface-variant font-body-sm text-body-sm">
+<span class="inline-flex items-center gap-1 text-on-surface font-medium">
+<span class="material-symbols-outlined text-base text-primary">straighten</span>
+                Ramp grade 1:14 (smooth finish)
+              </span>
+<span class="text-secondary">·</span>
+<span>Tactile warning tiles</span>
+<span class="text-secondary">·</span>
+<span>Platform 1 ramp access</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-md shrink-0">
+<div class="text-right hidden sm:flex flex-col items-end">
+<span class="font-label-md text-label-md text-on-surface font-bold">24 min</span>
+<span class="font-label-sm text-label-sm text-secondary">5.8 km away</span>
+</div>
+<div class="w-10 h-10 rounded-lg flex items-center justify-center text-secondary group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">directions</span>
+</div>
+</div>
+</a>
+</section>
+<!-- Subtle Live Advisory Strip -->
+<aside class="w-full mt-space-lg flex items-center justify-between p-space-md rounded-xl bg-surface-container-low text-on-surface-variant">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-xl">published_with_changes</span>
+<p class="font-body-sm text-body-sm">
+<strong class="text-on-surface font-semibold">Live Transit Telemetry:</strong> 94.6% of audited Metro Line 3 elevators in Mumbai report nominal operational status today.
+        </p>
+</div>
+<a class="shrink-0 font-label-sm text-label-sm text-primary hover:underline ml-space-sm" data-path="community-reports" href="#">
+        View Outages
+      </a>
+</aside>
+</div>
+<script>
+    (function() {
+      const searchInput = document.getElementById('route-search-input');
+      const clearBtn = document.getElementById('search-clear-btn');
+      const voiceBtn = document.getElementById('voice-search-btn');
+
+      if (searchInput && clearBtn) {
+        searchInput.addEventListener('input', () => {
+          if (searchInput.value.trim().length > 0) {
+            clearBtn.classList.remove('hidden');
+          } else {
+            clearBtn.classList.add('hidden');
+          }
+        });
+
+        clearBtn.addEventListener('click', () => {
+          searchInput.value = '';
+          clearBtn.classList.add('hidden');
+          searchInput.focus();
+        });
+      }
+
+      if (voiceBtn && searchInput) {
+        voiceBtn.addEventListener('click', () => {
+          if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            searchInput.focus();
+            return;
+          }
+          const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+          const recognition = new SpeechRecognition();
+          recognition.lang = 'en-IN';
+          voiceBtn.classList.add('text-error');
+          recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            searchInput.value = transcript;
+            clearBtn.classList.remove('hidden');
+            voiceBtn.classList.remove('text-error');
+          };
+          recognition.onerror = () => {
+            voiceBtn.classList.remove('text-error');
+          };
+          recognition.onend = () => {
+            voiceBtn.classList.remove('text-error');
+          };
+          recognition.start();
+        });
+      }
+    })();
+  </script>
+</div></main><footer class="w-full bg-surface-container-lowest shadow-[0_-1px_6px_rgba(0,0,0,0.02)] py-space-xl"><div class="w-full px-gutter md:px-margin-tablet lg:px-margin-desktop max-w-[1280px] mx-auto flex flex-col md:flex-row items-center justify-between gap-space-md text-center md:text-left"><div class="flex flex-col gap-space-xs"><p class="font-label-md text-label-md text-on-surface font-bold">PathClear India</p><p class="font-body-sm text-body-sm text-on-surface-variant">Verified step-free itineraries, incline telemetry, and live elevator updates for urban India.</p></div><div class="flex items-center gap-space-lg"><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="accessibility-policy" href="#">Audit Standards</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="community-reports" href="#">Report Barrier</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="city-guides" href="#">Metro Guides</a></div></div></footer></body></html>
