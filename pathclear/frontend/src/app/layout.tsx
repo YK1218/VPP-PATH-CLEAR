@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "PathClear | Accessible Routing & Doorway Verification",
@@ -13,8 +16,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark h-full antialiased">
-      <body className="min-h-full flex flex-col bg-zinc-950 text-zinc-100">
+    <html lang="en" className={`h-full antialiased ${inter.className}`}>
+      <body className="min-h-full flex flex-col bg-[#f5f8fa] text-gray-900" suppressHydrationWarning>
         {children}
       </body>
     </html>
