@@ -5,109 +5,143 @@ import RouteAlertCard from "@/components/navigation/RouteAlertCard";
 import MapControls from "@/components/navigation/MapControls";
 import NavFooter from "@/components/navigation/NavFooter";
 import { notFound } from "next/navigation";
+import { fetchEntrances, calculateRoute, fetchHazards } from "@/lib/api";
+import { Entrance, Route, Hazard } from "@/types";
+import NavigationContent from "@/components/navigation/NavigationContent";
 
-// Mock database
-const navigationData: Record<string, any> = {
-  "jio-world-centre": {
-    destination: "Jio World Centre, BKC",
-    turnInstruction: {
-      distance: "120 M",
-      instruction: "Turn slightly right",
-      street: "BKC Avenue 3 Accessible Ramp",
-      slope: "Gentle 1.8% slope",
-      width: "1.8m width safe",
-    },
-    routeAlert: {
-      timeReported: "35 MIN AGO",
-      title: "Utility roadworks near G Block curb cut",
-      distanceAhead: "45m",
-      question: "Gravel near dropped curb. Can you confirm if the ramp is still passable?",
-      travelerImpactCount: 38,
-    },
-    footer: {
-      eta: "10:42 AM",
-      timeRemaining: "4 min remaining",
-      distance: "0.3 km",
-      entranceName: "Jio World Centre - BKC Gate 2 Entrance (Ramped)",
-    }
-  },
-  "bkc-metro-station": {
-    destination: "BKC Metro Station",
-    turnInstruction: {
-      distance: "50 M",
-      instruction: "Continue straight",
-      street: "Metro Station Lift A Entrance",
-      slope: "Flat",
-      width: "2.2m width safe",
-    },
-    routeAlert: {
-      timeReported: "12 MIN AGO",
-      title: "Temporary barrier near Lift B",
-      distanceAhead: "15m",
-      question: "Cleaning in progress. Is the path to Lift A still clear?",
-      travelerImpactCount: 14,
-    },
-    footer: {
-      eta: "09:15 AM",
-      timeRemaining: "2 min remaining",
-      distance: "0.1 km",
-      entranceName: "BKC Metro Station - Lift A (Operational)",
-    }
-  },
-  "bandra-west-station": {
-    destination: "Bandra West Station",
-    turnInstruction: {
-      distance: "200 M",
-      instruction: "Turn left",
-      street: "Station Road West Footbridge",
-      slope: "Moderate 3% slope",
-      width: "1.5m width safe",
-    },
-    routeAlert: {
-      timeReported: "2 HRS AGO",
-      title: "Crowded footbridge entrance",
-      distanceAhead: "100m",
-      question: "High foot traffic reported. Is there space for a wheelchair to pass?",
-      travelerImpactCount: 112,
-    },
-    footer: {
-      eta: "06:30 PM",
-      timeRemaining: "8 min remaining",
-      distance: "0.5 km",
-      entranceName: "Bandra West Station - Platform 1 Ramp",
-    }
+interface NavigationPageProps {
+  params: Promise<{ id: string }>;
+}
+
+interface NavigationData {
+  destination: string;
+  turnInstruction: {
+    distance: string;
+    instruction: string;
+    street: string;
+    slope: string;
+    width: string;
+  };
+  routeAlert: {
+    timeReported: string;
+    title: string;
+    distanceAhead: string;
+    question: string;
+    travelerImpactCount: number;
+    hazardId?: string;
+  };
+  footer: {
+    eta: string;
+    timeRemaining: string;
+    distance: string;
+    entranceName: string;
+  };
+  route: Route;
+  entrance: Entrance;
+  hazards: Hazard[];
+}
+
+async function fetchNavigationData(entranceId: string): Promise<NavigationData> {
+  // Fetch all entrances to find the target entrance
+  const entrances = await fetchEntrances();
+  const entrance = entrances.find(e => e.id === entranceId);
+  
+  if (!entrance) {
+    throw new Error(`Entrance ${entranceId} not found`);
   }
-};
 
-export default async function NavigationPage(props: { params: Promise<{ id: string }> }) {
-  // Await the params due to Next.js 16 breaking change
+  // Calculate the route from the BKC demo start point to this entrance.
+  const profile = {
+    id: "wheelchair",
+    name: "Wheelchair",
+    mobilityType: "wheelchair_manual" as const,
+    maxInclinePercent: 5.0,
+    requireStepFree: true,
+    requireTactilePaving: false,
+    requireWellLit: false,
+    avoidBrokenSurfaces: true,
+  };
+
+  const route = await calculateRoute(
+    [72.864, 19.064],
+    [entrance.longitude, entrance.latitude],
+    profile
+  );
+
+  // Fetch hazards
+  const hazards = await fetchHazards();
+
+  // Find hazards near the route
+  const routeHazards = hazards.filter(h => h.isActive);
+
+  // Format data for navigation components
+  const totalDurationMin = Math.round(route.totalDurationSeconds / 60);
+  const now = new Date();
+  const eta = new Date(now.getTime() + route.totalDurationSeconds * 1000);
+  
+  const formatTime = (date: Date) => date.toLocaleTimeString('en-US', { 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  });
+  
+  const formatDuration = (seconds: number) => {
+    const mins = Math.round(seconds / 60);
+    return mins < 60 ? `${mins} min` : `${Math.floor(mins / 60)}h ${mins % 60}min`;
+  };
+
+  // Get first hazard for route alert (or create default)
+  const primaryHazard = routeHazards[0];
+
+  return {
+    destination: `${entrance.buildingName}, ${entrance.entranceName}`,
+    turnInstruction: {
+      distance: route.segments[0] 
+        ? `${Math.round(route.segments[0].distanceMeters)} M`
+        : "100 M",
+      instruction: "Head toward destination",
+      street: "Accessible Route",
+      slope: route.segments[0]
+        ? `${route.segments[0].inclinePercent}% slope`
+        : "Gentle slope",
+      width: "2m width safe",
+    },
+    routeAlert: {
+      timeReported: primaryHazard 
+        ? `${Math.round((Date.now() - new Date(primaryHazard.lastVerifiedAt).getTime()) / 60000)} MIN AGO`
+        : "LIVE",
+      title: primaryHazard?.description || "Route clear - no active hazards",
+      distanceAhead: primaryHazard 
+        ? `${Math.round(Math.sqrt(
+            Math.pow(primaryHazard.latitude - entrance.latitude, 2) + 
+            Math.pow(primaryHazard.longitude - entrance.longitude, 2)
+          ) * 111000)}m`
+        : "0m",
+      question: primaryHazard
+        ? `Can you confirm if this hazard is still present? ${primaryHazard.description}`
+        : "No active hazards on this route. Is the path clear?",
+      travelerImpactCount: primaryHazard?.verificationCount || 0,
+      hazardId: primaryHazard?.id,
+    },
+    footer: {
+      eta: formatTime(eta),
+      timeRemaining: formatDuration(route.totalDurationSeconds),
+      distance: `${(route.totalDistanceMeters / 1000).toFixed(1)} km`,
+      entranceName: `${entrance.buildingName} - ${entrance.entranceName}`,
+    },
+    route,
+    entrance,
+    hazards: routeHazards,
+  };
+}
+
+export default async function NavigationPage(props: NavigationPageProps) {
   const { id } = await props.params;
 
-  const data = navigationData[id];
-
-  if (!data) {
+  try {
+    const data = await fetchNavigationData(id);
+    
+    return <NavigationContent data={data} />;
+  } catch (error) {
     notFound();
   }
-
-  return (
-    <div className="relative w-full h-screen overflow-hidden bg-[#f5f8fa]">
-      {/* 1. Top Header */}
-      <NavHeader destination={data.destination} />
-
-      {/* 2. Map Background */}
-      <NavMapOverlay />
-
-      {/* 3. Floating Left Card: Turn Instructions */}
-      <TurnInstructionCard {...data.turnInstruction} />
-
-      {/* 4. Floating Right Card: Route Alert (1-Tap Verification) */}
-      <RouteAlertCard {...data.routeAlert} />
-
-      {/* 5. Map Controls */}
-      <MapControls />
-
-      {/* 6. Bottom Footer */}
-      <NavFooter {...data.footer} />
-    </div>
-  );
 }

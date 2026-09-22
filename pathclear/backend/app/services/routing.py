@@ -3,8 +3,21 @@
 import math
 import uuid
 from typing import List, Optional
-from datetime import datetime, timezone
 from app.schemas import RouteRequest, RouteResponse, RouteSegment, EntranceResponse, HazardResponse
+
+
+BKC_ROUTE_COORDINATES = [
+    [72.8640, 19.0640],
+    [72.8638, 19.0649],
+    [72.8638, 19.0655],
+    [72.8645, 19.0656],
+    [72.8651, 19.0653],
+    [72.8650, 19.0661],
+    [72.8657, 19.0666],
+    [72.8665, 19.0673],
+    [72.8672, 19.0675],
+    [72.8680, 19.0680],
+]
 
 
 def haversine_distance(coord1: List[float], coord2: List[float]) -> float:
@@ -38,29 +51,41 @@ def compute_accessible_route(
     else:
         dest_coords = [dest[0], dest[1]]
 
-    # Interpolate segment points (demonstration path generation)
-    points_count = 5
-    coords = []
-    segments = []
-    
-    total_dist = haversine_distance(orig, dest_coords)
-    step_dist = total_dist / points_count
+    # Use a BKC street-shaped demonstration route for the Jio World Centre
+    # journey. Other locations retain the generic interpolated fallback.
+    is_bkc_demo_route = (
+        haversine_distance(orig, BKC_ROUTE_COORDINATES[0]) < 30
+        and haversine_distance(dest_coords, BKC_ROUTE_COORDINATES[-1]) < 30
+    )
+    if is_bkc_demo_route:
+        coords = [list(coordinate) for coordinate in BKC_ROUTE_COORDINATES]
+        coords[0] = list(orig)
+        coords[-1] = dest_coords
+    else:
+        points_count = 5
+        coords = []
+        for i in range(points_count + 1):
+            ratio = i / points_count
+            lon = orig[0] + (dest_coords[0] - orig[0]) * ratio
+            lat = orig[1] + (dest_coords[1] - orig[1]) * ratio
+            coords.append([lon, lat])
 
-    for i in range(points_count + 1):
-        ratio = i / points_count
-        lon = orig[0] + (dest_coords[0] - orig[0]) * ratio
-        lat = orig[1] + (dest_coords[1] - orig[1]) * ratio
-        coords.append([lon, lat])
+    segments = []
+    segment_distances = [
+        haversine_distance(coords[index], coords[index + 1])
+        for index in range(len(coords) - 1)
+    ]
+    total_dist = sum(segment_distances)
 
     # Generate micro-segments with slope & friction characteristics
-    for i in range(points_count):
+    for i, segment_distance in enumerate(segment_distances):
         seg_coords = [coords[i], coords[i + 1]]
         # Incline profile: wheelchair limits to request.profile.max_incline_percent
         incline = round(min(request.profile.max_incline_percent * 0.7, 3.2), 1)
         segments.append(
             RouteSegment(
-                distance_meters=round(step_dist, 1),
-                duration_seconds=round(step_dist / 1.1, 1),  # ~1.1 m/s average wheelchair pace
+                distance_meters=round(segment_distance, 1),
+                duration_seconds=round(segment_distance / 1.1, 1),  # ~1.1 m/s wheelchair pace
                 incline_percent=incline,
                 surface_type="smooth_asphalt",
                 is_step_free=True,
