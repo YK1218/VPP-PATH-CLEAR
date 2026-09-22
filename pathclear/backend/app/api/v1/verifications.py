@@ -9,8 +9,24 @@ from app.database.session import get_db
 from app.models import VerificationLog, Entrance, Hazard
 from app.schemas import VerificationCreate, VerificationResponse
 from app.services.verification import apply_verification_update
+from app.api.v1.websockets import broadcast_verification_submitted
 
 router = APIRouter(prefix="/verifications", tags=["Verifications"])
+
+
+def _broadcast_verification_sync(verification_data: dict):
+    """Synchronously broadcast verification update via WebSocket."""
+    try:
+        import asyncio
+        # Create new event loop for sync context
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+        loop.create_task(broadcast_verification_submitted(verification_data))
+    except Exception:
+        pass
 
 
 @router.post("/", response_model=VerificationResponse)
@@ -40,6 +56,18 @@ def submit_verification(verif_in: VerificationCreate, db: Session = Depends(get_
     except Exception:
         # Graceful response if db is running in mock mode
         pass
+
+    # Broadcast WebSocket update for real-time UI updates
+    _broadcast_verification_sync({
+        "id": str(uuid.uuid4()),
+        "target_type": verif_in.target_type,
+        "target_id": verif_in.target_id,
+        "user_response": verif_in.user_response,
+        "new_confidence_score": new_confidence,
+        "latitude": verif_in.latitude,
+        "longitude": verif_in.longitude,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    })
 
     return VerificationResponse(
         id=str(uuid.uuid4()),

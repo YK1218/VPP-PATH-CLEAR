@@ -144,3 +144,24 @@ class VerificationLog(Base):
     previous_confidence = Column(Float, nullable=True)
     updated_confidence = Column(Float, nullable=True)
     created_at = Column(DateTime(timezone=True), default=utcnow)
+
+
+class AccessibilityProfile(Base):
+    """User accessibility profiles for profile-based routing."""
+    __tablename__ = "accessibility_profiles"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True)
+    profile_name = Column(String(100), nullable=False)
+    mobility_type = Column(String(50), default="wheelchair_manual")  # wheelchair_manual, wheelchair_power, walker, cane, visual_guide
+    max_incline_percent = Column(Float, default=4.0)
+    require_step_free = Column(Boolean, default=True)
+    require_tactile_paving = Column(Boolean, default=False)
+    require_well_lit = Column(Boolean, default=False)
+    avoid_broken_surfaces = Column(Boolean, default=True)
+    avoid_cobblestones = Column(Boolean, default=True)
+    min_door_width_inches = Column(Float, default=32.0)
+    is_default = Column(Boolean, default=False)
+    profile_metadata = Column(Text, default="{}")  # JSON string for extensibility
+    created_at = Column(DateTime(timezone=True), default=utcnow)
+    updated_at = Column(DateTime(timezone=True), default=utcnow)

@@ -6,7 +6,48 @@ from pydantic import BaseModel, Field
 
 
 # --- Accessibility Profile ---
+class AccessibilityProfileBase(BaseModel):
+    profile_name: str = Field(..., description="Name of the profile (e.g., 'Manual Wheelchair')")
+    mobility_type: str = Field("wheelchair_manual", description="wheelchair_manual, wheelchair_power, walker, cane, visual_guide")
+    max_incline_percent: float = Field(5.0, description="Max acceptable slope percentage")
+    require_step_free: bool = Field(True, description="Strictly avoid steps/curbs")
+    require_tactile_paving: bool = Field(False)
+    require_well_lit: bool = Field(False)
+    avoid_broken_surfaces: bool = Field(True)
+    avoid_cobblestones: bool = Field(True)
+    min_door_width_inches: float = Field(32.0)
+    is_default: bool = Field(False)
+
+
+class AccessibilityProfileCreate(AccessibilityProfileBase):
+    user_id: Optional[str] = None
+
+
+class AccessibilityProfileUpdate(BaseModel):
+    profile_name: Optional[str] = None
+    mobility_type: Optional[str] = None
+    max_incline_percent: Optional[float] = None
+    require_step_free: Optional[bool] = None
+    require_tactile_paving: Optional[bool] = None
+    require_well_lit: Optional[bool] = None
+    avoid_broken_surfaces: Optional[bool] = None
+    avoid_cobblestones: Optional[bool] = None
+    min_door_width_inches: Optional[float] = None
+    is_default: Optional[bool] = None
+
+
+class AccessibilityProfileResponse(AccessibilityProfileBase):
+    id: str
+    user_id: Optional[str]
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
 class AccessibilityProfileSchema(BaseModel):
+    """Legacy schema for inline profile in route requests."""
     mobility_type: str = Field("wheelchair", description="wheelchair, motorized_scooter, walker, cane, visual_guide")
     max_incline_percent: float = Field(5.0, description="Max acceptable slope percentage")
     require_step_free: bool = Field(True, description="Strictly avoid steps/curbs")
@@ -74,6 +115,7 @@ class RouteRequest(BaseModel):
     origin: List[float] = Field(..., description="[longitude, latitude]")
     destination: List[float] = Field(..., description="[longitude, latitude]")
     profile: AccessibilityProfileSchema = Field(default_factory=AccessibilityProfileSchema)
+    profile_id: Optional[str] = Field(None, description="Optional profile ID to use instead of inline profile")
     destination_building_name: Optional[str] = None
 
 
