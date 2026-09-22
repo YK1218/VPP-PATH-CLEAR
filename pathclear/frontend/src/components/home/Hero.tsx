@@ -16,6 +16,9 @@ export default function Hero() {
         </svg>
       </div>
 
+
+      
+
       <div className="relative z-10 w-full max-w-4xl mx-auto flex flex-col items-center text-center">
         
         {/* City Filter Tabs */}
