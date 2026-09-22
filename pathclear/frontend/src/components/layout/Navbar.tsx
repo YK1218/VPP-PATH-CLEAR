@@ -2,12 +2,15 @@
 
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
-import { MapPin, ChevronDown, Check } from "lucide-react";
+import { MapPin, ChevronDown, Check, AlertTriangle } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [activeProfile, setActiveProfile] = useState("Step-Free - Wheelchair");
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+  const isReportPage = pathname === "/report-barrier";
 
   const profiles = [
     "Step-Free - Wheelchair",
@@ -70,6 +73,18 @@ export default function Navbar() {
       {/* Right section: Profile */}
       <div className="flex items-center gap-4">
         
+        {/* Report Change — shown on all pages except /report-barrier itself */}
+        {!isReportPage && (
+          <Link
+            href="/report-barrier"
+            className="hidden sm:flex items-center gap-1.5 text-amber-600 hover:text-amber-700 hover:bg-amber-50 border border-amber-200 hover:border-amber-300 px-3 py-1.5 rounded-full text-xs font-bold transition-colors focus-visible:outline-pathclear-primary"
+            aria-label="Report a barrier or change"
+          >
+            <AlertTriangle size={14} strokeWidth={2.5} />
+            Report Change
+          </Link>
+        )}
+
         <div className="relative hidden sm:block" ref={dropdownRef}>
           <button 
             onClick={() => setIsProfileOpen(!isProfileOpen)}

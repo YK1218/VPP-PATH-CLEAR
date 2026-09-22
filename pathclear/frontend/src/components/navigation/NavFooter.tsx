@@ -1,4 +1,4 @@
-import { Building2, Split, X } from "lucide-react";
+import { Building2, Split, X, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 
 interface NavFooterProps {
@@ -44,6 +44,13 @@ export default function NavFooter({ eta, timeRemaining, distance, entranceName }
             <Split size={16} className="-scale-x-100" />
             Avoid & Recalculate
           </button>
+          <Link
+            href="/report-barrier"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 px-4 py-2.5 rounded-lg text-sm font-bold transition-colors shadow-sm focus-visible:outline-white"
+          >
+            <AlertTriangle size={16} strokeWidth={2.5} />
+            Report Change
+          </Link>
           <Link href="/arrival" className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-colors shadow-sm focus-visible:outline-white text-center">
             Arriving Soon
           </Link>

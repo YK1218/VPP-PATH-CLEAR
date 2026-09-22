@@ -292,15 +292,24 @@ function DestinationSpecsCard({ data }: { data: ArrivalData["destinationSpecs"] 
 
         {/* Secondary Actions - Added glow */}
         <div className="grid grid-cols-2 gap-3">
-          {data.ctaSecondary.map((action, i) => (
-            <button
-              key={i}
-              className="w-full h-11 rounded-xl bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 font-semibold text-sm flex items-center justify-center gap-2 hover:shadow-md hover:scale-[1.01] transition-all duration-200 focus-visible:outline-emerald-500"
-            >
-              {action.icon}
-              {action.label}
-            </button>
-          ))}
+          {data.ctaSecondary.map((action, i) => {
+            const sharedClass =
+              "w-full h-11 rounded-xl bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 font-semibold text-sm flex items-center justify-center gap-2 hover:shadow-md hover:scale-[1.01] transition-all duration-200 focus-visible:outline-emerald-500";
+            if (action.label === "Report Change") {
+              return (
+                <Link key={i} href="/report-barrier" className={sharedClass}>
+                  {action.icon}
+                  {action.label}
+                </Link>
+              );
+            }
+            return (
+              <button key={i} className={sharedClass}>
+                {action.icon}
+                {action.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Bottom Assistance Card - Added glow */}

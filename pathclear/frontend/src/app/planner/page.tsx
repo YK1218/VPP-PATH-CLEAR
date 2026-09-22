@@ -93,7 +93,7 @@ const MOCK_ROUTE_DATA: RoutePreviewData = {
       description: "BKC Approach ramp reaches 2.4% for ~80m. Power-assist recommended.",
     },
   ],
-  navigationTargetId: "bandra-west-station",
+  navigationTargetId: "ent-101",
 };
 
 // Route coordinates: Bandra West (Hill Road) -> Jio World Centre (Gate 2, BKC)
@@ -684,6 +684,15 @@ export default function PlannerPage() {
               Send Route
             </button>
           </div>
+
+          {/* Report Change - tertiary action, full width */}
+          <Link
+            href="/report-barrier"
+            className="w-full flex items-center justify-center gap-2 bg-amber-50 hover:bg-amber-100 text-amber-700 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors border border-amber-200 focus-visible:outline-pathclear-primary"
+          >
+            <AlertTriangle size={16} strokeWidth={2.5} />
+            Report Change on This Route
+          </Link>
         </div>
       </aside>
 
