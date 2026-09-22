@@ -44,6 +44,9 @@ export default function NavFooter({ eta, timeRemaining, distance, entranceName }
             <Split size={16} className="-scale-x-100" />
             Avoid & Recalculate
           </button>
+          <Link href="/arrival" className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-colors shadow-sm focus-visible:outline-white text-center">
+            Arriving Soon
+          </Link>
           <Link href="/" className="flex-1 md:flex-none flex items-center justify-center bg-[#4c5c6d] hover:bg-[#5b6e82] text-white px-6 py-2.5 rounded-lg text-sm font-bold transition-colors shadow-sm focus-visible:outline-white text-center">
             End Route
           </Link>

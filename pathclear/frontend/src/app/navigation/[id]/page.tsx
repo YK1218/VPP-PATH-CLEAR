@@ -6,8 +6,18 @@ import MapControls from "@/components/navigation/MapControls";
 import NavFooter from "@/components/navigation/NavFooter";
 import { notFound } from "next/navigation";
 
-// Mock database
-const navigationData: Record<string, any> = {
+// Type for route coordinates
+type RouteCoordinate = [number, number];
+
+// Mock database with route coordinates for each destination
+const navigationData: Record<string, {
+  destination: string;
+  turnInstruction: any;
+  routeAlert: any;
+  footer: any;
+  routeCoordinates?: RouteCoordinate[];
+  currentPosition?: RouteCoordinate;
+}> = {
   "jio-world-centre": {
     destination: "Jio World Centre, BKC",
     turnInstruction: {
@@ -29,7 +39,16 @@ const navigationData: Record<string, any> = {
       timeRemaining: "4 min remaining",
       distance: "0.3 km",
       entranceName: "Jio World Centre - BKC Gate 2 Entrance (Ramped)",
-    }
+    },
+    // BKC local route (existing)
+    routeCoordinates: [
+      [72.864, 19.064],
+      [72.865, 19.065],
+      [72.8655, 19.066],
+      [72.866, 19.067],
+      [72.868, 19.068],
+    ],
+    currentPosition: [72.8655, 19.066],
   },
   "bkc-metro-station": {
     destination: "BKC Metro Station",
@@ -52,7 +71,17 @@ const navigationData: Record<string, any> = {
       timeRemaining: "2 min remaining",
       distance: "0.1 km",
       entranceName: "BKC Metro Station - Lift A (Operational)",
-    }
+    },
+    // Generated route: BKC area to Metro Station
+    routeCoordinates: [
+      [72.864, 19.064],
+      [72.865, 19.065],
+      [72.8655, 19.066],
+      [72.866, 19.067],
+      [72.867, 19.0675],
+      [72.868, 19.068],
+    ],
+    currentPosition: [72.8655, 19.066],
   },
   "bandra-west-station": {
     destination: "Bandra West Station",
@@ -75,7 +104,18 @@ const navigationData: Record<string, any> = {
       timeRemaining: "8 min remaining",
       distance: "0.5 km",
       entranceName: "Bandra West Station - Platform 1 Ramp",
-    }
+    },
+    // Generated route: Bandra West to BKC area (longer route)
+    routeCoordinates: [
+      [72.8315, 19.0558],  // Bandra West
+      [72.8380, 19.0580],
+      [72.8450, 19.0600],
+      [72.8520, 19.0620],
+      [72.8590, 19.0640],
+      [72.8660, 19.0660],
+      [72.868, 19.068],    // BKC
+    ],
+    currentPosition: [72.8450, 19.0600],
   }
 };
 
@@ -95,7 +135,10 @@ export default async function NavigationPage(props: { params: Promise<{ id: stri
       <NavHeader destination={data.destination} />
 
       {/* 2. Map Background */}
-      <NavMapOverlay />
+      <NavMapOverlay 
+        routeCoordinates={data.routeCoordinates}
+        currentPosition={data.currentPosition}
+      />
 
       {/* 3. Floating Left Card: Turn Instructions */}
       <TurnInstructionCard {...data.turnInstruction} />

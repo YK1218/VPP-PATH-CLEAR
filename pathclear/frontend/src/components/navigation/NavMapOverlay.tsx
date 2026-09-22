@@ -4,12 +4,26 @@ import React, { useEffect, useRef } from "react";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
-export default function NavMapOverlay() {
+// Type for route coordinates
+type RouteCoordinate = [number, number];
+
+interface NavMapOverlayProps {
+  routeCoordinates?: RouteCoordinate[];
+  currentPosition?: RouteCoordinate;
+}
+
+export default function NavMapOverlay({ 
+  routeCoordinates: propsRouteCoordinates, 
+  currentPosition: propsCurrentPosition 
+}: NavMapOverlayProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
+  const animationIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (mapRef.current || !mapContainer.current) return;
+
+    let animationActive = true;
 
     // Initialize MapLibre map with reliable OpenStreetMap raster tiles
     const map = new maplibregl.Map({
@@ -45,8 +59,8 @@ export default function NavMapOverlay() {
     mapRef.current = map;
 
     map.on("load", () => {
-      // Mock Route Coordinates (representing a short path in BKC)
-      const routeCoordinates = [
+      // Use provided coordinates or fallback to default BKC route
+      const routeCoordinates = propsRouteCoordinates ?? [
         [72.864, 19.064],
         [72.865, 19.065],
         [72.8655, 19.066],
@@ -54,63 +68,84 @@ export default function NavMapOverlay() {
         [72.868, 19.068],
       ];
 
-      // Add route source
-      map.addSource("route", {
+      const currentPosition = propsCurrentPosition ?? [72.8655, 19.066];
+
+      // Already-traveled path (start → current position)
+      // If we have enough coordinates, split at current position; otherwise use first 3 points
+      const completedCoords: [number, number][] = routeCoordinates.length >= 3
+        ? routeCoordinates.slice(0, 3)
+        : routeCoordinates;
+
+      // Remaining path (current position → destination)
+      const remainingCoords: [number, number][] = routeCoordinates.length >= 3
+        ? routeCoordinates.slice(2)
+        : routeCoordinates.slice(1);
+
+      // ---- COMPLETED path source (already traveled) ----
+      map.addSource("route-completed", {
         type: "geojson",
         data: {
           type: "Feature",
           properties: {},
-          geometry: {
-            type: "LineString",
-            coordinates: routeCoordinates,
-          },
+          geometry: { type: "LineString", coordinates: completedCoords },
         },
       });
 
-      // Add route shadow layer (for border effect)
+      // Completed path — dimmed, thinner
       map.addLayer({
-        id: "route-shadow",
+        id: "completed-shadow",
         type: "line",
-        source: "route",
-        layout: {
-          "line-join": "round",
-          "line-cap": "round",
-        },
-        paint: {
-          "line-color": "#034f38",
-          "line-width": 16,
-          "line-opacity": 0.2,
+        source: "route-completed",
+        layout: { "line-join": "round", "line-cap": "round" },
+        paint: { "line-color": "#034f38", "line-width": 10, "line-opacity": 0.1 },
+      });
+      map.addLayer({
+        id: "completed-line",
+        type: "line",
+        source: "route-completed",
+        layout: { "line-join": "round", "line-cap": "round" },
+        paint: { "line-color": "#0e9f6e", "line-width": 8, "line-opacity": 0.35 },
+      });
+
+      // ---- REMAINING path source (current → destination) ----
+      map.addSource("route-remaining", {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          properties: {},
+          geometry: { type: "LineString", coordinates: remainingCoords },
         },
       });
 
-      // Add main route layer
+      // Remaining path — bright glow shadow
       map.addLayer({
-        id: "route-line",
+        id: "remaining-glow",
         type: "line",
-        source: "route",
-        layout: {
-          "line-join": "round",
-          "line-cap": "round",
-        },
-        paint: {
-          "line-color": "#0e9f6e",
-          "line-width": 14,
-        },
+        source: "route-remaining",
+        layout: { "line-join": "round", "line-cap": "round" },
+        paint: { "line-color": "#0e9f6e", "line-width": 20, "line-opacity": 0.15, "line-blur": 8 },
       });
 
-      // Add inner dashed line for walking path visual
+      // Remaining path — main bright line
       map.addLayer({
-        id: "route-dash",
+        id: "remaining-line",
         type: "line",
-        source: "route",
-        layout: {
-          "line-join": "round",
-          "line-cap": "round",
-        },
+        source: "route-remaining",
+        layout: { "line-join": "round", "line-cap": "round" },
+        paint: { "line-color": "#0e9f6e", "line-width": 10 },
+      });
+
+      // Remaining path — white dashed overlay for direction
+      map.addLayer({
+        id: "remaining-dash",
+        type: "line",
+        source: "route-remaining",
+        layout: { "line-join": "round", "line-cap": "round" },
         paint: {
           "line-color": "#ffffff",
-          "line-width": 4,
-          "line-dasharray": [1, 2],
+          "line-width": 3,
+          "line-dasharray": [1.5, 2.5],
+          "line-opacity": 0.8,
         },
       });
 
@@ -118,7 +153,7 @@ export default function NavMapOverlay() {
       const startEl = document.createElement("div");
       startEl.className = "w-6 h-6 bg-pathclear-primary border-4 border-white rounded-full shadow-md";
       new maplibregl.Marker({ element: startEl })
-        .setLngLat([72.864, 19.064])
+        .setLngLat(routeCoordinates[0])
         .addTo(map);
 
       // ---- Current Position / Checkpoint Marker ----
@@ -130,7 +165,7 @@ export default function NavMapOverlay() {
       `;
 
       new maplibregl.Marker({ element: currentEl })
-        .setLngLat([72.8655, 19.066])
+        .setLngLat(currentPosition)
         .addTo(map);
 
       // ---- Hazard Point Marker ----
@@ -142,8 +177,10 @@ export default function NavMapOverlay() {
         </div>
       `;
 
+      // Use last coordinate as hazard position (or a point near the end)
+      const hazardPosition = routeCoordinates[Math.min(3, routeCoordinates.length - 1)];
       new maplibregl.Marker({ element: hazardEl })
-        .setLngLat([72.8665, 19.0673])
+        .setLngLat(hazardPosition)
         .addTo(map);
 
       // ---- Destination Marker ----
@@ -155,12 +192,99 @@ export default function NavMapOverlay() {
       `;
 
       new maplibregl.Marker({ element: destEl })
-        .setLngLat([72.868, 19.068])
+        .setLngLat(routeCoordinates[routeCoordinates.length - 1])
         .addTo(map);
+
+      // Fit bounds to show full route
+      const bounds = new maplibregl.LngLatBounds();
+      (routeCoordinates as [number, number][]).forEach((coord) => bounds.extend(coord));
+      map.fitBounds(bounds, { padding: { top: 80, bottom: 80, left: 50, right: 50 }, maxZoom: 16.5 });
+
+      // ---- Animated dot flowing from user to destination ----
+      map.addSource("nav-dot", {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          properties: {},
+          geometry: { type: "Point", coordinates: currentPosition },
+        },
+      });
+
+      // Outer glow ring
+      map.addLayer({
+        id: "nav-dot-glow",
+        type: "circle",
+        source: "nav-dot",
+        paint: {
+          "circle-radius": 14,
+          "circle-color": "#0e9f6e",
+          "circle-opacity": 0.25,
+          "circle-blur": 1,
+        },
+      });
+
+      // Mid ring
+      map.addLayer({
+        id: "nav-dot-mid",
+        type: "circle",
+        source: "nav-dot",
+        paint: {
+          "circle-radius": 7,
+          "circle-color": "#0e9f6e",
+          "circle-opacity": 0.5,
+        },
+      });
+
+      // Inner bright dot
+      map.addLayer({
+        id: "nav-dot-inner",
+        type: "circle",
+        source: "nav-dot",
+        paint: {
+          "circle-radius": 4,
+          "circle-color": "#ffffff",
+          "circle-stroke-color": "#0e9f6e",
+          "circle-stroke-width": 2,
+        },
+      });
+
+      // Animate the dot along the REMAINING path only
+      let dotProgress = 0;
+      const dotSpeed = 0.004;
+      const totalRemaining = remainingCoords.length;
+
+      const animateNavDot = () => {
+        if (!animationActive) return;
+
+        dotProgress += dotSpeed;
+        if (dotProgress >= totalRemaining - 1) dotProgress = 0;
+
+        const segIdx = Math.floor(dotProgress);
+        const segFrac = dotProgress - segIdx;
+        const ptA = remainingCoords[segIdx];
+        const ptB = remainingCoords[Math.min(segIdx + 1, totalRemaining - 1)];
+
+        // Interpolate position
+        const lng = ptA[0] + (ptB[0] - ptA[0]) * segFrac;
+        const lat = ptA[1] + (ptB[1] - ptA[1]) * segFrac;
+
+        const src = map.getSource("nav-dot") as maplibregl.GeoJSONSource;
+        if (src) {
+          src.setData({
+            type: "Feature",
+            properties: {},
+            geometry: { type: "Point", coordinates: [lng, lat] },
+          });
+        }
+
+        requestAnimationFrame(animateNavDot);
+      };
+      animateNavDot();
 
     });
 
     return () => {
+      animationActive = false;
       map.remove();
       mapRef.current = null;
     };
