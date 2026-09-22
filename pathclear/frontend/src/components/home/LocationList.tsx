@@ -82,17 +82,34 @@ export default function LocationList() {
     const dist = formatDistance(entrance.latitude, entrance.longitude);
     const time = formatTime(parseFloat(dist));
     const distanceKm = parseFloat(dist);
-    
+
+    // Infer type from building name: transit for stations/metro/railway
+    const isTransit = entrance.buildingName.toLowerCase().includes("station") ||
+                      entrance.buildingName.toLowerCase().includes("metro") ||
+                      entrance.buildingName.toLowerCase().includes("railway");
+
+    // Determine area/area label from entrance name or building name
+    let subtitle = "";
+    if (entrance.buildingName.includes("Jio")) {
+      subtitle = "BKC, Mumbai";
+    } else if (entrance.buildingName.includes("Bandra Kurla Complex")) {
+      subtitle = "Line 3 Aqua Line";
+    } else if (entrance.buildingName.includes("Bandra West")) {
+      subtitle = "West Accessible Footbridge";
+    } else {
+      subtitle = `Lat: ${entrance.latitude.toFixed(4)}, Lng: ${entrance.longitude.toFixed(4)}`;
+    }
+
     return {
       id: entrance.id,
-      type: "building",
+      type: isTransit ? "transit" : "building",
       title: entrance.buildingName,
       subLocation: entrance.entranceName,
-      subtitle: `Lat: ${entrance.latitude.toFixed(4)}, Lng: ${entrance.longitude.toFixed(4)}`,
+      subtitle,
       badges: [
-        { text: entrance.stepCount === 0 ? "Step-free entrance" : `${entrance.stepCount} step(s)`, isVerified: entrance.stepCount === 0 },
+        { text: entrance.stepCount === 0 ? "Verified step-free ramp" : `${entrance.stepCount} step(s)`, isVerified: entrance.stepCount === 0 },
         { text: entrance.rampAvailable ? `Ramp ${entrance.rampSlopePercent || 3.5}%` : "No ramp", isVerified: entrance.rampAvailable },
-        { text: `${entrance.confidenceScore * 100}% confidence`, isVerified: entrance.confidenceScore > 0.8 },
+        { text: entrance.notes || `${entrance.confidenceScore * 100}% confidence`, isVerified: entrance.confidenceScore > 0.8 },
       ],
       time,
       distance: dist,
@@ -105,7 +122,7 @@ export default function LocationList() {
       {/* List Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xs font-bold text-gray-500 tracking-widest uppercase">
-          Verified Accessible Entrances
+          Verified Accessible Locations in Mumbai
         </h2>
         <div className="flex items-center gap-1.5 text-xs font-bold text-gray-600">
           <span className="w-2 h-2 rounded-full bg-pathclear-secondary animate-pulse"></span>
