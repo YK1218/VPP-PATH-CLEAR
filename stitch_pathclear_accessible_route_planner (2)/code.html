@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>PathClear - Accessible Route Planner</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;1,400&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-container":"#f5fff7","tertiary":"#006948","on-primary":"#ffffff","surface-container-lowest":"#ffffff","error":"#ba1a1a","surface-container-high":"#dce9ff","primary-container":"#008378","surface-container":"#e5eeff","primary-fixed-dim":"#6bd8cb","on-secondary":"#ffffff","primary":"#00685f","inverse-primary":"#6bd8cb","background":"#f8f9ff","surface-bright":"#f8f9ff","on-tertiary":"#ffffff","surface-container-highest":"#d3e4fe","inverse-on-surface":"#eaf1ff","tertiary-container":"#00855d","on-background":"#0b1c30","secondary-container":"#dae2fd","outline-variant":"#bcc9c6","inverse-surface":"#213145","on-error":"#ffffff","on-secondary-fixed-variant":"#3f465c","on-tertiary-fixed":"#002114","on-tertiary-fixed-variant":"#005137","surface-tint":"#006a61","surface-variant":"#d3e4fe","surface-dim":"#cbdbf5","on-secondary-fixed":"#131b2e","outline":"#6d7a77","tertiary-fixed":"#85f8c4","on-primary-container":"#f4fffc","on-primary-fixed-variant":"#005049","surface-container-low":"#eff4ff","primary-fixed":"#89f5e7","tertiary-fixed-dim":"#68dba9","on-error-container":"#93000a","secondary":"#565e74","on-surface":"#0b1c30","on-secondary-container":"#5c647a","on-surface-variant":"#3d4947","on-primary-fixed":"#00201d","surface":"#f8f9ff","secondary-fixed":"#dae2fd","error-container":"#ffdad6","secondary-fixed-dim":"#bec6e0"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"gutter":"1rem","space-lg":"1.5rem","gutter-desktop":"1.5rem","space-xs":"0.25rem","margin-tablet":"1.5rem","space-sm":"0.5rem","margin":"1rem","space-md":"1rem","space-xl":"2rem","margin-desktop":"2.5rem"},fontFamily:{"display-lg":["Atkinson Hyperlegible Next"],"headline-lg":["Atkinson Hyperlegible Next"],"headline-sm":["Atkinson Hyperlegible Next"],"label-lg":["Atkinson Hyperlegible Next"],"body-lg":["Atkinson Hyperlegible Next"],"display-lg-mobile":["Atkinson Hyperlegible Next"],"label-md":["Atkinson Hyperlegible Next"],"body-md":["Atkinson Hyperlegible Next"],"label-sm":["Atkinson Hyperlegible Next"],"body-sm":["Atkinson Hyperlegible Next"],"headline-lg-mobile":["Atkinson Hyperlegible Next"],"headline-md":["Atkinson Hyperlegible Next"]},fontSize:{"display-lg":["3rem",{lineHeight:"3.5rem",letterSpacing:"-0.02em",fontWeight:"700"}],"headline-lg":["2rem",{lineHeight:"2.5rem",letterSpacing:"-0.01em",fontWeight:"700"}],"headline-sm":["1.25rem",{lineHeight:"1.75rem",letterSpacing:"0",fontWeight:"600"}],"label-lg":["1.125rem",{lineHeight:"1.5rem",letterSpacing:"0.02em",fontWeight:"600"}],"body-lg":["1.125rem",{lineHeight:"1.75rem",letterSpacing:"0.01em",fontWeight:"400"}],"display-lg-mobile":["2rem",{lineHeight:"2.5rem",letterSpacing:"-0.01em",fontWeight:"700"}],"label-md":["0.9375rem",{lineHeight:"1.25rem",letterSpacing:"0.02em",fontWeight:"600"}],"body-md":["1rem",{lineHeight:"1.5rem",letterSpacing:"0.01em",fontWeight:"400"}],"label-sm":["0.8125rem",{lineHeight:"1rem",letterSpacing:"0.03em",fontWeight:"700"}],"body-sm":["0.875rem",{lineHeight:"1.25rem",letterSpacing:"0.015em",fontWeight:"400"}],"headline-lg-mobile":["1.5rem",{lineHeight:"2rem",letterSpacing:"0",fontWeight:"700"}],"headline-md":["1.5rem",{lineHeight:"2rem",letterSpacing:"0",fontWeight:"600"}]}}}}</script></head><body class="bg-surface font-body-md text-body-md text-on-surface min-h-screen"><header class="fixed top-0 w-full z-50 bg-surface-container-lowest/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-gutter md:px-margin-tablet lg:px-margin-desktop max-w-[1280px] mx-auto flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md shrink-0"><img alt="PathClear brand logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1UUyQWjhNmm5gX8fuQuJuR6GuA4g-YdkTwHTrOogLYAEYEhLUcBScQGKFTPsFXrgSn73T7wleVkMfI2Dq1zAgH6xfsXr_EXU_jRLuu6VJxY02zC9kKa-WYj3mQ1aM_2J5cIFzmaPc3qwwOLp5Yrrz8uDgupMEe6wm4swxZ67uujdDvg8YILk-JbBAQnghRaFvMBUwKu5cVxmjaQX39F8QPD775XRVD_1TM_YSeHQK7MXZ3Ja9XyPkqbCjFz"/><a class="font-headline-sm text-headline-sm text-on-surface tracking-tight font-bold" data-path="route-planner" href="#">PathClear</a><div class="hidden sm:flex items-center bg-surface-container-low px-space-sm py-1 rounded-lg gap-space-xs"><span class="material-symbols-outlined text-secondary text-sm">location_city</span><label class="sr-only" for="city-switcher">Select Indian City</label><select class="bg-transparent font-label-sm text-label-sm text-on-surface font-semibold focus:outline-none cursor-pointer pr-1" id="city-switcher"><option selected="" value="mumbai">Mumbai</option><option value="delhi">Delhi NCR</option><option value="bengaluru">Bengaluru</option><option value="pune">Pune</option><option value="hyderabad">Hyderabad</option></select></div></div><nav class="hidden lg:flex items-center gap-space-xs p-1 bg-surface-container-low rounded-xl" data-active-classes="bg-primary-container text-on-primary-container font-semibold rounded-lg shadow-sm"><a aria-current="page" class="px-space-md py-2 transition-colors bg-primary-container text-on-primary-container font-semibold rounded-lg shadow-sm" data-path="route-planner" href="#">Route Planner</a><a class="px-space-md py-2 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors rounded-lg" data-path="explore-stations" href="#">Transit Hubs</a><a class="px-space-md py-2 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors rounded-lg" data-path="community-reports" href="#">Obstacle Alerts</a><a class="px-space-md py-2 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors rounded-lg" data-path="city-guides" href="#">Accessibility Guides</a></nav><div class="flex items-center gap-space-sm shrink-0"><div class="flex items-center gap-1.5 px-space-sm py-1.5 bg-surface-container-low rounded-full"><span class="material-symbols-outlined text-primary text-base">accessible</span><span class="font-label-sm text-label-sm text-on-surface font-medium hidden md:inline">Step-Free · Wheelchair</span></div><div class="flex items-center gap-space-xs pl-space-xs"><img alt="User profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1X7sz9PvrSfB-mN06EcVyOeqtC6Q6EMtb-j2pOReEPSZ6ffuwB6im4hDRvneGXeA8vn6xRFBUpRa5S1aMDkIJCLzYahjCELDi3b3D_ds9SQTAsdYcOgBmUO5pNQnMiH5H4zcJZqM8Ntsby5bjhK699fzN68mryaShUygHFYHmPR1t4uvJKoQdHMim1IhNrIAFdkb94EkoTVUUO1MnZ6vSp6h5qeS1HR8CQXwtKLQp_iN1VeFIl5c_sumj6q"/></div></div></div></header><main class="w-full pt-16 bg-surface min-h-[calc(100vh-4rem)]"><div class="flex flex-col w-full">
+<div class="relative w-full h-[calc(100vh-4rem)] overflow-hidden flex">
+<!-- Interactive Vector Cartography Canvas (Bandra West to BKC Corridor) -->
+<div class="absolute inset-0 z-0 bg-surface-container-lowest select-none">
+<!-- Live Map Surface via data-location Google Maps Pipeline with fallback styled SVG Vector Overlay -->
+<div class="absolute inset-0 w-full h-full bg-cover bg-center opacity-30 pointer-events-none" data-location="Bandra Kurla Complex, Mumbai, India" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD6cA7HjAiHLSLwFmZFfROgXqDc0hJtzcr6aAhgtUmWuBeO-lzhTTuBfPYwXo_bq6vWP478BuaelDf8qs66M4JyRaWVfA1Xx9HfLjBH6DVqEZe7Rynw9K5f0fOB9uCcyJ6uGatV_wBLoTZ-dPB97nHLDuXXhoz6ti66dFFeuJdFCOVWsJnWM1yPD0Vb8v9dCWuKr7xaFTiKaqj04GZ11i4r2TWIu_aLsFJrQ9Ye7o3BCTHOCCuXnSEO1w')"></div>
+<!-- High-Precision Styled Vector Overlay for Map Geometry, Streets, Water & Route -->
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="xMidYMid slice" viewbox="0 0 1600 1000" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<filter height="140%" id="routeGlow" width="140%" x="-20%" y="-20%">
+<fedropshadow dx="0" dy="4" flood-color="#00685f" flood-opacity="0.28" stddeviation="6"></fedropshadow>
+</filter>
+<lineargradient id="routeGradient" x1="0%" x2="100%" y1="100%" y2="0%">
+<stop offset="0%" stop-color="#00685f"></stop>
+<stop offset="50%" stop-color="#008378"></stop>
+<stop offset="100%" stop-color="#00a896"></stop>
+</lineargradient>
+<pattern height="40" id="dotGrid" patternunits="userSpaceOnUse" width="40">
+<circle cx="20" cy="20" fill="#d3e4fe" opacity="0.65" r="1"></circle>
+</pattern>
+</defs>
+<!-- Subtle Geodetic Grid -->
+<rect fill="url(#dotGrid)" height="100%" width="100%"></rect>
+<!-- Mahim Creek & Mithi River Realistic Vector Geometries -->
+<path d="M-50,780 C180,720 320,840 520,790 C700,740 820,680 980,690 C1140,700 1320,760 1650,710 L1650,1050 L-50,1050 Z" fill="#dce9ff" opacity="0.75"></path>
+<path d="M680,680 C740,580 820,530 910,480 C1010,430 1150,390 1280,360 L1300,390 C1170,420 1040,460 940,510 C860,550 780,610 730,710 Z" fill="#dce9ff" opacity="0.5"></path>
+<!-- Regional Road Arterials (Muted Tonal Architecture) -->
+<!-- Western Express Highway / SV Road Axis -->
+<path d="M120,-50 L260,320 L410,580 L520,740 L610,950 L640,1050" fill="none" stroke="#eff4ff" stroke-linecap="round" stroke-width="26"></path>
+<path d="M120,-50 L260,320 L410,580 L520,740 L610,950 L640,1050" fill="none" stroke="#d3e4fe" stroke-linecap="round" stroke-width="8"></path>
+<!-- Bandra Sea Link Connector Branch -->
+<path d="M-80,820 C100,750 240,650 380,560" fill="none" stroke="#e5eeff" stroke-linecap="round" stroke-width="14"></path>
+<!-- BKC Main Boulevard (G-Block Avenue) -->
+<path d="M480,520 C640,480 820,440 1040,410 C1240,380 1420,340 1650,320" fill="none" stroke="#eff4ff" stroke-linecap="round" stroke-width="32"></path>
+<path d="M480,520 C640,480 820,440 1040,410 C1240,380 1420,340 1650,320" fill="none" stroke="#d3e4fe" stroke-linecap="round" stroke-width="12"></path>
+<!-- Connecting Urban Grid Roads -->
+<path d="M410,580 C480,530 580,505 710,500 L880,490" fill="none" stroke="#eff4ff" stroke-width="12"></path>
+<path d="M720,240 L760,490 L790,680" fill="none" stroke="#eff4ff" stroke-width="10"></path>
+<path d="M960,200 L990,420 L1020,620" fill="none" stroke="#eff4ff" stroke-width="10"></path>
+<path d="M1200,240 L1210,400 L1230,590" fill="none" stroke="#eff4ff" stroke-width="10"></path>
+<path d="M840,420 L1380,310" fill="none" stroke="#eff4ff" stroke-width="10"></path>
+<!-- District Landmark Footprints (Architectural outlines) -->
+<!-- Bandra Collectorate / Kalanagar -->
+<rect fill="#e5eeff" height="48" opacity="0.8" rx="6" width="90" x="520" y="440"></rect>
+<!-- Asian Heart Institute complex -->
+<rect fill="#e5eeff" height="50" opacity="0.8" rx="6" width="80" x="830" y="430"></rect>
+<!-- Jio World Convention Centre footprint -->
+<rect fill="#dae2fd" height="110" opacity="0.9" rx="12" width="160" x="1160" y="320"></rect>
+<!-- US Consulate -->
+<rect fill="#e5eeff" height="70" opacity="0.8" rx="8" width="100" x="1060" y="440"></rect>
+<!-- Micro-labels for Spatial Orientation -->
+<text class="font-label-sm text-[12px] fill-secondary select-none font-semibold uppercase tracking-wider" x="210" y="430">Bandra West</text>
+<text class="font-label-sm text-[11px] fill-secondary select-none font-semibold uppercase tracking-wider" x="610" y="465">Kalanagar Junction</text>
+<text class="font-label-sm text-[11px] fill-secondary select-none font-semibold uppercase tracking-wider" x="910" y="375">BKC Financial Dist.</text>
+<text class="font-label-sm text-[12px] fill-primary select-none font-bold uppercase tracking-wider" x="1200" y="305">Jio World Centre</text>
+<!-- ========================================== -->
+<!-- THE SINGLE PROMINENT ACCESSIBLE ROUTE LINE -->
+<!-- Path: Bandra Station West -> Kalanagar Tactile Crossing -> BKC Spine -> Jio World Centre Gate 2 -->
+<!-- ========================================== -->
+<!-- Soft Shadow Underlay -->
+<path d="M260,540 C340,530 420,520 540,490 C620,470 690,460 780,450 C920,435 1060,410 1190,375" fill="none" id="accessible-route-shadow" stroke="#00201d" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.08" stroke-width="14"></path>
+<!-- Outer Boundary Track -->
+<path d="M260,540 C340,530 420,520 540,490 C620,470 690,460 780,450 C920,435 1060,410 1190,375" fill="none" id="accessible-route-base" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"></path>
+<!-- Master Teal Active Route Line -->
+<path d="M260,540 C340,530 420,520 540,490 C620,470 690,460 780,450 C920,435 1060,410 1190,375" fill="none" filter="url(#routeGlow)" id="accessible-route" stroke="url(#routeGradient)" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"></path>
+<!-- Directional Flow Chevrons (Animated Dash Sequence) -->
+<path d="M260,540 C340,530 420,520 540,490 C620,470 690,460 780,450 C920,435 1060,410 1190,375" fill="none" opacity="0.95" stroke="#89f5e7" stroke-dasharray="6 22" stroke-dashoffset="0" stroke-linecap="round" stroke-width="2.5">
+<animate attributename="stroke-dashoffset" dur="2.8s" from="140" repeatcount="indefinite" to="0"></animate>
+</path>
+<!-- ANNOTATION 1: START PIN (Bandra West Hill Rd) -->
+<g transform="translate(260, 540)">
+<circle fill="#00685f" opacity="0.12" r="22"></circle>
+<circle fill="#ffffff" filter="url(#routeGlow)" r="12"></circle>
+<circle fill="#00685f" r="6"></circle>
+</g>
+<!-- ANNOTATION 2: KALANAGAR STEP-FREE RAMP MANEUVER (Midpoint) -->
+<g transform="translate(620, 470)">
+<!-- Pulsing Alert Aura -->
+<circle fill="#008378" opacity="0.15" r="14">
+<animate attributename="r" dur="2.4s" repeatcount="indefinite" values="10;18;10"></animate>
+<animate attributename="opacity" dur="2.4s" repeatcount="indefinite" values="0.25;0.05;0.25"></animate>
+</circle>
+<rect fill="#ffffff" filter="url(#routeGlow)" height="28" rx="8" width="28" x="-14" y="-14"></rect>
+<path d="M-6,3 L6,-4 M-6,4 L6,4" stroke="#00685f" stroke-linecap="round" stroke-width="2"></path>
+</g>
+<!-- Floating Annotation Tag for Ramp Maneuver -->
+<g transform="translate(620, 424)">
+<rect fill="#ffffff" filter="url(#routeGlow)" height="26" rx="6" width="140" x="-70" y="-14"></rect>
+<text class="font-label-sm text-[10.5px] fill-on-surface font-bold" text-anchor="middle" x="0" y="3">1:14 Ramp • Zero Curb</text>
+</g>
+<!-- ANNOTATION 3: DESTINATION PIN (Jio World Centre Gate 2) -->
+<g transform="translate(1190, 375)">
+<circle fill="#008378" opacity="0.16" r="28">
+<animate attributename="r" dur="2s" repeatcount="indefinite" values="20;34;20"></animate>
+<animate attributename="opacity" dur="2s" repeatcount="indefinite" values="0.3;0;0.3"></animate>
+</circle>
+<circle fill="#ffffff" filter="url(#routeGlow)" r="18"></circle>
+<circle fill="#008378" r="11"></circle>
+<circle fill="#ffffff" r="4"></circle>
+</g>
+<!-- Floating Destination Callout -->
+<g transform="translate(1190, 320)">
+<rect fill="#0b1c30" filter="url(#routeGlow)" height="30" rx="8" width="164" x="-82" y="-16"></rect>
+<text class="font-label-sm text-[11px] fill-on-primary font-bold tracking-wide" text-anchor="middle" x="0" y="4">Gate 2 Accessible Entry</text>
+</g>
+</svg>
+</div>
+<!-- Map Telemetry Controls (Desktop Right Flank) -->
+<div class="absolute right-margin-desktop top-space-lg z-20 flex flex-col items-end gap-space-sm pointer-events-auto">
+<!-- Live Status Pill -->
+<div class="flex items-center gap-2 px-3.5 py-2 rounded-full bg-surface-container-lowest/95 backdrop-blur-md shadow-md">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-tertiary"></span>
+</span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">Elevators & Tactile Paths Clear</span>
+</div>
+<!-- Quick Map Zoom/Layer Tooling -->
+<div class="flex flex-col rounded-xl bg-surface-container-lowest/95 backdrop-blur-md shadow-md p-1">
+<button aria-label="Zoom in" class="w-11 h-11 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" type="button">
+<span class="material-symbols-outlined text-xl">add</span>
+</button>
+<div class="w-8 h-px bg-surface-container-high mx-auto my-0.5"></div>
+<button aria-label="Zoom out" class="w-11 h-11 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" type="button">
+<span class="material-symbols-outlined text-xl">remove</span>
+</button>
+<div class="w-8 h-px bg-surface-container-high mx-auto my-0.5"></div>
+<button aria-label="Recenter step-free route" class="w-11 h-11 flex items-center justify-center rounded-lg text-primary hover:bg-surface-container-low transition-colors" type="button">
+<span class="material-symbols-outlined text-xl">my_location</span>
+</button>
+</div>
+</div>
+<!-- LEFT FLOATING ROUTE CARD (400px fixed width, pure sleek surface) -->
+<div class="relative z-30 ml-margin-desktop my-space-lg w-[410px] max-h-[calc(100vh-6rem)] flex flex-col justify-between rounded-xl bg-surface-container-lowest/95 backdrop-blur-xl shadow-xl overflow-hidden pointer-events-auto">
+<!-- Card Top Header & Journey Origins -->
+<div class="flex flex-col p-space-lg gap-space-md overflow-y-auto">
+<!-- Header Status & City Metadata -->
+<div class="flex items-center justify-between">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-on-tertiary-container text-tertiary font-label-sm text-label-sm font-bold">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">verified</span>
+            100% Step-Free Route
+          </span>
+<span class="font-body-sm text-body-sm text-secondary">Verified 12 min ago</span>
+</div>
+<!-- Waypoint Segment Display (Origin -> Destination) -->
+<div class="flex gap-space-sm mt-1">
+<!-- Waypoint Timeline Rail -->
+<div class="flex flex-col items-center pt-1.5 shrink-0">
+<div class="w-3.5 h-3.5 rounded-full bg-primary flex items-center justify-center">
+<div class="w-1.5 h-1.5 rounded-full bg-surface-container-lowest"></div>
+</div>
+<div class="w-0.5 h-12 bg-surface-container-high my-1"></div>
+<div class="w-3.5 h-3.5 rounded-full bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[10px] text-on-primary-container">near_me</span>
+</div>
+</div>
+<!-- Waypoint Text Detail -->
+<div class="flex flex-col justify-between gap-3 min-w-0 flex-1">
+<div>
+<p class="font-label-sm text-label-sm text-secondary tracking-wide uppercase">Origin</p>
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Bandra West (Hill Road)</h3>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-secondary tracking-wide uppercase">Destination</p>
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Jio World Centre</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">South Accessible Entrance • Gate 2</p>
+</div>
+</div>
+</div>
+<!-- Transit Metrology Strip -->
+<div class="grid grid-cols-3 gap-space-xs p-space-sm bg-surface-container-low rounded-lg mt-1">
+<div class="flex flex-col p-1 text-center">
+<span class="font-headline-md text-headline-md text-on-surface font-bold">18</span>
+<span class="font-label-sm text-label-sm text-secondary">min total</span>
+</div>
+<div class="flex flex-col p-1 text-center bg-surface-container-lowest rounded-md shadow-sm">
+<span class="font-headline-md text-headline-md text-primary font-bold">3.2</span>
+<span class="font-label-sm text-label-sm text-secondary">km distance</span>
+</div>
+<div class="flex flex-col p-1 text-center">
+<span class="font-headline-md text-headline-md text-tertiary font-bold">2.4%</span>
+<span class="font-label-sm text-label-sm text-secondary">max incline</span>
+</div>
+</div>
+<!-- Incline Profile Sparkline Visualization -->
+<div class="flex flex-col gap-1.5 p-space-sm bg-surface-container-low rounded-lg">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-base text-primary">area_chart</span>
+              Elevation & Slope Profile
+            </span>
+<span class="font-body-sm text-body-sm text-tertiary font-semibold">Max 2.4% • Gentle</span>
+</div>
+<!-- Incline Micro Graph (Strictly below 4% accessibility threshold) -->
+<div class="w-full h-12 relative flex items-end pt-2">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 320 40">
+<!-- Threshold guideline at 4% limit -->
+<line stroke="#bcc9c6" stroke-dasharray="3 3" stroke-width="1" x1="0" x2="320" y1="8" y2="8"></line>
+<!-- Elevation curve -->
+<path d="M0,34 Q40,32 80,30 T160,20 T240,26 T320,33 L320,40 L0,40 Z" fill="#d3e4fe" opacity="0.6"></path>
+<path d="M0,34 Q40,32 80,30 T160,20 T240,26 T320,33" fill="none" stroke="#00685f" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</div>
+<div class="flex justify-between font-label-sm text-[11px] text-secondary">
+<span>Bandra (5m elev)</span>
+<span class="text-tertiary font-medium">Kalanagar Ramp (2.4%)</span>
+<span>BKC (4m elev)</span>
+</div>
+</div>
+<!-- Tactile Paver & Surface Breakdown -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-on-surface font-semibold">Surface Composition</span>
+<span class="text-secondary">Zero Cobblestones</span>
+</div>
+<!-- Segmented Progress Bar -->
+<div class="w-full h-2 rounded-full bg-surface-container-high overflow-hidden flex">
+<div class="h-full bg-primary" style="width: 94%;" title="Smooth tactile pavers (94%)"></div>
+<div class="h-full bg-tertiary-fixed-dim" style="width: 6%;" title="Low-slope ramp (6%)"></div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            Smooth tactile pavers (<strong class="text-on-surface font-semibold">94%</strong>) • Low-slope concrete ramp (<strong class="text-on-surface font-semibold">6%</strong>)
+          </p>
+</div>
+<!-- Physical Entrance Verification Box -->
+<div class="p-space-sm bg-surface-container-low rounded-lg flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-primary text-xl shrink-0 mt-0.5">sensor_door</span>
+<div class="flex flex-col gap-0.5 min-w-0">
+<p class="font-label-sm text-label-sm text-on-surface font-bold">Entrance Guaranteed Step-Free</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-snug">
+              Door B: Automatic sliding doors with flush level threshold. Verified by PathClear community 12 min ago.
+            </p>
+</div>
+</div>
+</div>
+<!-- Card Action Footer (Primary Action & Audio Preview) -->
+<div class="p-space-lg pt-2 bg-surface-container-lowest flex flex-col gap-space-xs">
+<button class="w-full h-[52px] px-space-md rounded-xl bg-primary text-on-primary font-label-lg text-label-lg font-bold flex items-center justify-center gap-space-sm shadow-md hover:bg-primary-container active:scale-[0.99] transition-all focus:outline-none focus:ring-4 focus:ring-primary-fixed" id="start-navigation-btn" type="button">
+<span class="material-symbols-outlined text-xl">navigation</span>
+<span>Start Step-Free Navigation</span>
+</button>
+<div class="flex items-center justify-between px-1">
+<button class="h-11 flex items-center gap-1.5 text-secondary hover:text-on-surface font-label-md text-label-md transition-colors" type="button">
+<span class="material-symbols-outlined text-lg">volume_up</span>
+<span>Audio Preview</span>
+</button>
+<button class="h-11 flex items-center gap-1.5 text-secondary hover:text-on-surface font-label-md text-label-md transition-colors" type="button">
+<span class="material-symbols-outlined text-lg">share</span>
+<span>Send Route</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple micro-interaction for the primary route button
+  document.getElementById('start-navigation-btn')?.addEventListener('click', function() {
+    this.classList.add('scale-[0.98]');
+    const span = this.querySelector('span:last-child');
+    if (span) {
+      const originalText = span.textContent;
+      span.textContent = 'Connecting GPS Telemetry...';
+      setTimeout(() => {
+        span.textContent = 'Active Guidance Running';
+        this.classList.remove('scale-[0.98]');
+      }, 900);
+    }
+  });
+</script></main><footer class="w-full bg-surface-container-lowest shadow-[0_-1px_6px_rgba(0,0,0,0.02)] py-space-xl"><div class="w-full px-gutter md:px-margin-tablet lg:px-margin-desktop max-w-[1280px] mx-auto flex flex-col md:flex-row items-center justify-between gap-space-md text-center md:text-left"><div class="flex flex-col gap-space-xs"><p class="font-label-md text-label-md text-on-surface font-bold">PathClear India</p><p class="font-body-sm text-body-sm text-on-surface-variant">Verified step-free itineraries, incline telemetry, and live elevator updates for urban India.</p></div><div class="flex items-center gap-space-lg"><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="accessibility-policy" href="#">Audit Standards</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="community-reports" href="#">Report Barrier</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="city-guides" href="#">Metro Guides</a></div></div></footer></body></html>

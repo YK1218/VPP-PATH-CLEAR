@@ -31,10 +31,10 @@ export async function fetchEntrances(): Promise<Entrance[]> {
     return [
       {
         id: "ent-101",
-        buildingName: "Civic Center & Library",
-        entranceName: "West Ramp Accessible Entrance",
-        latitude: 37.7792,
-        longitude: -122.4191,
+        buildingName: "Jio World Centre",
+        entranceName: "BKC Gate 2 Accessible Entrance",
+        latitude: 19.068,
+        longitude: 72.868,
         doorType: "push_button",
         stepCount: 0,
         rampAvailable: true,
@@ -76,9 +76,9 @@ export async function fetchHazards(): Promise<Hazard[]> {
         id: "haz-01",
         hazardType: "broken_surface",
         severity: "medium",
-        description: "Uneven sidewalk slabs & tree root buckle causing 2-inch lip.",
-        latitude: 37.7812,
-        longitude: -122.4145,
+        description: "Utility roadworks near the G Block curb cut.",
+        latitude: 19.0673,
+        longitude: 72.8665,
         isActive: true,
         confidenceScore: 0.88,
         verificationCount: 4,
@@ -166,7 +166,18 @@ export async function calculateRoute(
       maxInclinePercent: 3.5,
       segments: [],
       hazardsEnRoute: [],
-      coordinates: [origin, [-122.415, 37.780], destination],
+      coordinates: [
+        origin,
+        [72.8638, 19.0649],
+        [72.8638, 19.0655],
+        [72.8645, 19.0656],
+        [72.8651, 19.0653],
+        [72.8650, 19.0661],
+        [72.8657, 19.0666],
+        [72.8665, 19.0673],
+        [72.8672, 19.0675],
+        destination,
+      ],
     };
   }
 }

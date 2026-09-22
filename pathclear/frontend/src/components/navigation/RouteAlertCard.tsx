@@ -7,6 +7,8 @@ interface RouteAlertCardProps {
   distanceAhead: string;
   question: string;
   travelerImpactCount: number;
+  hazardId?: string;
+  onVerify?: (response: "clear" | "blocked") => void;
 }
 
 export default function RouteAlertCard({
@@ -15,6 +17,7 @@ export default function RouteAlertCard({
   distanceAhead,
   question,
   travelerImpactCount,
+  onVerify,
 }: RouteAlertCardProps) {
   return (
     <div className="absolute top-[96px] right-4 md:right-6 w-full max-w-[340px] bg-white rounded-2xl shadow-xl border border-gray-100 p-5 z-40">
@@ -54,11 +57,17 @@ export default function RouteAlertCard({
 
       {/* Actions */}
       <div className="flex flex-col gap-2 mb-3">
-        <button className="w-full flex items-center justify-center gap-2 bg-green-50 hover:bg-green-100 text-pathclear-primary py-2.5 rounded-lg text-sm font-bold transition-colors border border-green-100">
+        <button 
+          className="w-full flex items-center justify-center gap-2 bg-green-50 hover:bg-green-100 text-pathclear-primary py-2.5 rounded-lg text-sm font-bold transition-colors border border-green-100"
+          onClick={() => onVerify?.("clear")}
+        >
           <CheckCircle2 size={16} strokeWidth={2.5} />
           PATH CLEAR
         </button>
-        <button className="w-full flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 py-2.5 rounded-lg text-sm font-bold transition-colors border border-red-100">
+        <button 
+          className="w-full flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 py-2.5 rounded-lg text-sm font-bold transition-colors border border-red-100"
+          onClick={() => onVerify?.("blocked")}
+        >
           <Ban size={16} strokeWidth={2.5} />
           STILL BLOCKED
         </button>

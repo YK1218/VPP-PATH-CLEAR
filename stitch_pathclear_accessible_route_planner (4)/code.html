@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>PathClear - Accessible Route Planner</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;1,400&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-container":"#f5fff7","tertiary":"#006948","on-primary":"#ffffff","surface-container-lowest":"#ffffff","error":"#ba1a1a","surface-container-high":"#dce9ff","primary-container":"#008378","surface-container":"#e5eeff","primary-fixed-dim":"#6bd8cb","on-secondary":"#ffffff","primary":"#00685f","inverse-primary":"#6bd8cb","background":"#f8f9ff","surface-bright":"#f8f9ff","on-tertiary":"#ffffff","surface-container-highest":"#d3e4fe","inverse-on-surface":"#eaf1ff","tertiary-container":"#00855d","on-background":"#0b1c30","secondary-container":"#dae2fd","outline-variant":"#bcc9c6","inverse-surface":"#213145","on-error":"#ffffff","on-secondary-fixed-variant":"#3f465c","on-tertiary-fixed":"#002114","on-tertiary-fixed-variant":"#005137","surface-tint":"#006a61","surface-variant":"#d3e4fe","surface-dim":"#cbdbf5","on-secondary-fixed":"#131b2e","outline":"#6d7a77","tertiary-fixed":"#85f8c4","on-primary-container":"#f4fffc","on-primary-fixed-variant":"#005049","surface-container-low":"#eff4ff","primary-fixed":"#89f5e7","tertiary-fixed-dim":"#68dba9","on-error-container":"#93000a","secondary":"#565e74","on-surface":"#0b1c30","on-secondary-container":"#5c647a","on-surface-variant":"#3d4947","on-primary-fixed":"#00201d","surface":"#f8f9ff","secondary-fixed":"#dae2fd","error-container":"#ffdad6","secondary-fixed-dim":"#bec6e0"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"gutter":"1rem","space-lg":"1.5rem","gutter-desktop":"1.5rem","space-xs":"0.25rem","margin-tablet":"1.5rem","space-sm":"0.5rem","margin":"1rem","space-md":"1rem","space-xl":"2rem","margin-desktop":"2.5rem"},fontFamily:{"display-lg":["Atkinson Hyperlegible Next"],"headline-lg":["Atkinson Hyperlegible Next"],"headline-sm":["Atkinson Hyperlegible Next"],"label-lg":["Atkinson Hyperlegible Next"],"body-lg":["Atkinson Hyperlegible Next"],"display-lg-mobile":["Atkinson Hyperlegible Next"],"label-md":["Atkinson Hyperlegible Next"],"body-md":["Atkinson Hyperlegible Next"],"label-sm":["Atkinson Hyperlegible Next"],"body-sm":["Atkinson Hyperlegible Next"],"headline-lg-mobile":["Atkinson Hyperlegible Next"],"headline-md":["Atkinson Hyperlegible Next"]},fontSize:{"display-lg":["3rem",{lineHeight:"3.5rem",letterSpacing:"-0.02em",fontWeight:"700"}],"headline-lg":["2rem",{lineHeight:"2.5rem",letterSpacing:"-0.01em",fontWeight:"700"}],"headline-sm":["1.25rem",{lineHeight:"1.75rem",letterSpacing:"0",fontWeight:"600"}],"label-lg":["1.125rem",{lineHeight:"1.5rem",letterSpacing:"0.02em",fontWeight:"600"}],"body-lg":["1.125rem",{lineHeight:"1.75rem",letterSpacing:"0.01em",fontWeight:"400"}],"display-lg-mobile":["2rem",{lineHeight:"2.5rem",letterSpacing:"-0.01em",fontWeight:"700"}],"label-md":["0.9375rem",{lineHeight:"1.25rem",letterSpacing:"0.02em",fontWeight:"600"}],"body-md":["1rem",{lineHeight:"1.5rem",letterSpacing:"0.01em",fontWeight:"400"}],"label-sm":["0.8125rem",{lineHeight:"1rem",letterSpacing:"0.03em",fontWeight:"700"}],"body-sm":["0.875rem",{lineHeight:"1.25rem",letterSpacing:"0.015em",fontWeight:"400"}],"headline-lg-mobile":["1.5rem",{lineHeight:"2rem",letterSpacing:"0",fontWeight:"700"}],"headline-md":["1.5rem",{lineHeight:"2rem",letterSpacing:"0",fontWeight:"600"}]}}}}</script></head><body class="bg-surface font-body-md text-body-md text-on-surface min-h-screen"><header class="fixed top-0 w-full z-50 bg-surface-container-lowest/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-gutter md:px-margin-tablet lg:px-margin-desktop max-w-[1280px] mx-auto flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md shrink-0"><img alt="PathClear brand logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1UUyQWjhNmm5gX8fuQuJuR6GuA4g-YdkTwHTrOogLYAEYEhLUcBScQGKFTPsFXrgSn73T7wleVkMfI2Dq1zAgH6xfsXr_EXU_jRLuu6VJxY02zC9kKa-WYj3mQ1aM_2J5cIFzmaPc3qwwOLp5Yrrz8uDgupMEe6wm4swxZ67uujdDvg8YILk-JbBAQnghRaFvMBUwKu5cVxmjaQX39F8QPD775XRVD_1TM_YSeHQK7MXZ3Ja9XyPkqbCjFz"/><a class="font-headline-sm text-headline-sm text-on-surface tracking-tight font-bold" data-path="route-planner" href="#">PathClear</a><div class="hidden sm:flex items-center bg-surface-container-low px-space-sm py-1 rounded-lg gap-space-xs"><span class="material-symbols-outlined text-secondary text-sm">location_city</span><label class="sr-only" for="city-switcher">Select Indian City</label><select class="bg-transparent font-label-sm text-label-sm text-on-surface font-semibold focus:outline-none cursor-pointer pr-1" id="city-switcher"><option selected="" value="mumbai">Mumbai</option><option value="delhi">Delhi NCR</option><option value="bengaluru">Bengaluru</option><option value="pune">Pune</option><option value="hyderabad">Hyderabad</option></select></div></div><nav class="hidden lg:flex items-center gap-space-xs p-1 bg-surface-container-low rounded-xl" data-active-classes="bg-primary-container text-on-primary-container font-semibold rounded-lg shadow-sm"><a aria-current="page" class="px-space-md py-2 transition-colors bg-primary-container text-on-primary-container font-semibold rounded-lg shadow-sm" data-path="route-planner" href="#">Route Planner</a><a class="px-space-md py-2 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors rounded-lg" data-path="explore-stations" href="#">Transit Hubs</a><a class="px-space-md py-2 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors rounded-lg" data-path="community-reports" href="#">Obstacle Alerts</a><a class="px-space-md py-2 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors rounded-lg" data-path="city-guides" href="#">Accessibility Guides</a></nav><div class="flex items-center gap-space-sm shrink-0"><div class="flex items-center gap-1.5 px-space-sm py-1.5 bg-surface-container-low rounded-full"><span class="material-symbols-outlined text-primary text-base">accessible</span><span class="font-label-sm text-label-sm text-on-surface font-medium hidden md:inline">Step-Free · Wheelchair</span></div><div class="flex items-center gap-space-xs pl-space-xs"><img alt="User profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1X7sz9PvrSfB-mN06EcVyOeqtC6Q6EMtb-j2pOReEPSZ6ffuwB6im4hDRvneGXeA8vn6xRFBUpRa5S1aMDkIJCLzYahjCELDi3b3D_ds9SQTAsdYcOgBmUO5pNQnMiH5H4zcJZqM8Ntsby5bjhK699fzN68mryaShUygHFYHmPR1t4uvJKoQdHMim1IhNrIAFdkb94EkoTVUUO1MnZ6vSp6h5qeS1HR8CQXwtKLQp_iN1VeFIl5c_sumj6q"/></div></div></div></header><main class="w-full pt-16 bg-surface min-h-[calc(100vh-4rem)]"><div class="flex flex-col w-full">
+<!-- Subtle Spatial Ambience Background Elements -->
+<div class="relative w-full max-w-[1280px] mx-auto px-gutter md:px-margin-tablet lg:px-margin-desktop py-space-md lg:py-space-lg flex flex-col gap-space-lg">
+<!-- Top Micro-Telemetry Status Banner -->
+<section aria-label="Trip status" class="w-full bg-surface-container-lowest rounded-xl shadow-sm p-space-md flex flex-wrap items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-tertiary-container/15 flex items-center justify-center text-tertiary shrink-0">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-label-sm font-label-sm bg-tertiary/10 text-tertiary">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary mr-1.5 animate-pulse"></span>
+              Live Proximity
+            </span>
+<span class="text-body-sm font-body-sm text-secondary">•</span>
+<span class="text-body-sm font-body-sm font-semibold text-on-surface">Bandit Kurla Complex, G-Block</span>
+</div>
+<h1 class="text-headline-sm font-headline-sm text-on-surface mt-0.5">
+            Arrival ahead — 20 meters to entrance
+          </h1>
+</div>
+</div>
+<div class="flex items-center gap-space-sm bg-surface-container-low px-space-md py-2 rounded-xl">
+<div class="flex flex-col text-right">
+<span class="text-label-sm font-label-sm text-secondary">Elevation Status</span>
+<span class="text-label-md font-label-md text-primary font-bold">100% Step-Free Verified</span>
+</div>
+<div class="w-8 h-8 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined text-lg">accessible_forward</span>
+</div>
+</div>
+</section>
+<!-- Main Spatial Inspection Workspace (Two-Column Master Split) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- Left Column: Micro-Accessibility Interactive Visual View (7 Cols) -->
+<section aria-label="Entrance visual verification" class="lg:col-span-7 flex flex-col gap-space-md">
+<!-- Photographic Canvas with Dimensioned Architectural Callouts -->
+<div class="relative w-full rounded-xl overflow-hidden shadow-md bg-surface-container-high aspect-[16/10] sm:aspect-[16/11]">
+<!-- Real photographic entrance plate -->
+<img alt="Step-free entrance to Jio World Centre BKC featuring low gentle incline ramp with continuous stainless steel handrails, tactile paving, and automated sliding wide glass portal doors" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAn2evlrdzmcD4Va2gllDfof6TBYghKgAVhWBzkAIO1re5PvZd46kiwPx_Kr2APbPO0mv8_K2Iodb37opTWnrUzkcvNJXaSIRNfyTyWXg8NF4i0_9z6F5CWA2u5-ij0Ag1HiRdQKTC95h2RiGBgE6cKDKRVE2qkqghBBIU6Q6RA2TqzKrP4UvwMQ4KvNL8eVPanDgG07tebtZlSuZLHF_yb39l2l6-iAUpMehv4HGN5TV-WCZsNuqbdMQ"/>
+<!-- Spatial Scrim for contrast overlay -->
+<div class="absolute inset-0 bg-gradient-to-t from-on-background/80 via-transparent to-on-background/30 pointer-events-none"></div>
+<!-- Top-Left Badge: Target Location Anchor -->
+<div class="absolute top-4 left-4 z-10 flex items-center gap-2 bg-surface-container-lowest/95 backdrop-blur-md px-3 py-1.5 rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-primary text-base">pin_drop</span>
+<span class="text-label-sm font-label-sm text-on-surface">South Pavilion Gate · Ground Level</span>
+</div>
+<!-- Top-Right Compass / Sensor Tag -->
+<div class="absolute top-4 right-4 z-10 flex items-center gap-1.5 bg-surface-container-lowest/95 backdrop-blur-md px-3 py-1.5 rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-tertiary text-base" style="font-variation-settings: 'FILL' 1;">my_location</span>
+<span class="text-label-sm font-label-sm text-on-surface font-semibold">Sensor Lock 0.4m Precision</span>
+</div>
+<!-- Dimension Pin 1: Automatic Doorway (Upper Right Focus) -->
+<div class="absolute top-[28%] right-[14%] z-20 group">
+<div class="flex items-center gap-1.5 bg-surface-container-lowest text-on-surface px-2.5 py-1.5 rounded-lg shadow-lg cursor-pointer transform hover:scale-105 transition-all">
+<span class="w-2.5 h-2.5 rounded-full bg-primary animate-ping absolute"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-primary relative"></span>
+<span class="text-label-sm font-label-sm font-bold tracking-tight">Door B: 42.0″ Clear</span>
+</div>
+<!-- Expanded Micro-Tooltip on hover/focus -->
+<div class="hidden group-hover:flex flex-col gap-0.5 absolute right-0 top-full mt-1.5 w-56 bg-surface-container-lowest p-2.5 rounded-lg shadow-xl text-body-sm font-body-sm text-on-surface z-30">
+<p class="font-semibold text-primary">Automatic Sliding Portal</p>
+<p class="text-secondary text-xs leading-relaxed">Wide sensor cone triggers 2.4m prior to arrival. Secondary low-push button at 34" height.</p>
+</div>
+</div>
+<!-- Dimension Pin 2: Gentle Incline Ramp (Center Bottom Alignment) -->
+<div class="absolute bottom-[36%] left-[34%] z-20 group">
+<div class="flex items-center gap-1.5 bg-surface-container-lowest text-on-surface px-2.5 py-1.5 rounded-lg shadow-lg cursor-pointer transform hover:scale-105 transition-all">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="text-label-sm font-label-sm font-bold tracking-tight">Ramp: 2.1% Slope</span>
+</div>
+<div class="hidden group-hover:flex flex-col gap-0.5 absolute left-0 bottom-full mb-1.5 w-60 bg-surface-container-lowest p-2.5 rounded-lg shadow-xl text-body-sm font-body-sm text-on-surface z-30">
+<p class="font-semibold text-tertiary">ADA & Harmonised Guidelines Compliant</p>
+<p class="text-secondary text-xs leading-relaxed">Cast-in-place grooved concrete anti-skid surface. Dual-tier stainless handrails at 700mm & 900mm.</p>
+</div>
+</div>
+<!-- Dimension Pin 3: Flush Threshold (Door Threshold Level) -->
+<div class="absolute bottom-[24%] right-[22%] z-20 group">
+<div class="flex items-center gap-1.5 bg-surface-container-lowest text-on-surface px-2.5 py-1.5 rounded-lg shadow-lg cursor-pointer transform hover:scale-105 transition-all">
+<span class="material-symbols-outlined text-primary text-sm">straighten</span>
+<span class="text-label-sm font-label-sm font-bold tracking-tight">Threshold: 0.0″ Flush</span>
+</div>
+<div class="hidden group-hover:flex flex-col gap-0.5 absolute right-0 bottom-full mb-1.5 w-52 bg-surface-container-lowest p-2.5 rounded-lg shadow-xl text-body-sm font-body-sm text-on-surface z-30">
+<p class="font-semibold text-on-surface">Seamless Transition</p>
+<p class="text-secondary text-xs leading-relaxed">No weather lip or vertical step. Zero jolt for rigid wheelchairs or motorized mobility scooters.</p>
+</div>
+</div>
+<!-- Dimension Pin 4: Tactile Guidance Tiles (Bottom Foreground) -->
+<div class="absolute bottom-4 left-[24%] z-20 group">
+<div class="flex items-center gap-1.5 bg-surface-container-lowest text-on-surface px-3 py-1.5 rounded-lg shadow-lg cursor-pointer transform hover:scale-105 transition-all">
+<span class="w-2.5 h-2.5 rounded-sm bg-amber-500"></span>
+<span class="text-label-sm font-label-sm font-bold tracking-tight">Tactile Path: Continuous</span>
+</div>
+<div class="hidden group-hover:flex flex-col gap-0.5 absolute left-0 bottom-full mb-1.5 w-64 bg-surface-container-lowest p-2.5 rounded-lg shadow-xl text-body-sm font-body-sm text-on-surface z-30">
+<p class="font-semibold text-amber-700">Directional Tactile Pavers</p>
+<p class="text-secondary text-xs leading-relaxed">Yellow line paving leads unbroken from drop-off lane directly onto the central entrance axis.</p>
+</div>
+</div>
+</div>
+<!-- Telemetry Metrics Strip below Image -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-space-sm">
+<div class="bg-surface-container-lowest rounded-xl p-space-sm shadow-sm flex flex-col justify-between">
+<span class="text-label-sm font-label-sm text-secondary">Clear Width</span>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="text-headline-sm font-headline-sm text-on-surface font-bold">106</span>
+<span class="text-body-sm font-body-sm text-secondary">cm</span>
+</div>
+<span class="text-xs text-tertiary font-semibold mt-0.5">Exceeds standard (+16cm)</span>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-space-sm shadow-sm flex flex-col justify-between">
+<span class="text-label-sm font-label-sm text-secondary">Max Incline</span>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="text-headline-sm font-headline-sm text-on-surface font-bold">1:48</span>
+<span class="text-body-sm font-body-sm text-secondary">grade</span>
+</div>
+<span class="text-xs text-tertiary font-semibold mt-0.5">Gentle 2.1% slope</span>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-space-sm shadow-sm flex flex-col justify-between">
+<span class="text-label-sm font-label-sm text-secondary">Lighting Level</span>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="text-headline-sm font-headline-sm text-on-surface font-bold">420</span>
+<span class="text-body-sm font-body-sm text-secondary">lux</span>
+</div>
+<span class="text-xs text-primary font-semibold mt-0.5">High daylight contrast</span>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-space-sm shadow-sm flex flex-col justify-between">
+<span class="text-label-sm font-label-sm text-secondary">Surface Grip</span>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="text-headline-sm font-headline-sm text-on-surface font-bold">0.82</span>
+<span class="text-body-sm font-body-sm text-secondary">COF</span>
+</div>
+<span class="text-xs text-tertiary font-semibold mt-0.5">Dry/Wet certified high-traction</span>
+</div>
+</div>
+</section>
+<!-- Right Column: Entrance Intelligence & Guided Actions (5 Cols) -->
+<section aria-label="Entrance guidance and arrival details" class="lg:col-span-5 flex flex-col gap-space-md">
+<!-- Primary Hub Info Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<!-- Venue Header & Verification Stamp -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="px-2.5 py-0.5 rounded-md text-label-sm font-label-sm bg-primary-container/10 text-primary font-semibold">
+                Destination Portal
+              </span>
+<span class="text-body-sm font-body-sm text-secondary">•</span>
+<span class="text-body-sm font-body-sm text-secondary">Gate 4</span>
+</div>
+<h2 class="text-headline-md font-headline-md text-on-surface font-bold tracking-tight">
+              Jio World Centre — South Accessible Entrance
+            </h2>
+<!-- Live Verification Pill -->
+<div class="mt-1 flex items-start gap-2 bg-surface-container-low p-2.5 rounded-lg">
+<span class="material-symbols-outlined text-tertiary text-lg shrink-0 mt-0.5" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div class="flex flex-col">
+<span class="text-label-sm font-label-sm text-on-surface font-bold">
+                  Verified 12 min ago · High Confidence
+                </span>
+<span class="text-body-sm font-body-sm text-on-surface-variant text-xs">
+                  Physical confirmation by Mumbai Path Steward (Priya S.). Ramp clearance free of delivery bins.
+                </span>
+</div>
+</div>
+</div>
+<!-- Micro-Wayfinding Specifics Checklist -->
+<div class="flex flex-col gap-space-sm">
+<span class="text-label-sm font-label-sm text-secondary uppercase tracking-wider">Arrival Specifications</span>
+<div class="flex items-start gap-3 p-2.5 bg-surface-container-low/70 rounded-lg">
+<div class="w-8 h-8 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary shrink-0 shadow-xs">
+<span class="material-symbols-outlined text-lg">sensors</span>
+</div>
+<div class="flex flex-col">
+<span class="text-label-md font-label-md text-on-surface font-bold">Touchless Motion Sensor Access</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">Dual radar triggers 8 ft out; low actuator push plate situated 34" above finished floor.</span>
+</div>
+</div>
+<div class="flex items-start gap-3 p-2.5 bg-surface-container-low/70 rounded-lg">
+<div class="w-8 h-8 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary shrink-0 shadow-xs">
+<span class="material-symbols-outlined text-lg">door_sliding</span>
+</div>
+<div class="flex flex-col">
+<span class="text-label-md font-label-md text-on-surface font-bold">Security Wide-Gate #1 Dedicated</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">1,100mm power-chair security aisle on direct left inside foyer. No turnstile barrier.</span>
+</div>
+</div>
+<div class="flex items-start gap-3 p-2.5 bg-surface-container-low/70 rounded-lg">
+<div class="w-8 h-8 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary shrink-0 shadow-xs">
+<span class="material-symbols-outlined text-lg">elevator</span>
+</div>
+<div class="flex flex-col">
+<span class="text-label-md font-label-md text-on-surface font-bold">Concourse Elevator 15m Inside</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">Braille & tactile button elevators servicing Convention Halls 1–3 and Level 2 parking.</span>
+</div>
+</div>
+</div>
+<!-- Audio Wayfinding / Speech Orientation Snippet -->
+<div class="bg-surface-container-low p-3 rounded-xl flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">volume_up</span>
+<span class="text-label-sm font-label-sm text-on-surface font-bold">Audio Orientation Guide</span>
+</div>
+<span class="text-body-sm font-body-sm text-secondary text-xs">0:28 sec</span>
+</div>
+<!-- Accessible Waveform / Interactive Player Simulation -->
+<div class="flex items-center gap-2 bg-surface-container-lowest px-3 py-2 rounded-lg">
+<button aria-label="Play entrance audio guide" class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center hover:bg-primary-container transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1" id="audio-play-btn" onclick="toggleAudioGuide()">
+<span class="material-symbols-outlined text-xl" id="audio-icon" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<div class="flex-1 flex items-center gap-1 h-6 px-2">
+<span class="w-1 h-3 bg-primary/40 rounded-full"></span>
+<span class="w-1 h-4 bg-primary rounded-full"></span>
+<span class="w-1 h-6 bg-primary rounded-full"></span>
+<span class="w-1 h-3 bg-primary/50 rounded-full"></span>
+<span class="w-1 h-5 bg-primary rounded-full"></span>
+<span class="w-1 h-2 bg-primary/40 rounded-full"></span>
+<span class="w-1 h-6 bg-primary rounded-full"></span>
+<span class="w-1 h-4 bg-primary rounded-full"></span>
+<span class="w-1 h-3 bg-primary/60 rounded-full"></span>
+<span class="w-1 h-5 bg-primary rounded-full"></span>
+<span class="w-1 h-2 bg-primary/30 rounded-full"></span>
+<span class="w-1 h-4 bg-primary/40 rounded-full"></span>
+<span class="w-1 h-5 bg-primary/50 rounded-full"></span>
+<span class="w-1 h-3 bg-primary/30 rounded-full"></span>
+</div>
+<span class="text-label-sm font-label-sm text-secondary font-medium text-xs" id="audio-status-label">Listen</span>
+</div>
+</div>
+<!-- Trip Completion & Action Button Grid -->
+<div class="flex flex-col gap-space-sm pt-space-xs">
+<button class="w-full h-[52px] bg-primary text-on-primary rounded-xl font-label-lg text-label-lg flex items-center justify-center gap-2 hover:bg-primary-container shadow-md active:scale-[0.99] transition-all focus:outline-none focus:ring-4 focus:ring-primary/20" id="arrived-btn" onclick="handleArrivalConfirm()">
+<span class="material-symbols-outlined text-xl">check_circle</span>
+<span>Arrived at Door • Complete Trip</span>
+</button>
+<div class="grid grid-cols-2 gap-space-sm">
+<button class="h-[48px] bg-surface-container-lowest text-on-surface font-label-md text-label-md rounded-xl shadow-sm hover:bg-surface-container-low flex items-center justify-center gap-1.5 transition-colors" onclick="shareEntrancePin()">
+<span class="material-symbols-outlined text-lg">share_location</span>
+<span>Share Exact Pin</span>
+</button>
+<button class="h-[48px] bg-surface-container-lowest text-on-surface font-label-md text-label-md rounded-xl shadow-sm hover:bg-surface-container-low flex items-center justify-center gap-1.5 transition-colors" onclick="reportObstacleModal()">
+<span class="material-symbols-outlined text-secondary text-lg">flag</span>
+<span>Report Change</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Venue Micro-Contact & Concierge Direct Assist -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container shrink-0">
+<span class="material-symbols-outlined text-xl">support_agent</span>
+</div>
+<div class="flex flex-col">
+<span class="text-label-md font-label-md text-on-surface font-bold">Jio World Centre Accessibility Desk</span>
+<span class="text-body-sm font-body-sm text-secondary">Direct Wheelchair Escort Assistance</span>
+</div>
+</div>
+<a class="px-3.5 py-2 rounded-lg bg-surface-container-high hover:bg-secondary-container text-on-surface text-label-sm font-label-sm font-bold transition-colors flex items-center gap-1" href="tel:+912235471000">
+<span class="material-symbols-outlined text-base">call</span>
+<span>Dial Desk</span>
+</a>
+</div>
+</section>
+</div>
+<!-- Arrival Confirmation Toast Notification (Hidden by default) -->
+<div class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none max-w-sm w-full bg-surface-container-lowest shadow-xl rounded-xl p-space-md flex items-center gap-3 border-l-4 border-primary" id="arrival-toast">
+<div class="w-10 h-10 rounded-full bg-tertiary-container/20 text-tertiary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-2xl">verified</span>
+</div>
+<div class="flex flex-col">
+<span class="text-label-md font-label-md text-on-surface font-bold">Itinerary Completed</span>
+<span class="text-body-sm font-body-sm text-secondary">Step-free route log recorded. Thank you for using PathClear!</span>
+</div>
+</div>
+</div>
+</div>
+<script>
+  function toggleAudioGuide() {
+    const playBtn = document.getElementById('audio-play-btn');
+    const icon = document.getElementById('audio-icon');
+    const label = document.getElementById('audio-status-label');
+    
+    if (icon.textContent === 'play_arrow') {
+      icon.textContent = 'pause';
+      label.textContent = 'Playing...';
+      label.classList.add('text-primary');
+    } else {
+      icon.textContent = 'play_arrow';
+      label.textContent = 'Listen';
+      label.classList.remove('text-primary');
+    }
+  }
+
+  function handleArrivalConfirm() {
+    const toast = document.getElementById('arrival-toast');
+    const arrivedBtn = document.getElementById('arrived-btn');
+    
+    arrivedBtn.innerHTML = `
+      <span class="material-symbols-outlined text-xl text-on-primary">task_alt</span>
+      <span>Arrived! Trip Archived</span>
+    `;
+    arrivedBtn.classList.replace('bg-primary', 'bg-tertiary');
+    
+    toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+    toast.classList.add('translate-y-0', 'opacity-100');
+
+    setTimeout(() => {
+      toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+      toast.classList.remove('translate-y-0', 'opacity-100');
+    }, 4500);
+  }
+
+  function shareEntrancePin() {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText('https://pathclear.in/geo?venue=jio-world-centre&entrance=south-accessible-gate4');
+      const shareBtn = event.currentTarget;
+      const originalHtml = shareBtn.innerHTML;
+      shareBtn.innerHTML = `
+        <span class="material-symbols-outlined text-tertiary text-lg">check</span>
+        <span class="text-tertiary font-bold">Link Copied!</span>
+      `;
+      setTimeout(() => {
+        shareBtn.innerHTML = originalHtml;
+      }, 2500);
+    }
+  }
+
+  function reportObstacleModal() {
+    alert('Thank you. Opening Path Steward real-time verification form for Jio World Centre South Entrance.');
+  }
+</script></main><footer class="w-full bg-surface-container-lowest shadow-[0_-1px_6px_rgba(0,0,0,0.02)] py-space-xl"><div class="w-full px-gutter md:px-margin-tablet lg:px-margin-desktop max-w-[1280px] mx-auto flex flex-col md:flex-row items-center justify-between gap-space-md text-center md:text-left"><div class="flex flex-col gap-space-xs"><p class="font-label-md text-label-md text-on-surface font-bold">PathClear India</p><p class="font-body-sm text-body-sm text-on-surface-variant">Verified step-free itineraries, incline telemetry, and live elevator updates for urban India.</p></div><div class="flex items-center gap-space-lg"><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="accessibility-policy" href="#">Audit Standards</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="community-reports" href="#">Report Barrier</a><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="city-guides" href="#">Metro Guides</a></div></div></footer></body></html>

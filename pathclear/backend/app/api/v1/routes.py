@@ -16,8 +16,15 @@ router = APIRouter(prefix="/routes", tags=["Routes"])
 @router.post("/calculate", response_model=RouteResponse)
 def calculate_route(route_req: RouteRequest, db: Session = Depends(get_db)):
     """Calculate an accessibility-scored route leading directly to the accessible doorway."""
-    # Find matching entrance if building specified, or pick nearest demo entrance
-    target_entrance = MOCK_ENTRANCES[0]
+    # Match the requested Mumbai destination to the closest known accessible entrance.
+    destination_lng, destination_lat = route_req.destination
+    target_entrance = min(
+        MOCK_ENTRANCES,
+        key=lambda entrance: (
+            (entrance.longitude - destination_lng) ** 2
+            + (entrance.latitude - destination_lat) ** 2
+        ),
+    )
     return compute_accessible_route(
         request=route_req,
         target_entrance=target_entrance,

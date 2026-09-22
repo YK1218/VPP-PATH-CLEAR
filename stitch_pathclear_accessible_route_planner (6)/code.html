@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;0,700;1,400;1,700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#f8f9ff;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-tertiary-container":"#f5fff7","tertiary":"#006948","on-primary":"#ffffff","surface-container-lowest":"#ffffff","error":"#ba1a1a","surface-container-high":"#dce9ff","primary-container":"#008378","surface-container":"#e5eeff","primary-fixed-dim":"#6bd8cb","on-secondary":"#ffffff","primary":"#00685f","inverse-primary":"#6bd8cb","background":"#f8f9ff","surface-bright":"#f8f9ff","on-tertiary":"#ffffff","surface-container-highest":"#d3e4fe","inverse-on-surface":"#eaf1ff","tertiary-container":"#00855d","on-background":"#0b1c30","secondary-container":"#dae2fd","outline-variant":"#bcc9c6","inverse-surface":"#213145","on-error":"#ffffff","on-secondary-fixed-variant":"#3f465c","on-tertiary-fixed":"#002114","on-tertiary-fixed-variant":"#005137","surface-tint":"#006a61","surface-variant":"#d3e4fe","surface-dim":"#cbdbf5","on-secondary-fixed":"#131b2e","outline":"#6d7a77","tertiary-fixed":"#85f8c4","on-primary-container":"#f4fffc","on-primary-fixed-variant":"#005049","surface-container-low":"#eff4ff","primary-fixed":"#89f5e7","tertiary-fixed-dim":"#68dba9","on-error-container":"#93000a","secondary":"#565e74","on-surface":"#0b1c30","on-secondary-container":"#5c647a","on-surface-variant":"#3d4947","on-primary-fixed":"#00201d","surface":"#f8f9ff","secondary-fixed":"#dae2fd","error-container":"#ffdad6","secondary-fixed-dim":"#bec6e0"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"gutter":"1rem","space-lg":"1.5rem","gutter-desktop":"1.5rem","space-xs":"0.25rem","margin-tablet":"1.5rem","space-sm":"0.5rem","margin":"1rem","space-md":"1rem","space-xl":"2rem","margin-desktop":"2.5rem"},fontFamily:{"display-lg":["Atkinson Hyperlegible Next"],"headline-lg":["Atkinson Hyperlegible Next"],"headline-sm":["Atkinson Hyperlegible Next"],"label-lg":["Atkinson Hyperlegible Next"],"body-lg":["Atkinson Hyperlegible Next"],"display-lg-mobile":["Atkinson Hyperlegible Next"],"label-md":["Atkinson Hyperlegible Next"],"body-md":["Atkinson Hyperlegible Next"],"label-sm":["Atkinson Hyperlegible Next"],"body-sm":["Atkinson Hyperlegible Next"],"headline-lg-mobile":["Atkinson Hyperlegible Next"],"headline-md":["Atkinson Hyperlegible Next"]},fontSize:{"display-lg":["3rem",{"lineHeight":"3.5rem","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-lg":["2rem",{"lineHeight":"2.5rem","letterSpacing":"-0.01em","fontWeight":"700"}],"headline-sm":["1.25rem",{"lineHeight":"1.75rem","letterSpacing":"0","fontWeight":"600"}],"label-lg":["1.125rem",{"lineHeight":"1.5rem","letterSpacing":"0.02em","fontWeight":"600"}],"body-lg":["1.125rem",{"lineHeight":"1.75rem","letterSpacing":"0.01em","fontWeight":"400"}],"display-lg-mobile":["2rem",{"lineHeight":"2.5rem","letterSpacing":"-0.01em","fontWeight":"700"}],"label-md":["0.9375rem",{"lineHeight":"1.25rem","letterSpacing":"0.02em","fontWeight":"600"}],"body-md":["1rem",{"lineHeight":"1.5rem","letterSpacing":"0.01em","fontWeight":"400"}],"label-sm":["0.8125rem",{"lineHeight":"1rem","letterSpacing":"0.03em","fontWeight":"700"}],"body-sm":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"0.015em","fontWeight":"400"}],"headline-lg-mobile":["1.5rem",{"lineHeight":"2rem","letterSpacing":"0","fontWeight":"700"}],"headline-md":["1.5rem",{"lineHeight":"2rem","letterSpacing":"0","fontWeight":"600"}]}}}};</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased flex flex-col min-h-screen"><header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe"><div class="h-16 px-gutter flex items-center justify-between"><div class="flex items-center gap-space-sm"><img alt="Brand logo. - Primary color: #0d9488
+- Font: atkinsonHyperlegibleNext
+- Mode: light
+- Roundness: rounded-md
+" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1UUyQWjhNmm5gX8fuQuJuR6GuA4g-YdkTwHTrOogLYAEYEhLUcBScQGKFTPsFXrgSn73T7wleVkMfI2Dq1zAgH6xfsXr_EXU_jRLuu6VJxY02zC9kKa-WYj3mQ1aM_2J5cIFzmaPc3qwwOLp5Yrrz8uDgupMEe6wm4swxZ67uujdDvg8YILk-JbBAQnghRaFvMBUwKu5cVxmjaQX39F8QPD775XRVD_1TM_YSeHQK7MXZ3Ja9XyPkqbCjFz"/><div class="flex flex-col"><span class="font-label-md text-label-md text-on-surface tracking-tight font-bold">PathClear</span><span class="font-label-sm text-label-sm text-primary -mt-1">Map Explore</span></div></div><div class="flex items-center gap-space-xs"><button aria-label="Voice Navigation Assistance" class="w-12 h-12 rounded-full flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/40"><span class="material-symbols-outlined text-2xl">mic</span></button><a class="w-12 h-12 flex items-center justify-center p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/40" data-path="accessibility-settings" href="#"><img alt="Profile" class="w-8 h-8 rounded-full object-cover shadow-[0_1px_3px_rgba(15,23,42,0.08)]" src="https://lh3.googleusercontent.com/aida/AEtjO1X7sz9PvrSfB-mN06EcVyOeqtC6Q6EMtb-j2pOReEPSZ6ffuwB6im4hDRvneGXeA8vn6xRFBUpRa5S1aMDkIJCLzYahjCELDi3b3D_ds9SQTAsdYcOgBmUO5pNQnMiH5H4zcJZqM8Ntsby5bjhK699fzN68mryaShUygHFYHmPR1t4uvJKoQdHMim1IhNrIAFdkb94EkoTVUUO1MnZ6vSp6h5qeS1HR8CQXwtKLQp_iN1VeFIl5c_sumj6q"/></a></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 bg-surface pb-20"><div class="flex flex-col w-full">
+<!-- Subtle Ambient Map Backdrop Layer -->
+<div class="relative w-full overflow-hidden bg-surface-container-low pb-6 pt-2">
+<!-- Stylized route curve backdrop echoing the brand logo aesthetics -->
+<div class="absolute inset-0 pointer-events-none opacity-40">
+<svg class="w-full h-full" fill="none" preserveaspectratio="none" viewbox="0 0 390 280">
+<path d="M-20,180 C80,220 140,80 260,110 C320,125 380,60 410,40" opacity="0.18" stroke="#008378" stroke-linecap="round" stroke-linejoin="round" stroke-width="28"></path>
+<path d="M-20,180 C80,220 140,80 260,110 C320,125 380,60 410,40" opacity="0.35" stroke="#89f5e7" stroke-linecap="round" stroke-linejoin="round" stroke-width="12"></path>
+<circle cx="260" cy="110" fill="#00685f" opacity="0.25" r="16"></circle>
+<circle cx="260" cy="110" fill="#00685f" r="8"></circle>
+<circle cx="45" cy="192" fill="#ffffff" r="10" stroke="#00685f" stroke-width="4"></circle>
+</svg>
+</div>
+<div class="relative z-10 px-margin flex flex-col gap-space-md">
+<!-- City Switcher & Profile Chip Row -->
+<div class="flex items-center justify-between pt-1">
+<div class="relative inline-block text-left">
+<button aria-expanded="false" aria-haspopup="true" class="flex items-center gap-space-xs bg-surface-container-lowest text-on-surface px-space-md py-2.5 rounded-full shadow-sm hover:bg-surface-container transition-colors min-h-[48px] focus:outline-none focus:ring-2 focus:ring-primary" id="citySelectorBtn">
+<span class="material-symbols-outlined text-primary text-xl">location_on</span>
+<span class="font-label-md text-label-md font-bold tracking-tight">Mumbai</span>
+<span class="material-symbols-outlined text-on-surface-variant text-base">expand_more</span>
+</button>
+<!-- Dropdown Menu (Hidden by default) -->
+<div class="hidden absolute left-0 mt-2 w-48 rounded-xl bg-surface-container-lowest shadow-xl z-30 py-2" id="cityMenu">
+<button class="city-option w-full text-left px-4 py-3 font-label-md text-label-md text-primary font-bold bg-surface-container flex items-center justify-between">Mumbai <span class="material-symbols-outlined text-sm">check</span></button>
+<button class="city-option w-full text-left px-4 py-3 font-label-md text-label-md text-on-surface hover:bg-surface-container-low transition-colors">Delhi NCR</button>
+<button class="city-option w-full text-left px-4 py-3 font-label-md text-label-md text-on-surface hover:bg-surface-container-low transition-colors">Bengaluru</button>
+<button class="city-option w-full text-left px-4 py-3 font-label-md text-label-md text-on-surface hover:bg-surface-container-low transition-colors">Pune</button>
+<button class="city-option w-full text-left px-4 py-3 font-label-md text-label-md text-on-surface hover:bg-surface-container-low transition-colors">Hyderabad</button>
+</div>
+</div>
+<!-- Verified Step-Free Status Badge -->
+<div class="flex items-center gap-1.5 bg-tertiary-container text-on-tertiary-container px-3 py-2 rounded-full shadow-sm">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">accessible</span>
+<span class="font-label-sm text-label-sm font-bold tracking-tight">Step-Free Active</span>
+</div>
+</div>
+<!-- Main Headline -->
+<div class="flex flex-col pt-1">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface tracking-tight font-bold">
+          Where are you going?
+        </h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+          Step-free, gradient-checked pathways across the city.
+        </p>
+</div>
+<!-- Tactile Accessible Search Bar -->
+<div class="relative flex items-center bg-surface-container-lowest rounded-xl shadow-md min-h-[56px] px-2.5 transition-all focus-within:shadow-lg focus-within:ring-2 focus-within:ring-primary">
+<span aria-hidden="true" class="material-symbols-outlined text-on-surface-variant ml-2 text-2xl">search</span>
+<input aria-label="Search destination in Mumbai" class="w-full bg-transparent px-3 py-3 font-body-md text-body-md text-on-surface placeholder-on-surface-variant focus:outline-none min-h-[48px]" id="destinationSearchInput" placeholder="Search destination in Mumbai..." type="text"/>
+<button aria-label="Clear text input" class="hidden w-12 h-12 flex items-center justify-center text-on-surface-variant hover:text-on-surface focus:outline-none" id="clearInputBtn">
+<span class="material-symbols-outlined text-xl">close</span>
+</button>
+<button aria-label="Voice input for route search" class="w-12 h-12 flex items-center justify-center rounded-lg bg-surface-container text-primary hover:bg-primary-fixed-dim transition-colors focus:outline-none focus:ring-2 focus:ring-primary ml-1">
+<span class="material-symbols-outlined text-2xl">mic</span>
+</button>
+</div>
+<!-- City Quick Filter Pills -->
+<div aria-label="City Filter options" class="flex items-center gap-2 overflow-x-auto pb-1 pt-1 -mx-margin px-margin no-scrollbar" role="region">
+<button class="filter-pill flex-shrink-0 min-h-[48px] px-5 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold shadow-sm transition-transform active:scale-95 flex items-center justify-center">
+          Mumbai
+        </button>
+<button class="filter-pill flex-shrink-0 min-h-[48px] px-5 rounded-full bg-surface-container-lowest text-on-surface font-label-md text-label-md font-semibold hover:bg-surface-container shadow-sm transition-transform active:scale-95 flex items-center justify-center">
+          Delhi
+        </button>
+<button class="filter-pill flex-shrink-0 min-h-[48px] px-5 rounded-full bg-surface-container-lowest text-on-surface font-label-md text-label-md font-semibold hover:bg-surface-container shadow-sm transition-transform active:scale-95 flex items-center justify-center">
+          Bengaluru
+        </button>
+<button class="filter-pill flex-shrink-0 min-h-[48px] px-5 rounded-full bg-surface-container-lowest text-on-surface font-label-md text-label-md font-semibold hover:bg-surface-container shadow-sm transition-transform active:scale-95 flex items-center justify-center">
+          Pune
+        </button>
+<button class="filter-pill flex-shrink-0 min-h-[48px] px-5 rounded-full bg-surface-container-lowest text-on-surface font-label-md text-label-md font-semibold hover:bg-surface-container shadow-sm transition-transform active:scale-95 flex items-center justify-center">
+          Hyderabad
+        </button>
+</div>
+</div>
+</div>
+<!-- Content Section: Recent Accessible Destinations -->
+<div class="w-full px-margin pt-6 flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">history</span>
+<h2 class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface font-bold">
+          Recent Accessible Destinations
+        </h2>
+</div>
+<button class="font-label-sm text-label-sm font-bold text-primary hover:underline min-h-[48px] px-2 flex items-center">
+        View All
+      </button>
+</div>
+<!-- Destination Cards Stack -->
+<div class="flex flex-col gap-3.5">
+<!-- Card 1: Jio World Centre -->
+<article class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm hover:shadow-md transition-all flex flex-col gap-3">
+<div class="flex items-start justify-between gap-3">
+<div class="flex gap-3 min-w-0">
+<div class="w-12 h-12 rounded-xl bg-tertiary-container/15 text-tertiary flex items-center justify-center flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-2xl">business</span>
+</div>
+<div class="flex flex-col min-w-0">
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate font-bold">
+                Jio World Centre — BKC
+              </h3>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="material-symbols-outlined text-base text-tertiary">check_circle</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant font-medium">Gate 2 Accessible Ramp</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end flex-shrink-0">
+<span class="font-headline-sm text-headline-sm text-primary font-bold">18 min</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">1.4 km</span>
+</div>
+</div>
+<!-- Metric pill strip -->
+<div class="flex items-center flex-wrap gap-2 pt-1">
+<div class="inline-flex items-center gap-1 bg-surface-container px-2.5 py-1 rounded-full text-on-secondary-container font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-sm">close_fullscreen</span>
+<span>Max 1:16 Incline</span>
+</div>
+<div class="inline-flex items-center gap-1 bg-surface-container px-2.5 py-1 rounded-full text-on-secondary-container font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-sm">elevator</span>
+<span>3 Lifts Ready</span>
+</div>
+<div class="inline-flex items-center gap-1 bg-on-tertiary-container/80 text-tertiary px-2.5 py-1 rounded-full font-label-sm text-label-sm ml-auto font-bold">
+            Verified Today
+          </div>
+</div>
+<div class="flex items-center justify-between pt-1">
+<button class="min-h-[48px] px-4 py-2 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md font-bold flex items-center gap-2 hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-lg">alt_route</span>
+            Route Details
+          </button>
+<button class="min-h-[48px] px-5 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-bold flex items-center gap-2 shadow hover:bg-primary-container transition-transform active:scale-95">
+<span class="material-symbols-outlined text-lg">navigation</span>
+            Start
+          </button>
+</div>
+</article>
+<!-- Card 2: BKC Metro Station -->
+<article class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm hover:shadow-md transition-all flex flex-col gap-3">
+<div class="flex items-start justify-between gap-3">
+<div class="flex gap-3 min-w-0">
+<div class="w-12 h-12 rounded-xl bg-secondary-container text-secondary flex items-center justify-center flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-2xl">subway</span>
+</div>
+<div class="flex flex-col min-w-0">
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate font-bold">
+                BKC Metro Station (Aqua Line 3)
+              </h3>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="material-symbols-outlined text-base text-tertiary">check_circle</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant font-medium">Concourse Lifts Active</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end flex-shrink-0">
+<span class="font-headline-sm text-headline-sm text-primary font-bold">12 min</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">850 m</span>
+</div>
+</div>
+<!-- Metric pill strip -->
+<div class="flex items-center flex-wrap gap-2 pt-1">
+<div class="inline-flex items-center gap-1 bg-surface-container px-2.5 py-1 rounded-full text-on-secondary-container font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-sm">stairs</span>
+<span>Tactile Paving</span>
+</div>
+<div class="inline-flex items-center gap-1 bg-surface-container px-2.5 py-1 rounded-full text-on-secondary-container font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-sm">meeting_room</span>
+<span>Wide Gates</span>
+</div>
+<div class="inline-flex items-center gap-1 bg-on-tertiary-container/80 text-tertiary px-2.5 py-1 rounded-full font-label-sm text-label-sm ml-auto font-bold">
+            High Quality
+          </div>
+</div>
+<div class="flex items-center justify-between pt-1">
+<button class="min-h-[48px] px-4 py-2 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md font-bold flex items-center gap-2 hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-lg">alt_route</span>
+            Route Details
+          </button>
+<button class="min-h-[48px] px-5 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-bold flex items-center gap-2 shadow hover:bg-primary-container transition-transform active:scale-95">
+<span class="material-symbols-outlined text-lg">navigation</span>
+            Start
+          </button>
+</div>
+</article>
+<!-- Card 3: Bandra West Station Footbridge -->
+<article class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm hover:shadow-md transition-all flex flex-col gap-3">
+<div class="flex items-start justify-between gap-3">
+<div class="flex gap-3 min-w-0">
+<div class="w-12 h-12 rounded-xl bg-primary-fixed text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-2xl">transfer_within_a_station</span>
+</div>
+<div class="flex flex-col min-w-0">
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate font-bold">
+                Bandra West Station Footbridge
+              </h3>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="material-symbols-outlined text-base text-tertiary">check_circle</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant font-medium">Smooth 1:14 Ramp</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end flex-shrink-0">
+<span class="font-headline-sm text-headline-sm text-primary font-bold">24 min</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">2.1 km</span>
+</div>
+</div>
+<!-- Metric pill strip -->
+<div class="flex items-center flex-wrap gap-2 pt-1">
+<div class="inline-flex items-center gap-1 bg-surface-container px-2.5 py-1 rounded-full text-on-secondary-container font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-sm">crop_square</span>
+<span>Non-Skid Tile</span>
+</div>
+<div class="inline-flex items-center gap-1 bg-surface-container px-2.5 py-1 rounded-full text-on-secondary-container font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-sm">umbrella</span>
+<span>Covered Path</span>
+</div>
+<div class="inline-flex items-center gap-1 bg-secondary-container text-on-secondary-fixed-variant px-2.5 py-1 rounded-full font-label-sm text-label-sm ml-auto font-bold">
+            Monitored
+          </div>
+</div>
+<div class="flex items-center justify-between pt-1">
+<button class="min-h-[48px] px-4 py-2 rounded-lg bg-surface-container text-on-surface font-label-md text-label-md font-bold flex items-center gap-2 hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-lg">alt_route</span>
+            Route Details
+          </button>
+<button class="min-h-[48px] px-5 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-bold flex items-center gap-2 shadow hover:bg-primary-container transition-transform active:scale-95">
+<span class="material-symbols-outlined text-lg">navigation</span>
+            Start
+          </button>
+</div>
+</article>
+</div>
+<!-- Live Crowd Barrier Warning Banner -->
+<div class="bg-surface-container-highest rounded-xl p-space-md flex items-start gap-3 mt-1 shadow-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-lowest text-primary flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+<span class="material-symbols-outlined text-xl">verified_user</span>
+</div>
+<div class="flex flex-col">
+<h4 class="font-label-md text-label-md text-on-surface font-bold">India Accessibility Audit Pass</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+          Curated with local Mumbai community volunteers. 1,420 km of verified curb-free sidewalks updated this week.
+        </p>
+</div>
+</div>
+</div>
+<!-- Sticky Bottom Quick Action Bar -->
+<div class="sticky bottom-0 inset-x-0 bg-surface/95 backdrop-blur-md px-margin py-3 shadow-[0_-6px_20px_rgba(0,0,0,0.06)] mt-6 z-40">
+<div class="flex items-center gap-space-sm max-w-lg mx-auto">
+<!-- Audio Nav Toggle Button -->
+<button aria-label="Toggle Audio Navigation Guidance" class="w-14 h-14 rounded-xl bg-surface-container-lowest text-on-surface hover:text-primary flex flex-col items-center justify-center flex-shrink-0 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary" id="audioNavToggle" title="Voice Navigation Guidance">
+<span class="material-symbols-outlined text-2xl">volume_up</span>
+<span class="font-label-sm text-[10px] leading-tight font-bold text-on-surface-variant">Audio</span>
+</button>
+<!-- Primary Action: Plan Step-Free Route -->
+<button class="flex-1 min-h-[56px] rounded-xl bg-primary text-on-primary font-label-lg text-label-lg font-bold flex items-center justify-center gap-2.5 shadow-lg hover:bg-primary-container transition-transform active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+<span class="material-symbols-outlined text-2xl">alt_route</span>
+<span>Plan Step-Free Route</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  (function() {
+    // City selector dropdown toggle
+    const cityBtn = document.getElementById('citySelectorBtn');
+    const cityMenu = document.getElementById('cityMenu');
+    
+    if (cityBtn && cityMenu) {
+      cityBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = cityMenu.classList.contains('hidden');
+        cityMenu.classList.toggle('hidden', !isHidden);
+        cityBtn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+      });
+
+      document.addEventListener('click', () => {
+        cityMenu.classList.add('hidden');
+        cityBtn.setAttribute('aria-expanded', 'false');
+      });
+
+      const options = cityMenu.querySelectorAll('.city-option');
+      options.forEach(opt => {
+        opt.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const cityName = opt.textContent.replace('check', '').trim();
+          cityBtn.querySelector('span.font-label-md').textContent = cityName;
+          cityMenu.classList.add('hidden');
+          cityBtn.setAttribute('aria-expanded', 'false');
+        });
+      });
+    }
+
+    // Search input clear interaction
+    const searchInput = document.getElementById('destinationSearchInput');
+    const clearBtn = document.getElementById('clearInputBtn');
+
+    if (searchInput && clearBtn) {
+      searchInput.addEventListener('input', () => {
+        if (searchInput.value.trim().length > 0) {
+          clearBtn.classList.remove('hidden');
+        } else {
+          clearBtn.classList.add('hidden');
+        }
+      });
+
+      clearBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        clearBtn.classList.add('hidden');
+        searchInput.focus();
+      });
+    }
+
+    // Audio Nav Toggle State
+    const audioBtn = document.getElementById('audioNavToggle');
+    if (audioBtn) {
+      let isAudioOn = true;
+      audioBtn.addEventListener('click', () => {
+        isAudioOn = !isAudioOn;
+        const icon = audioBtn.querySelector('.material-symbols-outlined');
+        if (isAudioOn) {
+          icon.textContent = 'volume_up';
+          audioBtn.classList.remove('bg-surface-container');
+          audioBtn.classList.add('bg-surface-container-lowest', 'text-primary');
+        } else {
+          icon.textContent = 'volume_off';
+          audioBtn.classList.remove('text-primary');
+          audioBtn.classList.add('bg-surface-container', 'text-on-surface-variant');
+        }
+      });
+    }
+
+    // Horizontal Filter Pills Selection
+    const pills = document.querySelectorAll('.filter-pill');
+    pills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        pills.forEach(p => {
+          p.classList.remove('bg-primary', 'text-on-primary');
+          p.classList.add('bg-surface-container-lowest', 'text-on-surface');
+        });
+        pill.classList.remove('bg-surface-container-lowest', 'text-on-surface');
+        pill.classList.add('bg-primary', 'text-on-primary');
+      });
+    });
+  })();
+</script></main><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-4px_16px_rgba(0,0,0,0.04)]" data-active-classes="text-primary font-bold"><div class="flex justify-around items-center h-16 px-gutter max-w-lg mx-auto"><a aria-current="page" class="flex flex-col items-center justify-center gap-0.5 min-w-[56px] min-h-[48px] transition-colors text-primary font-bold" data-path="map-explore" href="#"><span class="material-symbols-outlined text-2xl">explore</span><span class="font-label-sm text-label-sm">Explore</span></a><a class="flex flex-col items-center justify-center gap-0.5 min-w-[56px] min-h-[48px] text-on-surface-variant hover:text-on-surface transition-colors" data-path="saved-routes" href="#"><span class="material-symbols-outlined text-2xl">bookmark_border</span><span class="font-label-sm text-label-sm">Saved</span></a><a class="flex flex-col items-center justify-center gap-0.5 min-w-[56px] min-h-[48px] text-on-surface-variant hover:text-on-surface transition-colors" data-path="crowd-reports" href="#"><span class="material-symbols-outlined text-2xl">report_problem</span><span class="font-label-sm text-label-sm">Reports</span></a><a class="flex flex-col items-center justify-center gap-0.5 min-w-[56px] min-h-[48px] text-on-surface-variant hover:text-on-surface transition-colors" data-path="transit-stations" href="#"><span class="material-symbols-outlined text-2xl">accessible</span><span class="font-label-sm text-label-sm">Stations</span></a></div></nav></body></html>
