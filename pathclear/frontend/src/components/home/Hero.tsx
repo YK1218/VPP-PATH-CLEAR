@@ -80,13 +80,16 @@ export default function Hero() {
                 body: JSON.stringify({ query })
               });
               const data = await res.json();
-              setAgentResponse(data);
               
-              if (data.action === "SHOW_ROUTE") {
-                router.push("/planner");
+              if (data.action === "SHOW_ROUTE" || (data.message && data.message.includes("Agent Error:"))) {
+                setAgentResponse({ message: "Agent error or quota exceeded. Falling back to default step-free route..." });
+                setTimeout(() => router.push("/planner"), 800);
+              } else {
+                setAgentResponse(data);
               }
             } catch (err) {
-              setAgentResponse({ message: "Failed to connect to the PathClear Agent." });
+              setAgentResponse({ message: "Failed to connect to the PathClear Agent. Falling back to planner..." });
+              setTimeout(() => router.push("/planner"), 1500);
             } finally {
               setIsLoading(false);
             }
