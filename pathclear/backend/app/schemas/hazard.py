@@ -7,3 +7,10 @@ class HazardResponse(BaseModel):
     geometry: Dict[str, Any]
     severity: str
     confidence: float
+
+class HazardReportRequest(BaseModel):
+    type: str
+    lat: float
+    lng: float
+    severity: str
+    description: str = ""

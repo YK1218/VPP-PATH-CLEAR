@@ -6,3 +6,6 @@ pydantic
 pydantic-settings
 python-dotenv
 osmnx
+langgraph
+langchain
+langchain-google-genai

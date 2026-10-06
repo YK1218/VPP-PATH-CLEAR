@@ -1,6 +1,14 @@
-import { Search, Mic, ArrowRight, Activity, Eye, Volume2 } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Search, Mic, ArrowRight, Activity, Eye, Volume2, Loader2, Bot } from "lucide-react";
 
 export default function Hero() {
+  const router = useRouter();
+  const [query, setQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [agentResponse, setAgentResponse] = useState<{message: string, action?: string, payload?: any} | null>(null);
   const cities = ["Mumbai", "Delhi NCR", "Bengaluru", "Pune", "Hyderabad", "Ahmedabad"];
   
   return (
@@ -57,25 +65,94 @@ export default function Hero() {
           Every route verified for elevator reliability, zero curb steps, and continuous ramp gradients.
         </p>
 
-        {/* Search Bar */}
-        <div className="w-full max-w-3xl bg-white rounded-full shadow-md border border-gray-200 p-2 flex items-center mb-6 focus-within:ring-2 focus-within:ring-pathclear-secondary focus-within:border-transparent transition-shadow">
+        {/* Search Form */}
+        <form 
+          onSubmit={async (e) => {
+            e.preventDefault();
+            if (!query.trim()) return;
+            setIsLoading(true);
+            setAgentResponse(null);
+            
+            try {
+              const res = await fetch("http://localhost:8000/api/v1/agent/invoke", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query })
+              });
+              const data = await res.json();
+              setAgentResponse(data);
+              
+              // If action is SHOW_ROUTE, optionally navigate automatically
+              // if (data.action === "SHOW_ROUTE") {
+              //   router.push("/planner");
+              // }
+            } catch (err) {
+              setAgentResponse({ message: "Failed to connect to the PathClear Agent." });
+            } finally {
+              setIsLoading(false);
+            }
+          }}
+          className="w-full max-w-3xl bg-white rounded-full shadow-md border border-gray-200 p-2 flex items-center mb-6 focus-within:ring-2 focus-within:ring-pathclear-secondary focus-within:border-transparent transition-shadow"
+        >
           <div className="pl-4 pr-2 text-pathclear-primary">
             <Search size={20} />
           </div>
           <input 
             type="text" 
-            placeholder="Search an Indian destination, transit station, or building"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="e.g. Find me a step-free route to Jio World Centre"
             className="flex-1 bg-transparent border-none outline-none py-3 text-gray-700 placeholder:text-gray-400 font-medium text-base md:text-lg min-w-0"
             aria-label="Search destination"
           />
-          <button className="p-3 text-pathclear-primary hover:bg-gray-50 rounded-full transition-colors mr-2" aria-label="Voice search">
+          <button type="button" className="p-3 text-pathclear-primary hover:bg-gray-50 rounded-full transition-colors mr-2" aria-label="Voice search">
             <Mic size={20} />
           </button>
-          <button className="bg-pathclear-primary hover:bg-pathclear-secondary text-white px-6 py-3.5 rounded-full font-semibold flex items-center gap-2 transition-colors whitespace-nowrap">
-            Find Route
-            <ArrowRight size={18} />
+          <button 
+            type="submit" 
+            disabled={isLoading}
+            className="bg-pathclear-primary hover:bg-pathclear-secondary text-white px-6 py-3.5 rounded-full font-semibold flex items-center gap-2 transition-colors whitespace-nowrap disabled:opacity-70"
+          >
+            {isLoading ? <Loader2 className="animate-spin" size={18} /> : "Ask AI"}
+            {!isLoading && <ArrowRight size={18} />}
           </button>
-        </div>
+        </form>
+
+        {/* AI Response Display */}
+        {agentResponse && (
+          <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl border border-pathclear-secondary/20 p-6 mb-8 text-left animate-in slide-in-from-bottom-4">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
+                <Bot size={24} />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-gray-900 mb-2">PathClear Agent</h3>
+                <p className="text-gray-700 font-medium whitespace-pre-wrap leading-relaxed">{agentResponse.message}</p>
+                
+                {agentResponse.action === "SHOW_ROUTE" && (
+                  <button 
+                    onClick={() => router.push("/planner")}
+                    className="mt-4 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-colors shadow-lg shadow-emerald-500/30"
+                  >
+                    View Step-Free Route Map
+                    <ArrowRight size={16} />
+                  </button>
+                )}
+                
+                {agentResponse.action === "SHOW_HAZARDS" && agentResponse.payload && (
+                  <div className="mt-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
+                    <p className="font-bold text-amber-800 mb-2">Verified Hazards Found:</p>
+                    <ul className="list-disc pl-5 text-sm text-amber-700 space-y-1">
+                      {agentResponse.payload.map((h: any, i: number) => (
+                        <li key={i}>{h.type.replace("_", " ")} ({h.severity} severity)</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Filter Chips */}
         <div className="flex flex-wrap items-center justify-center gap-3 w-full max-w-3xl">

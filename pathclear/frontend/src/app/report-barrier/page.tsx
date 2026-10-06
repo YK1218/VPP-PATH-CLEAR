@@ -70,21 +70,33 @@ export default function ReportBarrierPage() {
     setToastMessage("Submitting report...");
     setShowToast(true);
     
-    // Mock API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    setIsSubmitting(false);
-    setToastMessage("Barrier reported successfully! Your report helps keep routes step-free.");
-    setShowToast(true);
-    
-    // Reset form after success
-    setTimeout(() => {
-      setSelectedBarrierType("broken-elevator");
-      setSelectedSeverity("critical");
-      setPhotos([]);
-      setObservations("");
-      setShowToast(false);
-    }, 3000);
+    try {
+      const response = await fetch("http://localhost:8000/api/v1/hazards/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: selectedBarrierType,
+          lat: 19.0660,
+          lng: 72.8687,
+          severity: selectedSeverity,
+          description: observations
+        })
+      });
+      if (!response.ok) throw new Error("Failed");
+      
+      setIsSubmitting(false);
+      setToastMessage("Barrier reported successfully! Your report helps keep routes step-free.");
+      setShowToast(true);
+      
+      setTimeout(() => {
+        router.back();
+      }, 2000);
+    } catch (err) {
+      setIsSubmitting(false);
+      setToastMessage("Failed to submit report. Please try again.");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 2000);
+    }
   };
 
   const handleCancel = () => {
