@@ -423,9 +423,8 @@ function ElevationProfileChart({ data }: { data: RoutePreviewData["elevationProf
         <div className="absolute bottom-0 left-0 right-0 p-2 flex justify-between items-end pointer-events-none">
           {segments.slice(1).map((seg, i) => (
             <div key={i} className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 pointer-events-auto" style={{ left: `${((seg.distance + segments[i].distance) / 2 / totalDistance) * 100}%` }}>
-              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded bg-white/90 backdrop-blur shadow-xs border ${
-                seg.incline > 2 ? "text-red-600 border-red-200" : seg.incline > 0 ? "text-amber-600 border-amber-200" : "text-blue-600 border-blue-200"
-              }`}>
+              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded bg-white/90 backdrop-blur shadow-xs border ${seg.incline > 2 ? "text-red-600 border-red-200" : seg.incline > 0 ? "text-amber-600 border-amber-200" : "text-blue-600 border-blue-200"
+                }`}>
                 {seg.incline > 0 ? "+" : ""}{seg.incline.toFixed(1)}%
               </span>
             </div>
