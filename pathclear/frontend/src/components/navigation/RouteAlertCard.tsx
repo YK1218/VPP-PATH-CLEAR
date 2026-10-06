@@ -21,7 +21,7 @@ export default function RouteAlertCard({
 }: RouteAlertCardProps) {
   return (
     <div className="absolute top-[96px] right-4 md:right-6 w-full max-w-[340px] bg-white rounded-2xl shadow-xl border border-gray-100 p-5 z-40">
-      
+
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-1.5 text-[10px] font-black text-red-600 uppercase tracking-widest">
@@ -40,8 +40,8 @@ export default function RouteAlertCard({
 
       {/* Image with Overlay */}
       <div className="relative w-full h-32 rounded-xl overflow-hidden mb-3 bg-gray-200">
-        <img 
-          src="https://images.unsplash.com/photo-1621252179027-94459d278660?q=80&w=600&auto=format&fit=crop" 
+        <img
+          src="https://images.unsplash.com/photo-1621252179027-94459d278660?q=80&w=600&auto=format&fit=crop"
           alt="Roadworks blocking sidewalk"
           className="w-full h-full object-cover"
         />
@@ -57,14 +57,14 @@ export default function RouteAlertCard({
 
       {/* Actions */}
       <div className="flex flex-col gap-2 mb-3">
-        <button 
+        <button
           className="w-full flex items-center justify-center gap-2 bg-green-50 hover:bg-green-100 text-pathclear-primary py-2.5 rounded-lg text-sm font-bold transition-colors border border-green-100"
           onClick={() => onVerify?.("clear")}
         >
           <CheckCircle2 size={16} strokeWidth={2.5} />
           PATH CLEAR
         </button>
-        <button 
+        <button
           className="w-full flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 py-2.5 rounded-lg text-sm font-bold transition-colors border border-red-100"
           onClick={() => onVerify?.("blocked")}
         >
