@@ -1,8 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import * as maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
+import { OSM_RASTER_STYLE, DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM } from "@/lib/map-config";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { 
@@ -48,6 +51,79 @@ export default function ReportBarrierPage() {
   const [selectedSeverity, setSelectedSeverity] = useState<SeverityType>("critical");
   const [photos, setPhotos] = useState<File[]>([]);
   const [observations, setObservations] = useState("");
+  const [coordinates, setCoordinates] = useState<[number, number]>(DEFAULT_MAP_CENTER);
+  const [locationName, setLocationName] = useState("Bandra Kurla Complex (BKC), G Block, Mumbai");
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<maplibregl.Map | null>(null);
+  const markerRef = useRef<maplibregl.Marker | null>(null);
+
+  useEffect(() => {
+    if (mapRef.current || !mapContainerRef.current) return;
+
+    const map = new maplibregl.Map({
+      container: mapContainerRef.current,
+      style: OSM_RASTER_STYLE,
+      center: coordinates,
+      zoom: DEFAULT_MAP_ZOOM,
+      maxZoom: 19,
+      attributionControl: false,
+    });
+    mapRef.current = map;
+
+    const el = document.createElement("div");
+    el.className = "cursor-grab";
+    el.innerHTML = `
+      <div style="filter: drop-shadow(0 4px 8px rgba(0,0,0,0.35));">
+        <div style="background-color: #dc2626; color: white; border-radius: 9999px; border: 2.5px solid white; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+          ⚠️
+        </div>
+      </div>
+    `;
+
+    const marker = new maplibregl.Marker({ element: el, draggable: true })
+      .setLngLat(coordinates)
+      .addTo(map);
+    markerRef.current = marker;
+
+    marker.on("dragend", () => {
+      const lngLat = marker.getLngLat();
+      setCoordinates([lngLat.lng, lngLat.lat]);
+      setLocationName(`Reported Pin (${lngLat.lat.toFixed(4)}° N, ${lngLat.lng.toFixed(4)}° E)`);
+    });
+
+    map.on("click", (e: any) => {
+      marker.setLngLat(e.lngLat);
+      setCoordinates([e.lngLat.lng, e.lngLat.lat]);
+      setLocationName(`Selected Pin (${e.lngLat.lat.toFixed(4)}° N, ${e.lngLat.lng.toFixed(4)}° E)`);
+    });
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+  }, []);
+
+  const handleRecenterGPS = () => {
+    if (typeof window !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const newCoords: [number, number] = [pos.coords.longitude, pos.coords.latitude];
+          setCoordinates(newCoords);
+          if (mapRef.current && markerRef.current) {
+            mapRef.current.flyTo({ center: newCoords, zoom: 16 });
+            markerRef.current.setLngLat(newCoords);
+          }
+          setLocationName(`GPS Position (${pos.coords.latitude.toFixed(4)}° N, ${pos.coords.longitude.toFixed(4)}° E)`);
+        },
+        () => {
+          if (mapRef.current && markerRef.current) {
+            mapRef.current.flyTo({ center: DEFAULT_MAP_CENTER, zoom: DEFAULT_MAP_ZOOM });
+            markerRef.current.setLngLat(DEFAULT_MAP_CENTER);
+          }
+        }
+      );
+    }
+  };
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -155,68 +231,32 @@ export default function ReportBarrierPage() {
                 <h2 className="text-lg font-bold text-slate-900">Location</h2>
                 <span className="text-xs font-medium text-slate-500">Tap map to set location</span>
               </div>
-              <div className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-100">
-                {/* Map Canvas - Wide Panoramic */}
-                <div className="relative h-64 sm:h-72 w-full">
-                  {/* Map Background - Mumbai Coastal/Road Palette */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200">
-                    {/* Water body - cyan line */}
-                    <div className="absolute bottom-20 left-0 right-0 h-8 bg-cyan-300/40 rounded-t-full" />
-                    {/* Road corridors */}
-                    <div className="absolute top-1/3 left-0 right-0 h-1 bg-slate-400/40" style={{ transform: 'rotate(12deg)' }} />
-                    <div className="absolute top-2/3 left-0 right-0 h-1 bg-slate-400/40" style={{ transform: 'rotate(-8deg)' }} />
-                    {/* Grid pattern */}
-                    <svg className="absolute inset-0 opacity-15" width="100%" height="100%">
-                      <defs>
-                        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5"/>
-                        </pattern>
-                      </defs>
-                      <rect width="100%" height="100%" fill="url(#grid)"/>
-                    </svg>
-                    
-                    {/* Subtle landmark labels */}
-                    <div className="absolute top-8 left-6 text-xs text-slate-500 font-medium">Bandra Kurla Complex</div>
-                    <div className="absolute top-20 left-10 text-xs text-slate-500 font-medium">G Block</div>
-                    <div className="absolute top-6 right-8 text-xs text-slate-500 font-medium">MTHL</div>
-                    <div className="absolute bottom-8 right-10 text-xs text-slate-500 font-medium">Bandra East</div>
-                  </div>
-
-                  {/* Centered location marker pin with label */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full z-10">
-                    <div className="relative">
-                      <div className="w-5 h-5 bg-red-500 rounded-full border-4 border-white shadow-xl transform rotate-45" />
-                      <div className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-red-500 rounded-full border-4 border-white shadow-xl" />
-                      <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg shadow-xl whitespace-nowrap">
-                        Barrier Pin: Bandra Kurla Complex
-                      </div>
-                    </div>
-                  </div>
+              <div className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shadow-inner">
+                {/* Real MapLibre Map Container */}
+                <div className="relative h-72 sm:h-80 w-full">
+                  <div ref={mapContainerRef} className="w-full h-full" />
 
                   {/* Top-right: Recenter GPS button */}
                   <button
                     type="button"
-                    className="absolute top-4 right-4 flex items-center gap-1.5 bg-white/95 backdrop-blur-sm text-slate-700 px-3 py-2 rounded-lg shadow-xl border border-slate-200 text-sm font-medium hover:bg-slate-50 transition-colors focus-visible:outline-emerald-500 z-10"
+                    onClick={handleRecenterGPS}
+                    className="absolute top-4 right-4 flex items-center gap-1.5 bg-white/95 backdrop-blur-sm text-slate-700 px-3 py-2 rounded-xl shadow-xl border border-slate-200 text-xs sm:text-sm font-bold hover:bg-slate-50 transition-colors focus-visible:outline-emerald-500 z-10"
                   >
-                    <Crosshair size={16} strokeWidth={2.5} />
-                    <span className="hidden sm:inline">Recenter GPS</span>
+                    <Crosshair size={16} strokeWidth={2.5} className="text-emerald-600" />
+                    <span>Recenter GPS</span>
                   </button>
 
                   {/* Bottom coordinate info bar */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-900/95 via-slate-900/80 to-transparent py-5 px-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex items-center gap-2 text-white text-sm font-medium">
-                      <MapPin size={16} className="text-emerald-400" />
-                      <span className="font-mono">19.0660° N, 72.8687° E</span>
-                      <span className="text-slate-400">•</span>
-                      <span>Bandra Kurla Complex (BKC), G Block, Mumbai</span>
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-900/95 via-slate-900/80 to-transparent py-4 px-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 z-10 pointer-events-none">
+                    <div className="flex items-center gap-2 text-white text-xs sm:text-sm font-medium">
+                      <MapPin size={16} className="text-emerald-400 shrink-0" />
+                      <span className="font-mono font-bold">{coordinates[1].toFixed(4)}° N, {coordinates[0].toFixed(4)}° E</span>
+                      <span className="text-slate-400 hidden sm:inline">•</span>
+                      <span className="truncate max-w-xs">{locationName}</span>
                     </div>
-                    <button
-                      type="button"
-                      className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm text-white px-3 py-2 rounded-lg border border-white/20 text-sm font-medium hover:bg-white/20 transition-colors focus-visible:outline-emerald-500"
-                    >
-                      <Search size={16} strokeWidth={2.5} />
-                      <span>Search by Landmark</span>
-                    </button>
+                    <span className="text-xs text-emerald-300 font-semibold bg-emerald-950/60 border border-emerald-500/30 px-3 py-1 rounded-full">
+                      Drag pin or tap map to adjust
+                    </span>
                   </div>
                 </div>
               </div>

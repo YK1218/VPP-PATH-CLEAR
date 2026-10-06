@@ -27,3 +27,31 @@ textarea:focus-visible {
   outline: 3px solid var(--color-pathclear-secondary);
   outline-offset: 2px;
 }
+
+/* Cartographic Contour SVG Background from Stitch Remix */
+.bg-topo-pattern {
+  background-color: #f7faf8;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.08) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(254, 240, 138, 0.12) 0px, transparent 60%),
+    url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 20c30 0 40 40 70 40s40-20 50-20v20c-10 0-20 20-50 20S30 40 0 40v-20zm0 60c30 0 40 40 70 40s40-20 50-20v20c-10 0-20 20-50 20S30 100 0 100V80z' fill='%23059669' fill-opacity='0.035' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+/* Multi-layered Iris Glow for Copilot Voice Assistant */
+.copilot-iris-halo {
+  background: radial-gradient(circle at 45% 45%, rgba(6, 182, 212, 0.9) 0%, rgba(139, 92, 246, 0.85) 45%, rgba(217, 70, 239, 0.7) 70%, rgba(15, 23, 42, 0.95) 100%);
+  box-shadow: 
+    0 0 35px rgba(139, 92, 246, 0.65),
+    0 0 65px rgba(6, 182, 212, 0.4),
+    inset 0 0 18px rgba(255, 255, 255, 0.85);
+}
+
+@keyframes waveBar {
+  0%, 100% { height: 6px; }
+  50% { height: 28px; }
+}
+
+.animate-wave-bar {
+  animation: waveBar 1.4s ease-in-out infinite;
+}

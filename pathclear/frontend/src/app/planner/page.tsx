@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { MapPin, TrendingUp, Volume2, Send, CheckCircle2, AlertTriangle, BarChart2, Mountain, Droplet, Sun, Loader2, Map, GripVertical } from "lucide-react";
+import { MapPin, TrendingUp, Volume2, Send, CheckCircle2, AlertTriangle, BarChart2, Mountain, Droplet, Sun, Loader2, Map, GripVertical, ArrowUpDown } from "lucide-react";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { OSM_RASTER_STYLE, DEFAULT_MAP_ZOOM, DEFAULT_MAP_PITCH, DEFAULT_MAP_BEARING } from "@/lib/map-config";
@@ -507,6 +507,14 @@ export default function PlannerPage() {
   const route = MOCK_ROUTE_DATA;
   const [panelWidth, setPanelWidth] = useState(380);
   const [isResizing, setIsResizing] = useState(false);
+  const [originText, setOriginText] = useState(route.origin);
+  const [destinationText, setDestinationText] = useState(route.destination);
+
+  const handleSwap = () => {
+    const temp = originText;
+    setOriginText(destinationText);
+    setDestinationText(temp);
+  };
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -554,16 +562,18 @@ export default function PlannerPage() {
 
         {/* Card Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50/50 rounded-t-2xl">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-600 border border-emerald-500/20">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-600 border border-emerald-500/20 shrink-0">
               <CheckCircle2 size={20} strokeWidth={2.5} />
             </div>
-            <div>
-              <p className="text-sm font-bold text-gray-900">{route.header.title}</p>
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-gray-900 truncate">
+                {originText.split("(")[0].trim()} → {destinationText.split("(")[0].trim()}
+              </p>
               <p className="text-xs font-medium text-gray-500">{route.header.verifiedAgo}</p>
             </div>
           </div>
-          <button className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Close preview">
+          <button className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors shrink-0" aria-label="Close preview">
             <span className="sr-only">Close</span>
             <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18" />
@@ -574,31 +584,63 @@ export default function PlannerPage() {
 
         {/* Scrollable Content - Compact */}
         <div className="flex-1 overflow-y-auto p-3 space-y-3">
-          {/* Origin / Destination */}
-          <div className="space-y-2">
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100">
-                <MapPin size={16} />
+          {/* Origin / Destination - Fully Editable */}
+          <div className="space-y-2 p-2 rounded-xl bg-gray-50/70 border border-gray-100">
+            <div className="flex items-center gap-2.5">
+              <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100">
+                <MapPin size={14} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">From</p>
-                <p className="text-sm font-semibold text-gray-900 truncate">{route.origin}</p>
+                <div className="flex items-center justify-between mb-0.5">
+                  <label htmlFor="origin-location-input" className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                    From (Origin)
+                  </label>
+                  <span className="text-[10px] text-blue-600 font-bold">Editable</span>
+                </div>
+                <input
+                  id="origin-location-input"
+                  type="text"
+                  value={originText}
+                  onChange={(e) => setOriginText(e.target.value)}
+                  placeholder="Enter starting location..."
+                  className="w-full text-xs sm:text-sm font-bold text-gray-900 bg-white hover:bg-white focus:bg-white px-2.5 py-1.5 rounded-lg border border-gray-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 transition-all truncate"
+                />
               </div>
             </div>
 
-            <div className="relative pl-6">
-              <div className="absolute left-3 top-0 bottom-0 w-0.5 bg-gray-200" />
-              <div className="absolute left-2 top-0 w-2 h-2 -translate-x-1/2 rounded-full bg-blue-500 border-2 border-white shadow-sm" />
-              <div className="absolute left-2 bottom-0 w-2 h-2 -translate-x-1/2 rounded-full bg-emerald-500 border-2 border-white shadow-sm" />
+            <div className="relative pl-6 flex items-center justify-between my-0.5">
+              <div className="absolute left-3.5 top-0 bottom-0 w-0.5 bg-gray-200" />
+              <button
+                type="button"
+                onClick={handleSwap}
+                title="Swap origin and destination"
+                aria-label="Swap origin and destination locations"
+                className="ml-auto z-10 flex items-center gap-1 px-2.5 py-1 rounded-full bg-white border border-gray-200 hover:border-pathclear-secondary text-[10px] font-bold text-gray-600 hover:text-pathclear-primary shadow-2xs hover:shadow-xs transition-all"
+              >
+                <ArrowUpDown size={11} />
+                <span>Swap</span>
+              </button>
             </div>
 
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100">
-                <CheckCircle2 size={16} />
+            <div className="flex items-center gap-2.5">
+              <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100">
+                <CheckCircle2 size={14} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">To</p>
-                <p className="text-sm font-semibold text-gray-900 truncate">{route.destination}</p>
+                <div className="flex items-center justify-between mb-0.5">
+                  <label htmlFor="dest-location-input" className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                    To (Destination)
+                  </label>
+                  <span className="text-[10px] text-emerald-600 font-bold">Editable</span>
+                </div>
+                <input
+                  id="dest-location-input"
+                  type="text"
+                  value={destinationText}
+                  onChange={(e) => setDestinationText(e.target.value)}
+                  placeholder="Enter destination location..."
+                  className="w-full text-xs sm:text-sm font-bold text-gray-900 bg-white hover:bg-white focus:bg-white px-2.5 py-1.5 rounded-lg border border-gray-200 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all truncate"
+                />
               </div>
             </div>
           </div>

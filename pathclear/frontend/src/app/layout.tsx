@@ -3,6 +3,8 @@ import { Atkinson_Hyperlegible } from "next/font/google";
 import "./globals.css";
 import { ProfileProvider } from "@/contexts/ProfileContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { VoiceAgentProvider } from "@/contexts/VoiceAgentContext";
+import VoiceAgentPanel from "@/components/voice/VoiceAgentPanel";
 
 const atkinson = Atkinson_Hyperlegible({
   weight: ["400", "700"],
@@ -27,7 +29,10 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-[#f5f8fa] text-gray-900 font-sans" suppressHydrationWarning>
         <ProfileProvider>
           <AuthProvider>
-            {children}
+            <VoiceAgentProvider>
+              {children}
+              <VoiceAgentPanel />
+            </VoiceAgentProvider>
           </AuthProvider>
         </ProfileProvider>
       </body>

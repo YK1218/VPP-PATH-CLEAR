@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PathClear | Smart Accessible Route Planner &amp; Authentication</title>
+<!-- External Fonts: Atkinson Hyperlegible for maximum accessibility & Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&amp;family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN with Forms & Container Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Atkinson Hyperlegible"', 'sans-serif'],
+            display: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            emerald: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+              950: '#022c22',
+            },
+            copilot: {
+              violet: '#8b5cf6',
+              cyan: '#06b6d4',
+              neon: '#a855f7',
+              dark: '#090d16',
+            }
+          },
+          animation: {
+            'wave-bar': 'wave 1.4s ease-in-out infinite',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'spin-slow': 'spin 12s linear infinite',
+          },
+          keyframes: {
+            wave: {
+              '0%, 100%': { height: '6px' },
+              '50%': { height: '32px' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+<!-- BEGIN: Custom CSS Styling -->
+<style data-purpose="topography-background">
+    /* Subtle Cartographic Contour SVG Background */
+    .bg-topo-pattern {
+      background-color: #f7faf8;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.08) 0px, transparent 50%),
+        radial-gradient(at 50% 100%, rgba(254, 240, 138, 0.12) 0px, transparent 60%),
+        url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 20c30 0 40 40 70 40s40-20 50-20v20c-10 0-20 20-50 20S30 40 0 40v-20zm0 60c30 0 40 40 70 40s40-20 50-20v20c-10 0-20 20-50 20S30 100 0 100V80z' fill='%23059669' fill-opacity='0.035' fill-rule='evenodd'/%3E%3C/svg%3E");
+    }
+
+    /* High Contrast Mode overrides */
+    .high-contrast-mode {
+      filter: contrast(125%) saturate(110%);
+      background-color: #ffffff !important;
+    }
+    .high-contrast-mode .contrast-text {
+      color: #000000 !important;
+      font-weight: 700 !important;
+    }
+    .high-contrast-mode .contrast-border {
+      border-color: #000000 !important;
+      border-width: 2px !important;
+    }
+  </style>
+<style data-purpose="orb-and-waveform-effects">
+    /* Multi-layered Iris Glow inspired by AI Voice Assistant */
+    .copilot-iris-halo {
+      background: radial-gradient(circle at 45% 45%, rgba(6, 182, 212, 0.9) 0%, rgba(139, 92, 246, 0.85) 45%, rgba(217, 70, 239, 0.7) 70%, rgba(15, 23, 42, 0.95) 100%);
+      box-shadow: 
+        0 0 35px rgba(139, 92, 246, 0.65),
+        0 0 65px rgba(6, 182, 212, 0.4),
+        inset 0 0 18px rgba(255, 255, 255, 0.85);
+    }
+    
+    .waveform-bar {
+      transition: height 0.15s ease;
+    }
+  </style>
+<!-- END: Custom CSS Styling -->
+</head>
+<body class="bg-topo-pattern text-slate-800 font-sans min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white antialiased relative pb-44" id="main-body">
+<!-- BEGIN: MainHeader -->
+<header class="w-full bg-white/80 backdrop-blur-md border-b border-emerald-100/80 sticky top-0 z-40 transition-colors">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+<!-- Logo Branding & Status -->
+<div class="flex items-center gap-4">
+<a aria-label="PathClear Navigation Home" class="flex items-center gap-3 group focus:outline-none focus:ring-4 focus:ring-emerald-500/40 rounded-xl p-1" href="/">
+<div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-700 via-emerald-800 to-slate-900 flex items-center justify-center shadow-lg shadow-emerald-950/20 text-white relative overflow-hidden group-hover:scale-105 transition-transform">
+<svg class="w-6 h-6 text-emerald-300" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" viewbox="0 0 24 24">
+<polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+</svg>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-emerald-900 animate-pulse"></span>
+</div>
+<div class="flex flex-col">
+<span class="text-2xl font-display font-extrabold tracking-tight text-slate-900 flex items-center gap-1.5">
+              PathClear
+              <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold uppercase tracking-wider">Transit</span>
+</span>
+<span class="text-xs text-slate-500 font-medium tracking-wide">Mumbai Accessible Mobility System</span>
+</div>
+</a>
+</div>
+<!-- Compliance Cues & Accessibility Settings Bar -->
+<div class="flex items-center gap-3">
+<!-- Live Audio Guidance Badge -->
+<div aria-live="polite" class="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/90 text-emerald-800 text-xs font-bold">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+<span>Audio Assist: Ready</span>
+</div>
+<!-- WCAG AAA Badge -->
+<span class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200" title="WCAG 2.2 AAA Compliant Accessibility Standards">
+          WCAG AAA
+        </span>
+<!-- Language Selector -->
+<div class="relative">
+<label class="sr-only" for="lang-selector">Choose Language</label>
+<select class="h-10 pl-3 pr-8 text-xs font-semibold rounded-xl bg-slate-50 border border-slate-200 text-slate-700 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" id="lang-selector">
+<option value="en">English (US)</option>
+<option value="hi">हिन्दी (Hindi)</option>
+<option value="mr">मराठी (Marathi)</option>
+</select>
+</div>
+<!-- High Contrast Mode Toggle -->
+<button aria-label="Toggle High Contrast Display" class="h-10 px-3.5 flex items-center gap-2 rounded-xl border border-slate-300 hover:border-slate-800 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all focus:outline-none focus:ring-4 focus:ring-emerald-500/50" id="toggle-contrast-btn" type="button">
+<svg class="w-4 h-4 text-slate-900" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<circle cx="12" cy="12" r="10"></circle>
+<path d="M12 2a10 10 0 0 0 0 20z" fill="currentColor"></path>
+</svg>
+<span class="hidden lg:inline">High Contrast</span>
+</button>
+</div>
+</div>
+</header>
+<!-- END: MainHeader -->
+<!-- BEGIN: MainContentContainer -->
+<main class="max-w-5xl mx-auto w-full px-4 sm:px-6 pt-6 pb-12 flex-1 flex flex-col justify-center">
+<!-- Hero Card Container -->
+<div class="bg-white/85 backdrop-blur-xl border border-emerald-100/80 shadow-2xl shadow-emerald-950/10 rounded-3xl p-6 sm:p-10 transition-all duration-300" data-purpose="auth-guest-card">
+<!-- Top Meta Header Inside Card -->
+<div class="flex flex-wrap items-center justify-between pb-6 border-b border-slate-100 gap-3">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+<span class="text-xs font-mono font-bold tracking-widest uppercase text-slate-500">
+            Authentication &amp; Profile Setup
+          </span>
+</div>
+<div class="text-xs text-slate-600 bg-slate-100 px-3 py-1 rounded-full font-medium flex items-center gap-1.5">
+<svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewbox="0 0 20 20">
+<path clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fill-rule="evenodd"></path>
+</svg>
+<span>Tactile &amp; Screen Reader Optimized</span>
+</div>
+</div>
+<!-- Title & Value Statement -->
+<div class="text-center mt-6 mb-8 max-w-xl mx-auto">
+<h1 class="text-3xl sm:text-4xl font-display font-extrabold text-slate-900 tracking-tight">
+          Welcome to PathClear
+        </h1>
+<p class="text-slate-600 text-base mt-2">
+          Sign in to access your saved accessible routes, live tactile maps, and community crowd-verified obstacle alerts.
+        </p>
+</div>
+<!-- Dual Mode Selector: Sign In / Create Account -->
+<div class="max-w-md mx-auto mb-8 bg-slate-100 p-1.5 rounded-2xl flex items-center shadow-inner" role="tablist">
+<button aria-selected="true" class="flex-1 py-3 px-4 rounded-xl bg-white text-slate-900 font-bold text-sm shadow-sm transition-all focus:ring-2 focus:ring-emerald-500" role="tab" type="button">
+          Sign In
+        </button>
+<button aria-selected="false" class="flex-1 py-3 px-4 rounded-xl text-slate-600 hover:text-slate-900 font-bold text-sm transition-all focus:ring-2 focus:ring-emerald-500" role="tab" type="button">
+          Create Account
+        </button>
+</div>
+<!-- Sign In Form Section -->
+<form class="max-w-md mx-auto space-y-4" data-purpose="login-form" onsubmit="event.preventDefault();">
+<!-- Email Input Group -->
+<div>
+<div class="flex justify-between items-center mb-1.5">
+<label class="block text-xs font-extrabold tracking-wider text-slate-600 uppercase" for="email-address">
+              Email Address
+            </label>
+<span class="text-xs text-slate-400">Student / Institutional</span>
+</div>
+<div class="relative rounded-2xl shadow-sm">
+<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+<svg class="h-5 w-5 text-slate-500" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<rect height="16" rx="2" width="20" x="2" y="4"></rect>
+<path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+</svg>
+</div>
+<input class="block w-full pl-11 pr-4 py-3.5 bg-slate-50/90 hover:bg-slate-50 border border-slate-200 focus:border-emerald-600 focus:bg-white rounded-2xl text-slate-900 font-medium text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/20 transition-all" id="email-address" name="email" placeholder="name@university.edu" required="" type="email" value="student@scholarsync.edu"/>
+</div>
+</div>
+<!-- Password Input Group -->
+<div>
+<div class="flex justify-between items-center mb-1.5">
+<label class="block text-xs font-extrabold tracking-wider text-slate-600 uppercase" for="password-input">
+              Password
+            </label>
+<button class="text-xs font-bold text-emerald-700 hover:underline focus:outline-none" type="button">
+              Show
+            </button>
+</div>
+<div class="relative rounded-2xl shadow-sm">
+<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+<svg class="h-5 w-5 text-slate-500" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<rect height="11" rx="2" ry="2" width="18" x="3" y="11"></rect>
+<path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+</svg>
+</div>
+<input class="block w-full pl-11 pr-11 py-3.5 bg-slate-50/90 hover:bg-slate-50 border border-slate-200 focus:border-emerald-600 focus:bg-white rounded-2xl text-slate-900 font-medium text-sm tracking-widest focus:outline-none focus:ring-4 focus:ring-emerald-500/20 transition-all" id="password-input" name="password" placeholder="••••••••••••" required="" type="password" value="PathClear2026!#"/>
+<button aria-label="Toggle password visibility" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600" type="button">
+<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+<circle cx="12" cy="12" r="3"></circle>
+</svg>
+</button>
+</div>
+</div>
+<!-- Submit Button -->
+<button class="w-full mt-2 py-4 px-6 rounded-2xl bg-emerald-800 hover:bg-emerald-900 active:bg-emerald-950 text-white font-display font-bold text-base flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/20 hover:shadow-xl hover:scale-[1.01] transition-all focus:outline-none focus:ring-4 focus:ring-emerald-500" type="submit">
+<span>Sign In to PathClear</span>
+<svg class="w-5 h-5 text-emerald-300" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24">
+<line x1="5" x2="19" y1="12" y2="12"></line>
+<polyline points="12 5 19 12 12 19"></polyline>
+</svg>
+</button>
+</form>
+<!-- Instant Preview As Guest Divider -->
+<div class="relative my-10 max-w-2xl mx-auto text-center">
+<div aria-hidden="true" class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-slate-200"></div>
+</div>
+<div class="relative flex justify-center">
+<span class="bg-white/95 px-4 text-xs font-mono font-bold uppercase tracking-widest text-slate-400">
+            Or Instant Preview as Guest
+          </span>
+</div>
+</div>
+<!-- Guest Persona Profiles Matrix (From Screenshot 2 & Spec) -->
+<div class="max-w-4xl mx-auto">
+<p class="text-center text-xs text-slate-500 mb-6 font-medium">
+          Choose a tailored assistive profile to explore Dadar &amp; BKC stations immediately without logging in:
+        </p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+<!-- Profile 1: Manual Wheelchair -->
+<button class="group p-4 bg-white hover:bg-emerald-50/40 rounded-2xl border border-slate-200 hover:border-emerald-500 text-left transition-all duration-200 hover:shadow-md flex items-center justify-between focus:ring-4 focus:ring-emerald-500/20" type="button">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-xl bg-blue-100/70 text-blue-800 flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition-transform">
+                ♿
+              </div>
+<div>
+<div class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+                  Manual Wheelchair
+                  <span class="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-mono font-bold">1:12 Max</span>
+</div>
+<div class="text-xs text-slate-500 mt-0.5">Step-free routes, gentle ramps, curb cuts</div>
+</div>
+</div>
+<div class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 group-hover:text-emerald-700 group-hover:bg-emerald-100/60 transition-colors">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</div>
+</button>
+<!-- Profile 2: Power Chair / Scooter -->
+<button class="group p-4 bg-white hover:bg-emerald-50/40 rounded-2xl border border-slate-200 hover:border-emerald-500 text-left transition-all duration-200 hover:shadow-md flex items-center justify-between focus:ring-4 focus:ring-emerald-500/20" type="button">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-xl bg-indigo-100/70 text-indigo-800 flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition-transform">
+                🦼
+              </div>
+<div>
+<div class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+                  Power Chair / Scooter
+                  <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded font-mono font-bold">Elevator Sync</span>
+</div>
+<div class="text-xs text-slate-500 mt-0.5">Wide turning radius, incline telemetry checks</div>
+</div>
+</div>
+<div class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 group-hover:text-emerald-700 group-hover:bg-emerald-100/60 transition-colors">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</div>
+</button>
+<!-- Profile 3: Walker / Cane Support -->
+<button class="group p-4 bg-white hover:bg-emerald-50/40 rounded-2xl border border-slate-200 hover:border-emerald-500 text-left transition-all duration-200 hover:shadow-md flex items-center justify-between focus:ring-4 focus:ring-emerald-500/20" type="button">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-xl bg-amber-100/70 text-amber-800 flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition-transform">
+                🦯
+              </div>
+<div>
+<div class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+                  Walker / Cane Support
+                  <span class="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-mono font-bold">Rest Benches</span>
+</div>
+<div class="text-xs text-slate-500 mt-0.5">Handrail availability, minimal stairs cadence</div>
+</div>
+</div>
+<div class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 group-hover:text-emerald-700 group-hover:bg-emerald-100/60 transition-colors">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</div>
+</button>
+<!-- Profile 4: Visual Assistance / Blind -->
+<button class="group p-4 bg-white hover:bg-emerald-50/40 rounded-2xl border border-slate-200 hover:border-emerald-500 text-left transition-all duration-200 hover:shadow-md flex items-center justify-between focus:ring-4 focus:ring-emerald-500/20" type="button">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-xl bg-teal-100/70 text-teal-800 flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition-transform">
+                👁️
+              </div>
+<div>
+<div class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+                  Visual Assistance / Blind
+                  <span class="text-[10px] bg-teal-100 text-teal-800 px-1.5 py-0.5 rounded font-mono font-bold">Audio 3D</span>
+</div>
+<div class="text-xs text-slate-500 mt-0.5">Tactile paving guide, beacon turn alerts</div>
+</div>
+</div>
+<div class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 group-hover:text-emerald-700 group-hover:bg-emerald-100/60 transition-colors">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</div>
+</button>
+<!-- Profile 5: Low Vision / Partially Blind (Active Highlight state matching screenshot 2) -->
+<button class="group p-4 bg-emerald-50/90 rounded-2xl border-2 border-emerald-600 text-left transition-all duration-200 shadow-sm flex items-center justify-between focus:ring-4 focus:ring-emerald-500/30" type="button">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xl shrink-0 shadow">
+                🔍
+              </div>
+<div>
+<div class="font-bold text-sm text-emerald-950 flex items-center gap-1.5">
+                  Low Vision / Partially Blind
+                  <span class="text-[10px] bg-emerald-200/90 text-emerald-900 px-1.5 py-0.5 rounded font-mono font-bold">Active Selection</span>
+</div>
+<div class="text-xs text-emerald-800 font-medium mt-0.5">High contrast, 18pt typography &amp; zoomed maps</div>
+</div>
+</div>
+<div class="w-8 h-8 rounded-full flex items-center justify-center bg-emerald-600 text-white shadow-sm">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</div>
+</button>
+<!-- Profile 6: Deaf / Hard of Hearing -->
+<button class="group p-4 bg-white hover:bg-emerald-50/40 rounded-2xl border border-slate-200 hover:border-emerald-500 text-left transition-all duration-200 hover:shadow-md flex items-center justify-between focus:ring-4 focus:ring-emerald-500/20" type="button">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-xl bg-purple-100/70 text-purple-800 flex items-center justify-center text-xl shrink-0 group-hover:scale-110 transition-transform">
+                🧏
+              </div>
+<div>
+<div class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+                  Deaf / Hard of Hearing
+                  <span class="text-[10px] bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded font-mono font-bold">Visual Cues</span>
+</div>
+<div class="text-xs text-slate-500 mt-0.5">Visual vibration alerts, digital signage sync</div>
+</div>
+</div>
+<div class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 group-hover:text-emerald-700 group-hover:bg-emerald-100/60 transition-colors">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</div>
+</button>
+</div>
+<!-- Voice-Guided Authentication Note Banner -->
+<div class="mt-6 p-4 rounded-2xl bg-blue-50/80 border border-blue-200/90 flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" viewbox="0 0 24 24">
+<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+<path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+<line x1="12" x2="12" y1="19" y2="22"></line>
+</svg>
+</div>
+<div class="text-xs text-slate-700 leading-relaxed">
+<strong class="text-blue-950 font-bold block">Hands-Free Accessibility Active</strong>
+            Say commands into the copilot dock below: <em class="text-blue-900 font-semibold">"Sign in as blind user"</em> or <em class="text-blue-900 font-semibold">"Start wheelchair mode Dadar station"</em>.
+          </div>
+</div>
+</div>
+</div>
+</main>
+<!-- END: MainContentContainer -->
+<!-- BEGIN: FloatingAiCopilotDock -->
+<!-- Dynamic Copilot Bar inspired by Screenshot 3 (Glowing Orb) & Screenshot 4 (Audio Waveform Copilot) -->
+<aside aria-label="PathClear Intelligent Voice Copilot" class="fixed bottom-4 left-1/2 -translate-x-1/2 w-11/12 max-w-4xl z-50 bg-slate-900/95 backdrop-blur-2xl border border-slate-700/80 rounded-3xl shadow-2xl shadow-indigo-950/40 p-3 sm:p-4 text-white" data-purpose="ai-voice-copilot-dock" role="region">
+<!-- Top Row: Interactive Sound Orb + Waveform Visualizer + Live Transcript -->
+<div class="flex flex-col sm:flex-row items-center gap-3.5 pb-2.5 border-b border-slate-800">
+<!-- Glowing Multi-Color Assistant Iris Orb (Inspired by Screenshot 3) -->
+<div class="flex items-center gap-3 shrink-0">
+<div class="relative w-11 h-11 rounded-full copilot-iris-halo flex items-center justify-center group cursor-pointer" title="AI Voice Listening active">
+<div class="w-4 h-4 rounded-full bg-white/90 animate-ping opacity-75"></div>
+<div class="absolute inset-0 rounded-full border border-white/50"></div>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="text-xs font-extrabold uppercase tracking-widest text-emerald-400 font-mono">Agent Listening</span>
+<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+</div>
+<span class="text-[11px] text-slate-400 font-medium">PathClear Voice Core v3.2</span>
+</div>
+</div>
+<!-- Waveform Audio Spectrum (Inspired by Screenshot 4) -->
+<div class="flex-1 flex items-center justify-center px-4 overflow-hidden w-full">
+<div aria-hidden="true" class="flex items-center gap-1 h-8 w-full max-w-md justify-center" id="audio-waveform-container">
+<!-- Dynamically generated or animated wave bars -->
+<span class="w-1 bg-violet-400/80 rounded-full h-2 animate-wave-bar" style="animation-delay: 0.1s"></span>
+<span class="w-1 bg-violet-400/90 rounded-full h-4 animate-wave-bar" style="animation-delay: 0.3s"></span>
+<span class="w-1 bg-cyan-400 rounded-full h-6 animate-wave-bar" style="animation-delay: 0.2s"></span>
+<span class="w-1 bg-cyan-300 rounded-full h-7 animate-wave-bar" style="animation-delay: 0.5s"></span>
+<span class="w-1 bg-fuchsia-400 rounded-full h-5 animate-wave-bar" style="animation-delay: 0.15s"></span>
+<span class="w-1 bg-indigo-400 rounded-full h-3 animate-wave-bar" style="animation-delay: 0.4s"></span>
+<span class="w-1 bg-violet-400 rounded-full h-7 animate-wave-bar" style="animation-delay: 0.25s"></span>
+<span class="w-1 bg-cyan-400 rounded-full h-8 animate-wave-bar" style="animation-delay: 0.6s"></span>
+<span class="w-1 bg-white rounded-full h-6 animate-wave-bar" style="animation-delay: 0.35s"></span>
+<span class="w-1 bg-fuchsia-400 rounded-full h-4 animate-wave-bar" style="animation-delay: 0.1s"></span>
+<span class="w-1 bg-indigo-400 rounded-full h-6 animate-wave-bar" style="animation-delay: 0.45s"></span>
+<span class="w-1 bg-cyan-300 rounded-full h-7 animate-wave-bar" style="animation-delay: 0.55s"></span>
+<span class="w-1 bg-violet-400/80 rounded-full h-3 animate-wave-bar" style="animation-delay: 0.2s"></span>
+<span class="w-1 bg-violet-400/60 rounded-full h-2 animate-wave-bar" style="animation-delay: 0.3s"></span>
+</div>
+</div>
+<!-- Dismiss & Mode Settings -->
+<div class="flex items-center gap-1.5 self-end sm:self-center">
+<button class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-semibold border border-slate-700 transition-colors" title="Toggle Perplexity or Local Assistant model" type="button">
+          ⚡ Perplexity AI v2
+        </button>
+<button aria-label="Minimize Copilot Dock" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
+</button>
+</div>
+</div>
+<!-- Active Prompt Command & Input Bar -->
+<div class="pt-2.5 flex flex-col md:flex-row items-center justify-between gap-3">
+<!-- Live Command Stream Field -->
+<div class="relative w-full flex-1">
+<div class="flex items-center bg-slate-800/80 border border-slate-700 rounded-2xl px-3.5 py-2">
+<button aria-label="Attach audio file or transit card" class="text-slate-400 hover:text-slate-200 pr-2.5 focus:outline-none" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewbox="0 0 24 24"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l7.9-7.9"></path></svg>
+</button>
+<input class="bg-transparent border-0 text-white placeholder-slate-400 text-xs sm:text-sm font-medium w-full focus:ring-0 focus:outline-none" id="voice-command-input" placeholder="Ask PathClear or speak a command... e.g., 'Find step-free route from Dadar to BKC'" type="text"/>
+<button class="px-2 text-slate-400 hover:text-white text-xs font-semibold flex items-center gap-1 border-l border-slate-700 ml-1" type="button">
+<span>History</span>
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><polyline points="18 15 12 9 6 15"></polyline></svg>
+</button>
+</div>
+</div>
+<!-- Action Pill Buttons: Voice Mic, Audio ON, Send Command -->
+<div class="flex items-center gap-2 w-full md:w-auto justify-end">
+<button class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-200 transition-all focus:ring-2 focus:ring-emerald-400" id="toggle-mic-btn" type="button">
+<span class="flex items-center text-rose-400">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path></svg>
+</span>
+<span>Voice</span>
+</button>
+<button class="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white shadow-lg shadow-emerald-700/30 transition-all hover:scale-105 active:scale-95 focus:ring-2 focus:ring-emerald-400" type="button">
+<span>Send</span>
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><line x1="22" x2="11" y1="2" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+</button>
+</div>
+</div>
+<!-- Quick Assist Chips Underneath -->
+<div class="pt-2 flex flex-wrap items-center gap-1.5 text-[11px] text-slate-400 font-medium">
+<span class="text-slate-500 font-mono uppercase text-[10px] pr-1">Try saying:</span>
+<button class="px-2 py-0.5 rounded-md bg-slate-800/90 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition-colors" type="button">
+        ♿ "Set Manual Wheelchair Profile"
+      </button>
+<button class="px-2 py-0.5 rounded-md bg-slate-800/90 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition-colors" type="button">
+        👁️ "Enable Audio Guidance Map"
+      </button>
+<button class="px-2 py-0.5 rounded-md bg-slate-800/90 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition-colors" type="button">
+        ⚡ "Check Dadar Platform 1 Elevator"
+      </button>
+</div>
+</aside>
+<!-- END: FloatingAiCopilotDock -->
+<!-- BEGIN: Interactive Accessibility Script -->
+<script data-purpose="accessibility-toggles">
+    document.addEventListener('DOMContentLoaded', () => {
+      const contrastBtn = document.getElementById('toggle-contrast-btn');
+      const body = document.getElementById('main-body');
+      let isHighContrast = false;
+
+      // High Contrast Mode Toggle
+      if (contrastBtn) {
+        contrastBtn.addEventListener('click', () => {
+          isHighContrast = !isHighContrast;
+          if (isHighContrast) {
+            body.classList.add('high-contrast-mode');
+            contrastBtn.classList.add('bg-black', 'text-white', 'border-black');
+            contrastBtn.setAttribute('aria-pressed', 'true');
+          } else {
+            body.classList.remove('high-contrast-mode');
+            contrastBtn.classList.remove('bg-black', 'text-white', 'border-black');
+            contrastBtn.setAttribute('aria-pressed', 'false');
+          }
+        });
+      }
+
+      // Voice Input Simulation
+      const voiceInput = document.getElementById('voice-command-input');
+      const micBtn = document.getElementById('toggle-mic-btn');
+      
+      if (micBtn && voiceInput) {
+        micBtn.addEventListener('click', () => {
+          voiceInput.value = 'Signing in as low vision user with audio guidance...';
+          voiceInput.classList.add('ring-2', 'ring-emerald-400');
+          setTimeout(() => {
+            voiceInput.classList.remove('ring-2', 'ring-emerald-400');
+          }, 2000);
+        });
+      }
+    });
+  </script>
+<!-- END: Interactive Accessibility Script -->
+</body></html>

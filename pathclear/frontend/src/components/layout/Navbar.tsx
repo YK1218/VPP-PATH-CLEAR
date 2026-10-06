@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
-import { MapPin, ChevronDown, Check, LogOut, User, AlertTriangle } from "lucide-react";
+import { ChevronDown, Check, LogOut, User, AlertTriangle } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useProfile } from "@/contexts/ProfileContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -49,7 +49,7 @@ export default function Navbar() {
   return (
     <>
       <header className="w-full bg-white border-b border-gray-100 flex h-[72px] items-center px-4 md:px-8 justify-between sticky top-0 z-50">
-        {/* Left section: Logo and City Selector */}
+        {/* Left section: Logo */}
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2" aria-label="PathClear Home">
             <div className="w-8 h-8 bg-[#0a192f] rounded-lg flex items-center justify-center relative overflow-hidden">
@@ -59,15 +59,6 @@ export default function Navbar() {
             </div>
             <span className="font-bold text-xl tracking-tight text-gray-900">PathClear</span>
           </Link>
-
-          {/* Mumbai city selector — hidden on auth page */}
-          {!isAuthPage && (
-            <button className="hidden md:flex items-center gap-1.5 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full text-sm font-medium text-gray-700 transition-colors">
-              <MapPin size={16} className="text-gray-500" />
-              Mumbai
-              <ChevronDown size={14} className="text-gray-400" />
-            </button>
-          )}
         </div>
 
         {/* Middle section: Navigation Links — hidden on auth page */}
@@ -116,14 +107,7 @@ export default function Navbar() {
 
         {/* Right section: Profile / Auth Menu */}
         <div className="flex items-center gap-4">
-          {isAuthPage ? (
-            <Link
-              href="/"
-              className="text-xs font-semibold text-gray-600 hover:text-gray-900 px-3 py-1.5 rounded-full hover:bg-gray-50 transition-colors"
-            >
-              Back to Map
-            </Link>
-          ) : isLoading ? (
+          {isAuthPage ? null : isLoading ? (
             <div className="w-9 h-9 rounded-full bg-gray-100 animate-pulse flex-shrink-0" />
           ) : isAuthenticated ? (
             <div className="relative" ref={dropdownRef}>
