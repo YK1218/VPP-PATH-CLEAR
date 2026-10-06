@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from datetime import datetime, timezone
 
 from app.database.session import get_db
@@ -152,7 +152,7 @@ def get_profile_from_request(route_req: RouteRequest, db: Session) -> Accessibil
     return route_req.profile
 
 
-def find_target_entrance(destination: List[float], building_name: str = None, db: Session = None) -> EntranceResponse:
+def find_target_entrance(destination: List[float], building_name: Optional[str] = None, db: Optional[Session] = None) -> EntranceResponse:
     """Find the target entrance from database or mock data."""
     dest_lng, dest_lat = destination
     
@@ -174,23 +174,23 @@ def find_target_entrance(destination: List[float], building_name: str = None, db
             entrances,
             key=lambda e: (e.longitude - dest_lng) ** 2 + (e.latitude - dest_lat) ** 2
         )
-        return EntranceResponse(
-            id=entrance.id,
-            building_name=entrance.building_name or "",
-            entrance_name=entrance.entrance_name,
-            latitude=entrance.latitude,
-            longitude=entrance.longitude,
-            door_type=entrance.door_type,
-            step_count=entrance.step_count,
-            ramp_available=entrance.ramp_available,
-            ramp_slope_percent=entrance.ramp_slope_percent,
-            width_cm=entrance.width_cm,
-            photo_url=entrance.photo_url,
-            notes=entrance.notes,
-            confidence_score=entrance.current_confidence_score or entrance.confidence_score,
-            last_verified_at=entrance.last_verified_at,
-            created_at=entrance.created_at,
-        )
+        return EntranceResponse(**{  # type: ignore
+            "id": entrance.id,
+            "building_name": entrance.building_name or "",
+            "entrance_name": entrance.entrance_name or "Main Entrance",
+            "latitude": entrance.latitude,
+            "longitude": entrance.longitude,
+            "door_type": entrance.door_type,
+            "step_count": entrance.step_count,
+            "ramp_available": entrance.ramp_available,
+            "ramp_slope_percent": entrance.ramp_slope_percent,
+            "width_cm": entrance.width_cm,
+            "photo_url": entrance.photo_url,
+            "notes": entrance.notes,
+            "confidence_score": entrance.current_confidence_score or entrance.confidence_score,
+            "last_verified_at": entrance.last_verified_at,
+            "created_at": entrance.created_at,
+        })
     
     # Use mock data
     return min(
@@ -206,19 +206,19 @@ def get_active_hazards(db: Session) -> List[HazardResponse]:
     if db_conn:
         hazards = db.query(Hazard).filter(Hazard.is_active == True).all()
         return [
-            HazardResponse(
-                id=h.id,
-                hazard_type=h.hazard_type,
-                severity=h.severity,
-                description=h.description,
-                latitude=h.latitude,
-                longitude=h.longitude,
-                is_active=h.is_active,
-                confidence_score=h.current_confidence_score or h.confidence_score,
-                verification_count=h.verification_count,
-                last_verified_at=h.last_verified_at,
-                created_at=h.created_at,
-            )
+            HazardResponse(**{  # type: ignore
+                "id": h.id,
+                "hazard_type": h.hazard_type,
+                "severity": h.severity,
+                "description": h.description,
+                "latitude": h.latitude,
+                "longitude": h.longitude,
+                "is_active": h.is_active,
+                "confidence_score": h.current_confidence_score or h.confidence_score,
+                "verification_count": h.verification_count,
+                "last_verified_at": h.last_verified_at,
+                "created_at": h.created_at,
+            })
             for h in hazards
         ]
     
@@ -245,12 +245,9 @@ def calculate_route(route_req: RouteRequest, db: Session = Depends(get_db)):
     hazards = get_active_hazards(db)
     
     # Compute route
+    route_req.profile = profile
     route_response = compute_accessible_route(
-        request=RouteRequest(
-            origin=route_req.origin,
-            destination=route_req.destination,
-            profile=profile,
-        ),
+        request=route_req,
         target_entrance=target_entrance,
         known_hazards=hazards,
     )

@@ -62,25 +62,25 @@ def get_entrances(db: Session = Depends(get_db)):
         # Apply decay to confidence score
         res = []
         for e in entrances:
-            decayed = calculate_decayed_confidence(e.confidence_score, e.last_verified_at, ENTRANCE_HALF_LIFE_HOURS)
+            decayed = calculate_decayed_confidence(e.confidence_score, e.last_verified_at, ENTRANCE_HALF_LIFE_HOURS)  # type: ignore
             res.append(
-                EntranceResponse(
-                    id=e.id,
-                    building_name=e.building_name,
-                    entrance_name=e.entrance_name,
-                    latitude=e.latitude,
-                    longitude=e.longitude,
-                    door_type=e.door_type,
-                    step_count=e.step_count,
-                    ramp_available=e.ramp_available,
-                    ramp_slope_percent=e.ramp_slope_percent,
-                    width_cm=e.width_cm,
-                    photo_url=e.photo_url,
-                    notes=e.notes,
-                    confidence_score=decayed,
-                    last_verified_at=e.last_verified_at,
-                    created_at=e.created_at,
-                )
+                EntranceResponse(**{  # type: ignore
+                    "id": e.id,
+                    "building_name": e.building_name or "",
+                    "entrance_name": e.entrance_name or "Main Entrance",
+                    "latitude": e.latitude,
+                    "longitude": e.longitude,
+                    "door_type": e.door_type,
+                    "step_count": e.step_count,
+                    "ramp_available": e.ramp_available,
+                    "ramp_slope_percent": e.ramp_slope_percent,
+                    "width_cm": e.width_cm,
+                    "photo_url": e.photo_url,
+                    "notes": e.notes,
+                    "confidence_score": decayed,
+                    "last_verified_at": e.last_verified_at,
+                    "created_at": e.created_at,
+                })
             )
         return res
     except Exception:

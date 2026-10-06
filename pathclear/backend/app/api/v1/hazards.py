@@ -52,21 +52,21 @@ def get_hazards(db: Session = Depends(get_db)):
         
         res = []
         for h in hazards:
-            decayed = calculate_decayed_confidence(h.confidence_score, h.last_verified_at, HAZARD_HALF_LIFE_HOURS)
+            decayed = calculate_decayed_confidence(h.confidence_score, h.last_verified_at, HAZARD_HALF_LIFE_HOURS)  # type: ignore
             res.append(
-                HazardResponse(
-                    id=h.id,
-                    hazard_type=h.hazard_type,
-                    severity=h.severity,
-                    description=h.description,
-                    latitude=h.latitude,
-                    longitude=h.longitude,
-                    is_active=h.is_active,
-                    confidence_score=decayed,
-                    verification_count=h.verification_count,
-                    last_verified_at=h.last_verified_at,
-                    created_at=h.created_at,
-                )
+                HazardResponse(**{  # type: ignore
+                    "id": h.id,
+                    "hazard_type": h.hazard_type,
+                    "severity": h.severity,
+                    "description": h.description,
+                    "latitude": h.latitude,
+                    "longitude": h.longitude,
+                    "is_active": h.is_active,
+                    "confidence_score": decayed,
+                    "verification_count": h.verification_count,
+                    "last_verified_at": h.last_verified_at,
+                    "created_at": h.created_at,
+                })
             )
         return res
     except Exception:
