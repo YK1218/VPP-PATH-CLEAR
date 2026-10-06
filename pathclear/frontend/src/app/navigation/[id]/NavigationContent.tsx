@@ -59,18 +59,18 @@ export default function NavigationContent({ data }: NavigationContentProps) {
       <NavHeader destination={data.destination} />
 
       {/* 2. Map Background */}
-      <NavMapOverlay 
-        route={data.route} 
-        entrance={data.entrance} 
-        hazards={data.hazards} 
+      <NavMapOverlay
+        route={data.route}
+        entrance={data.entrance}
+        hazards={data.hazards}
       />
 
       {/* 3. Floating Left Card: Turn Instructions */}
       <TurnInstructionCard {...data.turnInstruction} />
 
       {/* 4. Floating Right Card: Route Alert (1-Tap Verification) */}
-      <RouteAlertCard 
-        {...data.routeAlert} 
+      <RouteAlertCard
+        {...data.routeAlert}
         onVerify={handleVerify}
       />
 
