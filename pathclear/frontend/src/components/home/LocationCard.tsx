@@ -31,7 +31,7 @@ export default function LocationCard({
   distance,
 }: LocationCardProps) {
   return (
-    <Link href={`/navigation/${id}`} className="w-full bg-white rounded-2xl p-4 md:p-5 flex items-center justify-between shadow-sm border border-gray-100 hover:shadow-md transition-shadow group text-left focus-visible:outline-pathclear-primary">
+    <Link href={`/planner?dest=${encodeURIComponent(title)}&id=${id}`} className="w-full bg-white rounded-2xl p-4 md:p-5 flex items-center justify-between shadow-sm border border-gray-100 hover:shadow-md transition-shadow group text-left focus-visible:outline-pathclear-primary">
       <div className="flex items-start gap-4 flex-1 min-w-0">
         
         {/* Left Icon */}

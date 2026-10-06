@@ -11,6 +11,7 @@ import NavigationContent from "@/components/navigation/NavigationContent";
 
 interface NavigationPageProps {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<{ dest?: string; origin?: string }>;
 }
 
 interface NavigationData {
@@ -41,10 +42,14 @@ interface NavigationData {
   hazards: Hazard[];
 }
 
-async function fetchNavigationData(entranceId: string): Promise<NavigationData> {
+async function fetchNavigationData(
+  entranceId: string, 
+  customDest?: string, 
+  customOrigin?: string
+): Promise<NavigationData> {
   // Fetch all entrances to find the target entrance
   const entrances = await fetchEntrances();
-  const entrance = entrances.find(e => e.id === entranceId);
+  const entrance = entrances.find(e => e.id === entranceId) || entrances[0];
 
   if (!entrance) {
     throw new Error(`Entrance ${entranceId} not found`);
@@ -91,15 +96,16 @@ async function fetchNavigationData(entranceId: string): Promise<NavigationData> 
 
   // Get first hazard for route alert (or create default)
   const primaryHazard = routeHazards[0];
+  const destinationName = customDest || `${entrance.buildingName}, ${entrance.entranceName}`;
 
   return {
-    destination: `${entrance.buildingName}, ${entrance.entranceName}`,
+    destination: destinationName,
     turnInstruction: {
       distance: route.segments[0]
         ? `${Math.round(route.segments[0].distanceMeters)} M`
         : "100 M",
       instruction: "Head toward destination",
-      street: "Accessible Route",
+      street: customOrigin ? `${customOrigin} approach` : "Accessible Route",
       slope: route.segments[0]
         ? `${route.segments[0].inclinePercent}% slope`
         : "Gentle slope",
@@ -126,7 +132,7 @@ async function fetchNavigationData(entranceId: string): Promise<NavigationData> 
       eta: formatTime(eta),
       timeRemaining: formatDuration(route.totalDurationSeconds),
       distance: `${(route.totalDistanceMeters / 1000).toFixed(1)} km`,
-      entranceName: `${entrance.buildingName} - ${entrance.entranceName}`,
+      entranceName: destinationName,
     },
     route,
     entrance,
@@ -136,9 +142,12 @@ async function fetchNavigationData(entranceId: string): Promise<NavigationData> 
 
 export default async function NavigationPage(props: NavigationPageProps) {
   const { id } = await props.params;
+  const searchParams = props.searchParams ? await props.searchParams : {};
+  const customDest = searchParams.dest;
+  const customOrigin = searchParams.origin;
 
   try {
-    const data = await fetchNavigationData(id);
+    const data = await fetchNavigationData(id, customDest, customOrigin);
 
     return <NavigationContent data={data} />;
   } catch (error) {

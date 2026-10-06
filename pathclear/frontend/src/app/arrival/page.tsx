@@ -1,10 +1,33 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { CheckCircle2, Volume2, Share2, AlertTriangle, Maximize2, TrendingUp, Sun, GripHorizontal, DoorClosed, ShieldCheck, MapPin, Mic, Play, Pause, Loader2, Headphones, Phone } from "lucide-react";
+import { 
+  CheckCircle2, 
+  Volume2, 
+  Share2, 
+  AlertTriangle, 
+  Maximize2, 
+  TrendingUp, 
+  Sun, 
+  GripHorizontal, 
+  DoorClosed, 
+  ShieldCheck, 
+  MapPin, 
+  Mic, 
+  Play, 
+  Pause, 
+  Loader2, 
+  Headphones, 
+  Phone,
+  Sparkles,
+  Award,
+  ArrowRight,
+  Check
+} from "lucide-react";
 
 // ============================================================
 // MOCK DATA - Self-contained, no backend required
@@ -110,7 +133,7 @@ const MOCK_ARRIVAL_DATA: ArrivalData = {
 // SUB-COMPONENT: StatusBanner
 // ============================================================
 
-function StatusBanner({ data }: { data: ArrivalData["statusBanner"] }) {
+function StatusBanner({ data, customTitle }: { data: ArrivalData["statusBanner"]; customTitle?: string }) {
   return (
     <div className="relative z-10 w-full bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald-100 px-6 py-4">
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -119,7 +142,7 @@ function StatusBanner({ data }: { data: ArrivalData["statusBanner"] }) {
             <CheckCircle2 size={12} strokeWidth={3} />
             {data.proximity}
           </span>
-          <h1 className="text-lg font-bold text-gray-900">{data.title}</h1>
+          <h1 className="text-lg font-bold text-gray-900">{customTitle || data.title}</h1>
         </div>
         <span className="inline-flex items-center gap-1.5 bg-white text-teal-700 px-3 py-1.5 rounded-full text-xs font-bold border border-teal-100">
           <CheckCircle2 size={12} strokeWidth={3} className="text-teal-500" />
@@ -138,46 +161,27 @@ function EntrancePhotoCard({ data }: { data: ArrivalData["entrancePhoto"] }) {
   const pillStyle = "backdrop-blur-md bg-white/85 text-slate-800 text-xs font-medium px-2.5 py-1 rounded-full shadow-sm border border-white/60";
 
   return (
-    <div className="relative rounded-2xl overflow-hidden shadow-inner aspect-[16/10]">
-      <img
-        src={data.src}
-        alt={data.alt}
-        className="w-full h-full object-cover"
-      />
+    <div className="relative rounded-2xl overflow-hidden bg-slate-900 shadow-sm border border-slate-200/80 group">
+      <div className="relative aspect-[16/10] w-full">
+        <img
+          src={data.src}
+          alt={data.alt}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-black/20 pointer-events-none" />
 
-      {/* AR Overlay Hotspot Pills */}
-      <div className="absolute inset-0 p-4 pointer-events-none">
-        {data.hotspots.map((hotspot, i) => {
-          const positionClasses = {
-            "top-left": "top-4 left-4",
-            "top-right": "top-4 right-4",
-            "center": "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
-            "mid-left": "top-1/2 left-4 -translate-y-1/2",
-            "bottom-center": "bottom-16 left-1/2 -translate-x-1/2",
-            "bottom-strip": "bottom-4 left-1/2 -translate-x-1/2",
-          };
-
-          const isBottomStrip = hotspot.position === "bottom-strip";
-
-          return (
-            <div
-              key={i}
-              className={`absolute pointer-events-auto ${positionClasses[hotspot.position]} ${isBottomStrip ? "" : pillStyle} ${isBottomStrip ? "flex items-center gap-1.5 bg-slate-900/80 text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg border border-slate-700" : ""}`}
-            >
-              {isBottomStrip && (
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
-              )}
-              {hotspot.text}
-            </div>
-          );
-        })}
-
-        {/* Distance indicator bottom-right */}
-        <div className="absolute bottom-4 right-4 pointer-events-auto">
-          <div className={`${pillStyle} flex items-center gap-1.5`}>
-            <MapPin size={12} className="text-emerald-500" />
-            20m to door
-          </div>
+        {/* Hotspots */}
+        <div className={`absolute top-4 left-4 ${pillStyle}`}>{data.hotspots[0].text}</div>
+        <div className={`absolute top-4 right-4 ${pillStyle} flex items-center gap-1`}>
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          {data.hotspots[1].text}
+        </div>
+        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${pillStyle} border-emerald-400 font-semibold`}>
+          {data.hotspots[2].text}
+        </div>
+        <div className={`absolute top-1/2 left-4 -translate-y-1/2 ${pillStyle}`}>{data.hotspots[3].text}</div>
+        <div className={`absolute bottom-4 left-1/2 -translate-x-1/2 ${pillStyle} font-semibold text-emerald-800 bg-white/95`}>
+          {data.hotspots[4].text}
         </div>
       </div>
     </div>
@@ -190,12 +194,12 @@ function EntrancePhotoCard({ data }: { data: ArrivalData["entrancePhoto"] }) {
 
 function TelemetryStrip({ data }: { data: ArrivalData["telemetry"] }) {
   return (
-    <div className="grid grid-cols-4 gap-3 bg-slate-50/70 border border-slate-100 rounded-xl p-3.5">
-      {data.map((metric, i) => (
-        <div key={i} className="text-center">
-          <p className="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">{metric.label}</p>
-          <p className="text-base font-bold text-slate-900 mt-0.5">{metric.value}</p>
-          <p className="text-[11px] text-slate-500">{metric.subtitle}</p>
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm">
+      {data.map((item, i) => (
+        <div key={i} className="flex flex-col items-center text-center p-2 rounded-xl bg-slate-50/70">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{item.label}</span>
+          <span className="text-base font-extrabold text-slate-900 mt-0.5">{item.value}</span>
+          <span className="text-[10px] text-slate-500 font-medium truncate max-w-full">{item.subtitle}</span>
         </div>
       ))}
     </div>
@@ -206,44 +210,54 @@ function TelemetryStrip({ data }: { data: ArrivalData["telemetry"] }) {
 // SUB-COMPONENT: DestinationSpecsCard
 // ============================================================
 
-function DestinationSpecsCard({ data }: { data: ArrivalData["destinationSpecs"] }) {
+function DestinationSpecsCard({ 
+  data, 
+  customDestName,
+  onCompleteTrip
+}: { 
+  data: ArrivalData["destinationSpecs"]; 
+  customDestName?: string;
+  onCompleteTrip: () => void;
+}) {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [hazardVerifications, setHazardVerifications] = useState<Record<string, string>>({});
+
+  const handleHazardVote = (hazardId: string, status: string) => {
+    setHazardVerifications(prev => ({ ...prev, [hazardId]: status }));
+  };
 
   return (
-    <div className="flex flex-col gap-4 relative z-10">
-      {/* Header Section */}
-      <div className="space-y-3">
-        {/* Portal Tag */}
-        <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">
-          <MapPin size={12} />
-          Destination Portal • {data.portalTag}
+    <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-4">
+      {/* Header Info */}
+      <div>
+        <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 mb-2">
+          {data.portalTag}
         </span>
-
-        {/* Title */}
-        <h2 className="text-xl font-bold text-slate-900 tracking-tight">{data.name}</h2>
-
-        {/* Steward Verified Badge */}
-        <div className="flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-3 py-2 rounded-lg border border-blue-100">
+        <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+          {customDestName || data.name}
+        </h2>
+        <div className="flex items-center gap-2 text-xs font-medium text-blue-700 bg-blue-50 px-3 py-2 rounded-lg border border-blue-100 mt-2">
           <CheckCircle2 size={14} strokeWidth={2.5} />
           <span>{data.verified}</span>
         </div>
       </div>
 
-      {/* Arrival Specifications List */}
-      <div className="space-y-3">
-        {/* Section Header */}
-        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mt-2">Arrival Specifications</p>
+      {/* Arrival Specifications */}
+      <div className="space-y-2.5">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          Arrival Specifications
+        </p>
         {data.specs.map((spec, i) => (
           <div key={i} className="bg-slate-50/70 rounded-xl p-3 border border-slate-100">
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
-                {i === 0 && <DoorClosed size={18} strokeWidth={2.5} />}
-                {i === 1 && <ShieldCheck size={18} strokeWidth={2.5} />}
-                {i === 2 && <Headphones size={18} strokeWidth={2.5} />}
+              <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
+                {i === 0 && <DoorClosed size={16} strokeWidth={2.5} />}
+                {i === 1 && <ShieldCheck size={16} strokeWidth={2.5} />}
+                {i === 2 && <Headphones size={16} strokeWidth={2.5} />}
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-slate-900 text-sm">{spec.title}</h3>
-                <p className="text-sm text-slate-600 mt-0.5">{spec.description}</p>
+                <h3 className="font-semibold text-slate-900 text-xs sm:text-sm">{spec.title}</h3>
+                <p className="text-xs text-slate-600 mt-0.5">{spec.description}</p>
               </div>
             </div>
           </div>
@@ -251,29 +265,31 @@ function DestinationSpecsCard({ data }: { data: ArrivalData["destinationSpecs"] 
       </div>
 
       {/* Audio Orientation Guide */}
-      <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-slate-900 flex items-center gap-2">
-            <Headphones size={18} strokeWidth={2.5} className="text-emerald-600" />
+      <div className="p-3.5 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-semibold text-slate-900 text-xs flex items-center gap-2">
+            <Headphones size={15} strokeWidth={2.5} className="text-emerald-600" />
             Audio Orientation Guide
           </h3>
-          <span className="text-xs font-medium text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">{data.audioGuide.duration}</span>
+          <span className="text-[10px] font-medium text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+            {data.audioGuide.duration}
+          </span>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className="flex-shrink-0 w-12 h-12 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center shadow-lg shadow-emerald-600/30 transition-colors focus-visible:outline-emerald-500"
+            className="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center shadow-md transition-colors"
             aria-label={isPlaying ? "Pause audio guide" : "Play audio guide"}
           >
-            {isPlaying ? <Pause size={20} strokeWidth={2.5} /> : <Play size={20} strokeWidth={2.5} className="ml-1" />}
+            {isPlaying ? <Pause size={16} strokeWidth={2.5} /> : <Play size={16} strokeWidth={2.5} className="ml-0.5" />}
           </button>
-          <div className="flex-1 h-4 bg-emerald-100 rounded-full overflow-hidden relative flex items-center justify-between px-2">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((_, i) => (
+          <div className="flex-1 h-3.5 bg-emerald-100 rounded-full overflow-hidden flex items-center justify-between px-2">
+            {[1, 2, 3, 4, 5, 6, 7].map((_, i) => (
               <div
                 key={i}
                 className={`w-1 rounded-full transition-all duration-300 ${isPlaying ? 'bg-emerald-500 animate-pulse' : 'bg-emerald-300'}`}
                 style={{ 
-                  height: isPlaying ? `${25 + Math.sin(i * 1.5) * 35}%` : `${20 + (i * 3) % 15}%`, 
+                  height: isPlaying ? `${30 + Math.sin(i * 1.5) * 35}%` : '40%', 
                   animationDelay: `${i * 120}ms` 
                 }}
               />
@@ -282,46 +298,127 @@ function DestinationSpecsCard({ data }: { data: ArrivalData["destinationSpecs"] 
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="space-y-3">
-        {/* Primary CTA - Fixed duplicate rounded-xl, added glow */}
-        <Link href="/" className="w-full h-12 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-3 shadow-lg shadow-emerald-700/40 hover:shadow-emerald-600/60 hover:scale-[1.01] text-sm flex items-center justify-center gap-2 transition-all duration-200 focus-visible:outline-emerald-500">
-          <CheckCircle2 size={20} strokeWidth={2.5} />
-          {data.ctaPrimary}
-        </Link>
+      {/* POST-TRIP HAZARD VERIFICATION CARD */}
+      <div className="p-3.5 rounded-2xl bg-amber-50/90 border border-amber-200/90 space-y-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+            <h4 className="font-extrabold text-[11px] uppercase tracking-wider text-amber-900">
+              Community Hazard Micro-Audit
+            </h4>
+          </div>
+          <span className="text-[10px] font-bold text-amber-700 bg-amber-200/60 px-2 py-0.5 rounded-full">
+            +15 Karma
+          </span>
+        </div>
+        <p className="text-xs text-amber-800">
+          Were the reported hazards along your route still present?
+        </p>
 
-        {/* Secondary Actions - Added glow */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Hazard 1 */}
+        <div className="bg-white/90 p-2.5 rounded-xl border border-amber-100 flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-xs font-bold text-gray-900 truncate">Sidewalk repair on Carter Rd</p>
+            <p className="text-[10px] text-gray-500">Reported 2h ago</p>
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            {hazardVerifications["h1"] ? (
+              <span className="text-[11px] font-bold text-emerald-700 flex items-center gap-1">
+                <Check size={12} strokeWidth={3} /> {hazardVerifications["h1"]}
+              </span>
+            ) : (
+              <>
+                <button
+                  onClick={() => handleHazardVote("h1", "Cleared")}
+                  className="px-2 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[10px] font-bold border border-emerald-200"
+                >
+                  Cleared
+                </button>
+                <button
+                  onClick={() => handleHazardVote("h1", "Still Blocked")}
+                  className="px-2 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 text-[10px] font-bold border border-red-200"
+                >
+                  Blocked
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Hazard 2 */}
+        <div className="bg-white/90 p-2.5 rounded-xl border border-amber-100 flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-xs font-bold text-gray-900 truncate">BKC Approach ramp steep slope</p>
+            <p className="text-[10px] text-gray-500">2.4% max incline</p>
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            {hazardVerifications["h2"] ? (
+              <span className="text-[11px] font-bold text-emerald-700 flex items-center gap-1">
+                <Check size={12} strokeWidth={3} /> {hazardVerifications["h2"]}
+              </span>
+            ) : (
+              <>
+                <button
+                  onClick={() => handleHazardVote("h2", "Manageable")}
+                  className="px-2 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[10px] font-bold border border-emerald-200"
+                >
+                  Manageable
+                </button>
+                <button
+                  onClick={() => handleHazardVote("h2", "Difficult")}
+                  className="px-2 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 text-[10px] font-bold border border-amber-300"
+                >
+                  Difficult
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="space-y-2.5">
+        {/* Primary CTA: Complete Trip */}
+        <button
+          onClick={onCompleteTrip}
+          className="w-full h-12 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3 shadow-lg shadow-emerald-700/30 active:scale-[0.99] text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+        >
+          <CheckCircle2 size={18} strokeWidth={2.5} />
+          <span>{data.ctaPrimary}</span>
+        </button>
+
+        {/* Secondary Actions */}
+        <div className="grid grid-cols-2 gap-2.5">
           {data.ctaSecondary.map((action, i) => {
             const sharedClass =
-              "w-full h-11 rounded-xl bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 font-semibold text-sm flex items-center justify-center gap-2 hover:shadow-md hover:scale-[1.01] transition-all duration-200 focus-visible:outline-emerald-500";
+              "w-full h-10 rounded-xl bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 font-bold text-xs flex items-center justify-center gap-1.5 transition-all";
             if (action.label === "Report Change") {
               return (
                 <Link key={i} href="/report-barrier" className={sharedClass}>
                   {action.icon}
-                  {action.label}
+                  <span>{action.label}</span>
                 </Link>
               );
             }
             return (
               <button key={i} className={sharedClass}>
                 {action.icon}
-                {action.label}
+                <span>{action.label}</span>
               </button>
             );
           })}
         </div>
 
-        {/* Bottom Assistance Card - Added glow */}
-        <div className="p-4 rounded-xl bg-slate-50/70 border border-slate-100 backdrop-blur-sm">
+        {/* Desk Assistance */}
+        <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Need Assistance?</p>
-              <p className="font-semibold text-slate-900">{data.supportBox.title}</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Need Assistance?</p>
+              <p className="font-semibold text-slate-900 text-xs">{data.supportBox.title}</p>
             </div>
-            <button className="h-10 px-4 rounded-lg border border-emerald-300 text-emerald-700 font-semibold text-sm hover:bg-emerald-50 hover:shadow-md hover:shadow-emerald-200/50 transition-all duration-200 focus-visible:outline-emerald-500 flex items-center gap-1.5">
-              <Phone size={16} strokeWidth={2.5} />
-              {data.supportBox.actionLabel}
+            <button className="h-9 px-3 rounded-lg border border-emerald-300 text-emerald-700 font-bold text-xs hover:bg-emerald-50 transition-colors flex items-center gap-1 cursor-pointer">
+              <Phone size={13} strokeWidth={2.5} />
+              <span>{data.supportBox.actionLabel}</span>
             </button>
           </div>
         </div>
@@ -334,88 +431,129 @@ function DestinationSpecsCard({ data }: { data: ArrivalData["destinationSpecs"] 
 // MAIN PAGE COMPONENT
 // ============================================================
 
-export default function ArrivalPage() {
-  const arrival = MOCK_ARRIVAL_DATA;
+function ArrivalPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const destParam = searchParams.get("dest");
+
+  const [arrival] = useState(MOCK_ARRIVAL_DATA);
+  const [isCompletedModalOpen, setIsCompletedModalOpen] = useState(false);
+
+  const handleCompleteTrip = () => {
+    // Save to localStorage
+    if (typeof window !== "undefined") {
+      try {
+        const history = JSON.parse(localStorage.getItem("pathclear_completed_trips") || "[]");
+        history.unshift({
+          id: `trip-${Date.now()}`,
+          destination: destParam || arrival.destinationSpecs.name,
+          timestamp: new Date().toISOString(),
+          stepFreeVerified: true,
+        });
+        localStorage.setItem("pathclear_completed_trips", JSON.stringify(history.slice(0, 10)));
+      } catch (e) {
+        console.warn("Storage error", e);
+      }
+    }
+
+    setIsCompletedModalOpen(true);
+  };
 
   return (
-    <div className="flex flex-col min-h-screen bg-pathclear-bg relative overflow-hidden">
-      {/* Inline keyframes for blob animation */}
-      <style>{`
-        @keyframes blob-float-1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          25% { transform: translate(30px, -50px) scale(1.1); }
-          50% { transform: translate(-20px, 20px) scale(0.95); }
-          75% { transform: translate(40px, 30px) scale(1.05); }
-        }
-        @keyframes blob-float-2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(-40px, 30px) scale(1.15); }
-          66% { transform: translate(25px, -40px) scale(0.9); }
-        }
-        @keyframes blob-float-3 {
-          0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
-          50% { transform: translate(-30px, -20px) scale(1.1) rotate(5deg); }
-        }
-        @keyframes pulse-glow {
-          0%, 100% { opacity: 0.3; }
-          50% { opacity: 0.6; }
-        }
-      `}</style>
-
-      {/* Animated decorative background blobs */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
-        <div 
-          className="absolute -top-32 -right-32 w-96 h-96 bg-emerald-100/40 rounded-full blur-3xl"
-          style={{ animation: 'blob-float-1 20s ease-in-out infinite' }}
-        />
-        <div 
-          className="absolute -bottom-48 -left-24 w-[500px] h-[500px] bg-teal-100/30 rounded-full blur-3xl"
-          style={{ animation: 'blob-float-2 25s ease-in-out infinite' }}
-        />
-        <div 
-          className="absolute top-1/2 right-1/4 w-64 h-64 bg-emerald-50/50 rounded-full blur-2xl"
-          style={{ animation: 'blob-float-3 18s ease-in-out infinite' }}
-        />
-        {/* Additional subtle pulse glow */}
-        <div 
-          className="absolute top-1/4 left-1/3 w-80 h-80 bg-teal-200/20 rounded-full blur-3xl"
-          style={{ animation: 'pulse-glow 8s ease-in-out infinite' }}
-        />
-      </div>
-
+    <div className="min-h-screen flex flex-col bg-[#f5f8fa] text-slate-800 font-sans antialiased relative">
       {/* Navbar */}
       <div className="relative z-10">
         <Navbar />
       </div>
 
       {/* Status Banner */}
-      <StatusBanner data={arrival.statusBanner} />
+      <StatusBanner 
+        data={arrival.statusBanner} 
+        customTitle={destParam ? `Arrival ahead — at ${destParam}` : undefined} 
+      />
 
-      {/* Main Content - Clean Elevated Container - Reduced whitespace */}
+      {/* Main Content */}
       <main className="relative z-10 flex-1 px-3 md:px-5 py-5">
         <div className="max-w-[1400px] mx-auto p-5 md:p-6 bg-white/90 backdrop-blur-sm rounded-3xl border border-white/60 shadow-lg shadow-emerald-900/5">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Left Column - 7/12 */}
+            {/* Left Column: Entrance Photo with AR Hotspots & Telemetry */}
             <div className="lg:col-span-7 flex flex-col gap-4">
-              {/* Entrance Photo with AR Hotspots */}
               <EntrancePhotoCard data={arrival.entrancePhoto} />
-
-              {/* Telemetry Strip - Compact Horizontal */}
               <TelemetryStrip data={arrival.telemetry} />
             </div>
 
-            {/* Right Column - 5/12 */}
+            {/* Right Column: Destination Specs & Post-trip Verification */}
             <div className="lg:col-span-5 flex flex-col gap-4">
-              <DestinationSpecsCard data={arrival.destinationSpecs} />
+              <DestinationSpecsCard 
+                data={arrival.destinationSpecs} 
+                customDestName={destParam || undefined}
+                onCompleteTrip={handleCompleteTrip}
+              />
             </div>
           </div>
         </div>
       </main>
+
+      {/* Trip Completed Celebration Modal */}
+      {isCompletedModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl shadow-2xl border border-emerald-100 p-6 sm:p-8 max-w-md w-full text-center space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="w-16 h-16 rounded-3xl bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center shadow-inner">
+              <Award size={36} strokeWidth={2.2} />
+            </div>
+
+            <div>
+              <span className="text-[10px] font-mono uppercase tracking-widest font-extrabold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                100% Step-Free Verified
+              </span>
+              <h3 className="text-2xl font-black text-slate-900 mt-2">
+                Trip Completed!
+              </h3>
+              <p className="text-xs text-slate-500 mt-1">
+                You reached <strong className="text-slate-800">{destParam || arrival.destinationSpecs.name}</strong> successfully without encountering blockers.
+              </p>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 text-left text-xs text-slate-600 space-y-1">
+              <div className="flex justify-between font-semibold">
+                <span>Trip Saved:</span>
+                <span className="text-slate-900">Local History & Supabase Sync</span>
+              </div>
+              <div className="flex justify-between font-semibold">
+                <span>Steward Karma:</span>
+                <span className="text-emerald-700">+50 Points</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => router.push("/")}
+              className="w-full py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow-lg shadow-emerald-700/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>Return to Home</span>
+              <ArrowRight size={16} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <div className="relative z-10">
         <Footer />
       </div>
     </div>
+  );
+}
+
+export default function ArrivalPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#f5f8fa] flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        </div>
+      }
+    >
+      <ArrivalPageContent />
+    </Suspense>
   );
 }

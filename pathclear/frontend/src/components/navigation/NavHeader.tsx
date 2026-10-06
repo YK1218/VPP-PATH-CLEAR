@@ -1,11 +1,16 @@
-import { Volume2, Crosshair, CheckCircle2 } from "lucide-react";
+"use client";
+
+import { Volume2, VolumeX, Crosshair, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
+import { useVoiceAgent } from "@/contexts/VoiceAgentContext";
 
 interface NavHeaderProps {
   destination: string;
 }
 
 export default function NavHeader({ destination }: NavHeaderProps) {
+  const { isMuted, toggleMute } = useVoiceAgent();
+
   return (
     <header className="absolute top-0 left-0 right-0 h-[72px] bg-white border-b border-gray-200 shadow-sm z-50 flex items-center px-4 md:px-6 justify-between">
       {/* Left Section */}
@@ -27,11 +32,23 @@ export default function NavHeader({ destination }: NavHeaderProps) {
         </div>
       </div>
 
-      {/* Right Section */}
+      {/* Right Section: Mute Toggle & Map Recenter */}
       <div className="flex items-center gap-3">
-        <button className="flex items-center gap-2 bg-[#f0f4ff] hover:bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-bold transition-colors border border-blue-100 focus-visible:outline-pathclear-primary">
-          <Volume2 size={16} />
-          <span className="hidden sm:inline">Voice Audio On</span>
+        <button
+          type="button"
+          onClick={toggleMute}
+          className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all border cursor-pointer ${
+            isMuted
+              ? "bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-200"
+              : "bg-[#f0f4ff] hover:bg-blue-50 text-blue-700 border-blue-100"
+          }`}
+          aria-label={isMuted ? "Unmute AI voice guidance" : "Mute AI voice guidance"}
+          title={isMuted ? "Voice is muted. Click to enable speech" : "Voice is active. Click to mute speech"}
+        >
+          {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+          <span className="hidden sm:inline">
+            {isMuted ? "Voice Muted" : "Voice Audio On"}
+          </span>
         </button>
         <button className="flex items-center justify-center w-10 h-10 bg-[#f0f4ff] hover:bg-blue-50 text-blue-700 rounded-full transition-colors border border-blue-100 focus-visible:outline-pathclear-primary" aria-label="Center map">
           <Crosshair size={18} />

@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { MapPin, TrendingUp, Volume2, Send, CheckCircle2, AlertTriangle, BarChart2, Mountain, Droplet, Sun, Loader2, Map, GripVertical, ArrowUpDown } from "lucide-react";
@@ -115,7 +116,13 @@ const MAP_CENTER: [number, number] = [72.850, 19.0595]; // Midpoint approx
 // Planner Map Overlay Component
 // ============================================================
 
-function PlannerMapOverlay() {
+function PlannerMapOverlay({
+  originCoords = ORIGIN_COORDS,
+  destCoords = DEST_COORDS,
+}: {
+  originCoords?: [number, number];
+  destCoords?: [number, number];
+}) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const animationIdRef = useRef<number | null>(null);
@@ -124,11 +131,15 @@ function PlannerMapOverlay() {
     if (mapRef.current || !mapContainer.current) return;
 
     let animationActive = true;
+    const centerPoint: [number, number] = [
+      (originCoords[0] + destCoords[0]) / 2,
+      (originCoords[1] + destCoords[1]) / 2,
+    ];
 
     const map = new maplibregl.Map({
       container: mapContainer.current,
       style: OSM_RASTER_STYLE,
-      center: MAP_CENTER,
+      center: centerPoint,
       zoom: DEFAULT_MAP_ZOOM,
       maxZoom: 19,
       pitch: DEFAULT_MAP_PITCH,
@@ -503,12 +514,32 @@ function HazardAlertStrip({ hazards }: { hazards: RoutePreviewData["hazards"] })
 // MAIN PAGE COMPONENT
 // ============================================================
 
-export default function PlannerPage() {
+function PlannerPageContent() {
+  const searchParams = useSearchParams();
+  const destParam = searchParams.get("dest");
+  const originParam = searchParams.get("origin");
+  const latParam = searchParams.get("lat");
+  const lngParam = searchParams.get("lng");
+  const idParam = searchParams.get("id");
+  const filterParam = searchParams.get("filter");
+
   const route = MOCK_ROUTE_DATA;
   const [panelWidth, setPanelWidth] = useState(380);
   const [isResizing, setIsResizing] = useState(false);
-  const [originText, setOriginText] = useState(route.origin);
-  const [destinationText, setDestinationText] = useState(route.destination);
+  const [originText, setOriginText] = useState(originParam || route.origin);
+  const [destinationText, setDestinationText] = useState(destParam || route.destination);
+
+  // Sync state if searchParams change
+  useEffect(() => {
+    if (destParam) setDestinationText(destParam);
+    if (originParam) setOriginText(originParam);
+  }, [destParam, originParam]);
+
+  const destCoords: [number, number] = (latParam && lngParam)
+    ? [parseFloat(lngParam), parseFloat(latParam)]
+    : DEST_COORDS;
+  const originCoords: [number, number] = ORIGIN_COORDS;
+  const navTargetId = idParam || route.navigationTargetId || "ent-101";
 
   const handleSwap = () => {
     const temp = originText;
@@ -544,7 +575,7 @@ export default function PlannerPage() {
       <Navbar />
 
       {/* Map Background - Full Screen */}
-      <PlannerMapOverlay />
+      <PlannerMapOverlay originCoords={originCoords} destCoords={destCoords} />
 
       {/* Floating Left Card: Route Preview - Resizable */}
       <aside
@@ -690,7 +721,7 @@ export default function PlannerPage() {
         {/* Card Footer: Primary Action + Secondary Actions */}
         <div className="border-t border-gray-100 p-4 bg-gray-50/50 rounded-b-2xl space-y-3">
           <Link
-            href={`/navigation/${route.navigationTargetId}`}
+            href={`/navigation/${navTargetId}?dest=${encodeURIComponent(destinationText)}&origin=${encodeURIComponent(originText)}`}
             className="w-full flex items-center justify-center gap-2 bg-pathclear-primary hover:bg-pathclear-secondary text-white px-5 py-3.5 rounded-xl font-bold text-base shadow-lg shadow-pathclear-primary/20 transition-all focus-visible:outline-pathclear-primary"
           >
             <CheckCircle2 size={20} strokeWidth={2.5} />
@@ -722,5 +753,19 @@ export default function PlannerPage() {
       {/* Footer */}
       <Footer />
     </div>
+  );
+}
+
+export default function PlannerPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-pathclear-bg flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        </div>
+      }
+    >
+      <PlannerPageContent />
+    </Suspense>
   );
 }

@@ -34,6 +34,7 @@ export type AgentStatus = "idle" | "listening" | "thinking" | "speaking";
 interface VoiceAgentContextValue {
   isListening: boolean;
   isSpeaking: boolean;
+  isMuted: boolean;
   agentState: AgentStatus;
   transcript: string;
   interimTranscript: string;
@@ -48,6 +49,8 @@ interface VoiceAgentContextValue {
   sendMessage: (text: string) => void;
   speak: (text: string) => void;
   stopSpeaking: () => void;
+  toggleMute: () => void;
+  setIsMuted: (muted: boolean) => void;
   setIsPanelOpen: (open: boolean) => void;
   setIsFullScreenOverlay: (full: boolean) => void;
   clearMessages: () => void;
@@ -70,6 +73,7 @@ export function VoiceAgentProvider({ children }: { children: React.ReactNode }) 
 
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
   const [agentState, setAgentState] = useState<AgentStatus>("idle");
   const [transcript, setTranscript] = useState("");
   const [interimTranscript, setInterimTranscript] = useState("");
@@ -104,6 +108,9 @@ export function VoiceAgentProvider({ children }: { children: React.ReactNode }) 
 
   const speak = useCallback(
     (text: string) => {
+      // If muted, cancel and don't speak
+      if (isMuted) return;
+
       // If deaf profile, mute TTS and prefer visual banners
       if (profileMode === "deaf") {
         triggerHaptic(HAPTIC_PATTERNS.acknowledged);
@@ -130,7 +137,7 @@ export function VoiceAgentProvider({ children }: { children: React.ReactNode }) 
         }
       );
     },
-    [profileMode]
+    [profileMode, isMuted]
   );
 
   const stopSpeaking = useCallback(() => {
@@ -140,6 +147,18 @@ export function VoiceAgentProvider({ children }: { children: React.ReactNode }) 
       setAgentState("idle");
     }
   }, [agentState]);
+
+  const toggleMute = useCallback(() => {
+    setIsMuted((prev) => {
+      const next = !prev;
+      if (next) {
+        stopSpeech();
+        setIsSpeaking(false);
+        setAgentState("idle");
+      }
+      return next;
+    });
+  }, []);
 
   const handleProcessIntent = useCallback(
     (text: string) => {
@@ -280,6 +299,7 @@ export function VoiceAgentProvider({ children }: { children: React.ReactNode }) 
       messages,
       isPanelOpen,
       isFullScreenOverlay,
+      isMuted,
       speechSupported,
       ttsSupported,
       toggleListening,
@@ -288,6 +308,8 @@ export function VoiceAgentProvider({ children }: { children: React.ReactNode }) 
       sendMessage,
       speak,
       stopSpeaking,
+      toggleMute,
+      setIsMuted,
       setIsPanelOpen,
       setIsFullScreenOverlay,
       clearMessages,
@@ -295,6 +317,7 @@ export function VoiceAgentProvider({ children }: { children: React.ReactNode }) 
     [
       isListening,
       isSpeaking,
+      isMuted,
       agentState,
       transcript,
       interimTranscript,
@@ -309,6 +332,7 @@ export function VoiceAgentProvider({ children }: { children: React.ReactNode }) 
       sendMessage,
       speak,
       stopSpeaking,
+      toggleMute,
       setIsPanelOpen,
       setIsFullScreenOverlay,
       clearMessages,
