@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Atkinson_Hyperlegible } from "next/font/google";
 import "./globals.css";
+import { ProfileProvider } from "@/contexts/ProfileContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 
-const inter = Inter({ subsets: ["latin"] });
+const atkinson = Atkinson_Hyperlegible({
+  weight: ["400", "700"],
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-atkinson",
+});
 
 export const metadata: Metadata = {
   title: "PathClear | Accessible Routing & Doorway Verification",
@@ -16,9 +23,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`h-full antialiased ${inter.className}`}>
-      <body className="min-h-full flex flex-col bg-[#f5f8fa] text-gray-900" suppressHydrationWarning>
-        {children}
+    <html lang="en" className={`h-full antialiased ${atkinson.variable}`}>
+      <body className="min-h-full flex flex-col bg-[#f5f8fa] text-gray-900 font-sans" suppressHydrationWarning>
+        <ProfileProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </ProfileProvider>
       </body>
     </html>
   );

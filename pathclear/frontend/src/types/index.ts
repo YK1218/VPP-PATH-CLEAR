@@ -3,7 +3,9 @@ export type MobilityProfileType =
   | "wheelchair_power"
   | "walker"
   | "cane"
-  | "visual_guide";
+  | "visual_guide"
+  | "visual_partial"
+  | "deaf";
 
 export interface AccessibilityProfile {
   id: string;
@@ -16,7 +18,15 @@ export interface AccessibilityProfile {
   avoidBrokenSurfaces: boolean;
 }
 
-export type DoorType = "automatic" | "push_button" | "manual_light" | "manual_heavy";
+export type DoorType =
+  | "automatic"
+  | "push_button"
+  | "manual_light"
+  | "manual_heavy"
+  | "automatic_sliding"
+  | "automatic_swing"
+  | "push_button_actuator"
+  | "revolving_with_accessible_bypass";
 
 export interface Entrance {
   id: string;
@@ -40,9 +50,21 @@ export type HazardType =
   | "steep_slope"
   | "broken_surface"
   | "broken_elevator"
-  | "construction";
+  | "construction"
+  | "elevator_outage"
+  | "construction_trench"
+  | "narrow_passage"
+  | "surface_friction";
 
-export type HazardSeverity = "low" | "medium" | "high" | "blocker";
+export type HazardSeverity =
+  | "low"
+  | "medium"
+  | "high"
+  | "blocker"
+  | "low_caution"
+  | "medium_friction"
+  | "high_barrier"
+  | "critical_blocker";
 
 export interface Hazard {
   id: string;

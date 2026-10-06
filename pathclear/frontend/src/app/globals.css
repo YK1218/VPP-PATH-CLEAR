@@ -5,6 +5,7 @@
   --color-pathclear-secondary: #0e9f6e;
   --color-pathclear-bg: #f5f8fa;
   --color-pathclear-surface: #ffffff;
+  --font-atkinson: var(--font-atkinson), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 :root {
@@ -13,6 +14,7 @@
 }
 
 body {
+  font-family: var(--font-atkinson);
   background: var(--background);
   color: var(--foreground);
 }

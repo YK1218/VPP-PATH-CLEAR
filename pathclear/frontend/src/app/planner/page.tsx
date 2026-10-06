@@ -7,6 +7,7 @@ import Footer from "@/components/layout/Footer";
 import { MapPin, TrendingUp, Volume2, Send, CheckCircle2, AlertTriangle, BarChart2, Mountain, Droplet, Sun, Loader2, Map, GripVertical } from "lucide-react";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { OSM_RASTER_STYLE, DEFAULT_MAP_ZOOM, DEFAULT_MAP_PITCH, DEFAULT_MAP_BEARING } from "@/lib/map-config";
 
 // ============================================================
 // MOCK DATA - Self-contained, no backend required
@@ -126,32 +127,12 @@ function PlannerMapOverlay() {
 
     const map = new maplibregl.Map({
       container: mapContainer.current,
-      style: {
-        version: 8,
-        sources: {
-          osm: {
-            type: "raster",
-            tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-            tileSize: 256,
-            attribution: "&copy; OpenStreetMap",
-            maxzoom: 19,
-          },
-        },
-        layers: [
-          {
-            id: "osm",
-            type: "raster",
-            source: "osm",
-            minzoom: 0,
-            maxzoom: 22,
-          },
-        ],
-      },
+      style: OSM_RASTER_STYLE,
       center: MAP_CENTER,
-      zoom: 14.5,
+      zoom: DEFAULT_MAP_ZOOM,
       maxZoom: 19,
-      pitch: 45,
-      bearing: -15,
+      pitch: DEFAULT_MAP_PITCH,
+      bearing: DEFAULT_MAP_BEARING,
       attributionControl: false,
     });
     mapRef.current = map;

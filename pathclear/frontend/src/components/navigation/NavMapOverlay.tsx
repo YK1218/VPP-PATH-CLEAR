@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from "react";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { OSM_RASTER_STYLE, DEFAULT_MAP_ZOOM, DEFAULT_MAP_PITCH, DEFAULT_MAP_BEARING } from "@/lib/map-config";
 import { Route, Entrance, Hazard } from "@/types";
 
 interface NavMapOverlayProps {
@@ -142,32 +143,12 @@ export default function NavMapOverlay({ route, entrance, hazards }: NavMapOverla
     // Initialize MapLibre map with reliable OpenStreetMap raster tiles
     const map = new maplibregl.Map({
       container: mapContainer.current,
-      style: {
-        version: 8,
-        sources: {
-          osm: {
-            type: "raster",
-            tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-            tileSize: 256,
-            attribution: "&copy; OpenStreetMap",
-            maxzoom: 19,
-          },
-        },
-        layers: [
-          {
-            id: "osm",
-            type: "raster",
-            source: "osm",
-            minzoom: 0,
-            maxzoom: 22,
-          },
-        ],
-      },
+      style: OSM_RASTER_STYLE,
       center: [entrance.longitude, entrance.latitude],
-      zoom: 16.5,
+      zoom: DEFAULT_MAP_ZOOM,
       maxZoom: 20,
-      pitch: 45,
-      bearing: -15,
+      pitch: DEFAULT_MAP_PITCH,
+      bearing: DEFAULT_MAP_BEARING,
       attributionControl: false,
     });
     mapRef.current = map;
