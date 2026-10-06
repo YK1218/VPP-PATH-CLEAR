@@ -1,32 +1,37 @@
-from pydantic import BaseModel, Field
-from typing import Dict, Any, List
-
-class Coordinate(BaseModel):
-    lat: float
-    lng: float
+from pydantic import BaseModel
+from typing import Dict, Any, List, Optional
 
 class ProfileConstraints(BaseModel):
-    mode: str = "wheelchair"
-    step_free: bool = True
-    max_slope: float = 5.0
+    mobility_type: str = "wheelchair_manual"
+    max_incline_percent: float = 5.0
+    require_step_free: bool = True
+    require_tactile_paving: bool = False
+    require_well_lit: bool = False
+    avoid_broken_surfaces: bool = True
 
 class RouteRequest(BaseModel):
-    origin: Coordinate
-    destination: Coordinate
+    origin: List[float] # [lon, lat]
+    destination: List[float] # [lon, lat]
     profile: ProfileConstraints
 
-class RouteAudit(BaseModel):
-    step_free: bool
-    max_slope: float
-    surface: str
-    tactile_coverage: int
-    accessible_crossings: int
-    known_hazards: int
-    confidence: float
-    rfi: float
+class RouteSegment(BaseModel):
+    distance_meters: float
+    duration_seconds: float
+    incline_percent: float
+    surface_type: str
+    is_step_free: bool
+    confidence_score: float
+    geometry: List[List[float]] # [[lon, lat], ...]
 
 class RouteResponse(BaseModel):
-    geometry: Dict[str, Any] # GeoJSON LineString
-    distance_m: int
-    duration_min: int
-    audit: RouteAudit
+    route_id: str
+    total_distance_meters: float
+    total_duration_seconds: float
+    stress_score: float
+    is_recommended: bool
+    step_count: int
+    max_incline_percent: float
+    segments: List[RouteSegment]
+    hazards_en_route: List[Any] = []
+    destination_entrance: Optional[Any] = None
+    coordinates: List[List[float]] # [[lon, lat], ...]

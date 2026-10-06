@@ -24,15 +24,17 @@ export interface Entrance {
   entranceName: string;
   latitude: number;
   longitude: number;
-  doorType: DoorType;
+  doorType: string;
   stepCount: number;
   rampAvailable: boolean;
   rampSlopePercent?: number;
   widthCm?: number;
   photoUrl?: string;
   notes?: string;
-  confidenceScore: number; // 0.0 - 1.0 with decay
+  confidenceScore: number;
   lastVerifiedAt: string;
+  tactilePaving?: boolean;
+  last_50_feet_instructions?: string;
 }
 
 export type HazardType =

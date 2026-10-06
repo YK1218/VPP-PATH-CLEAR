@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { submitVerification } from "@/lib/api";
 import NavHeader from "@/components/navigation/NavHeader";
 import NavMapOverlay from "@/components/navigation/NavMapOverlay";
@@ -8,6 +8,7 @@ import TurnInstructionCard from "@/components/navigation/TurnInstructionCard";
 import RouteAlertCard from "@/components/navigation/RouteAlertCard";
 import MapControls from "@/components/navigation/MapControls";
 import NavFooter from "@/components/navigation/NavFooter";
+import Last50FeetCard from "@/components/navigation/Last50FeetCard";
 import { Entrance, Route, Hazard } from "@/types";
 
 interface NavigationContentProps {
@@ -41,6 +42,8 @@ interface NavigationContentProps {
 }
 
 export default function NavigationContent({ data }: NavigationContentProps) {
+  const [showApproach, setShowApproach] = useState(false);
+
   const handleVerify = (response: "clear" | "blocked") => {
     if (data.routeAlert.hazardId) {
       submitVerification({
@@ -78,7 +81,18 @@ export default function NavigationContent({ data }: NavigationContentProps) {
       <MapControls />
 
       {/* 6. Bottom Footer */}
-      <NavFooter {...data.footer} />
+      <NavFooter 
+        {...data.footer} 
+        onViewApproach={() => setShowApproach(true)} 
+      />
+
+      {/* 7. Last 50 Feet Overlay */}
+      {showApproach && (
+        <Last50FeetCard 
+          entrance={data.entrance} 
+          onClose={() => setShowApproach(false)} 
+        />
+      )}
     </div>
   );
 }

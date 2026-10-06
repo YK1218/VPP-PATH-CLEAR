@@ -166,13 +166,13 @@ export default function Hero() {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 10h-2a2 2 0 0 0-2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2h2"></path></svg>
             Require Dropped Curbs
           </button>
-          <button className="flex items-center gap-2 bg-[#f8f9fa] hover:bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition-colors border border-gray-200">
-            <Volume2 size={16} />
-            Audible Crossings
-          </button>
-          <button className="flex items-center gap-2 bg-[#f8f9fa] hover:bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition-colors border border-gray-200">
+          
+          <button 
+            onClick={() => router.push('/virtual-cane')}
+            className="flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg text-sm font-bold transition-colors border border-indigo-200 shadow-sm shadow-indigo-200/50"
+          >
             <Eye size={16} />
-            Live Elevator Feed
+            Virtual Cane (Beta)
           </button>
         </div>
         

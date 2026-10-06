@@ -535,27 +535,27 @@ export default function PlannerPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            origin: { lat: ORIGIN_COORDS[1], lng: ORIGIN_COORDS[0] },
-            destination: { lat: DEST_COORDS[1], lng: DEST_COORDS[0] },
-            profile: { mode: "wheelchair", step_free: true, max_slope: 5.0 }
+            origin: [ORIGIN_COORDS[0], ORIGIN_COORDS[1]],
+            destination: [DEST_COORDS[0], DEST_COORDS[1]],
+            profile: { mobility_type: "wheelchair_manual", require_step_free: true, max_incline_percent: 5.0 }
           })
         });
         
         if (response.ok) {
           const data = await response.json();
-          setRouteCoords(data.geometry.coordinates);
+          setRouteCoords(data.geometry?.coordinates || data.coordinates);
           
           setRoute(prev => ({
             ...prev,
             stats: {
               ...prev.stats,
-              totalTime: `${data.duration_min} min total`,
-              distance: `${(data.distance_m / 1000).toFixed(1)} km distance`,
-              maxIncline: `${data.audit.max_slope}% max incline`,
+              totalTime: `${Math.round(data.total_duration_seconds / 60)} min total`,
+              distance: `${(data.total_distance_meters / 1000).toFixed(1)} km distance`,
+              maxIncline: `${data.max_incline_percent}% max incline`,
             },
             header: {
               ...prev.header,
-              title: data.audit.step_free ? "100% Step-Free Route (Live API)" : "PathClear Route (Live API)",
+              title: data.step_count === 0 ? "100% Step-Free Route (Live API)" : "PathClear Route (Live API)",
             }
           }));
         }

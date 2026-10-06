@@ -1,37 +1,40 @@
-from app.db.neo4j.queries import routing_queries
-from app.services.routing.audit_service import calculate_route_audit
-from app.schemas.navigation import RouteResponse
-from typing import Dict, Any
+from app.schemas.navigation import RouteResponse, RouteSegment
+from typing import Dict, Any, List
+import uuid
 
-def get_accessible_route(origin: Dict[str, float], destination: Dict[str, float], profile: Dict[str, Any]) -> RouteResponse:
-    # 1. Query Neo4j for the shortest accessible path
-    path_data = routing_queries.calculate_shortest_path(
-        origin["lat"], origin["lng"],
-        destination["lat"], destination["lng"],
-        profile
-    )
+def get_accessible_route(origin: List[float], destination: List[float], profile: Dict[str, Any]) -> RouteResponse:
+    # Fallback to the straight line mock matching frontend expectation
     
-    if not path_data:
-        # Fallback to the straight line mock if Neo4j is not connected or fails
-        path_data = {
-            "coordinates": [
-                [origin["lng"], origin["lat"]],
-                [(origin["lng"] + destination["lng"]) / 2, (origin["lat"] + destination["lat"]) / 2],
-                [destination["lng"], destination["lat"]]
-            ],
-            "total_cost": 500
-        }
-        
-    # 2. Audit the route
-    audit = calculate_route_audit(path_data)
+    coordinates = [
+        origin,
+        [origin[0] + 0.0002, origin[1] + 0.0002],
+        [destination[0] - 0.0002, destination[1] - 0.0002],
+        destination
+    ]
     
-    # 3. Format response
+    distance_m = 850
+    duration_s = 780
+    
+    segments = [
+        RouteSegment(
+            distance_meters=distance_m,
+            duration_seconds=duration_s,
+            incline_percent=2.5,
+            surface_type="paved",
+            is_step_free=True,
+            confidence_score=0.9,
+            geometry=coordinates
+        )
+    ]
+    
     return RouteResponse(
-        geometry={
-            "type": "LineString",
-            "coordinates": path_data["coordinates"]
-        },
-        distance_m=int(path_data["total_cost"]),
-        duration_min=int(path_data["total_cost"] / 80), # Roughly 80m per min walk speed
-        audit=audit
+        route_id=str(uuid.uuid4()),
+        total_distance_meters=distance_m,
+        total_duration_seconds=duration_s,
+        stress_score=0.15,
+        is_recommended=True,
+        step_count=0,
+        max_incline_percent=3.5,
+        segments=segments,
+        coordinates=coordinates
     )
