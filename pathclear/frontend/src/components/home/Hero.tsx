@@ -82,10 +82,9 @@ export default function Hero() {
               const data = await res.json();
               setAgentResponse(data);
               
-              // If action is SHOW_ROUTE, optionally navigate automatically
-              // if (data.action === "SHOW_ROUTE") {
-              //   router.push("/planner");
-              // }
+              if (data.action === "SHOW_ROUTE") {
+                router.push("/planner");
+              }
             } catch (err) {
               setAgentResponse({ message: "Failed to connect to the PathClear Agent." });
             } finally {

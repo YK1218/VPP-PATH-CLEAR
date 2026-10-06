@@ -15,8 +15,12 @@ async def invoke_agent(request: AgentRequest):
     try:
         final_state = await app_graph.ainvoke(inputs)
         
-        # The last message is the AI's final textual response
-        final_message = final_state["messages"][-1].content
+        final_message_content = final_state["messages"][-1].content
+        if isinstance(final_message_content, list):
+            final_message = " ".join([item.get("text", "") for item in final_message_content if item.get("type") == "text"])
+        else:
+            final_message = str(final_message_content)
+            
         action = final_state.get("structured_action")
         payload = final_state.get("structured_payload")
         

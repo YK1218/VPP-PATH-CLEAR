@@ -32,7 +32,7 @@ def call_model(state: AgentState):
     if not api_key:
         return {"messages": [AIMessage(content="I am operating without a Google API key right now. I cannot use my tools or process intent.", name="PathClear")]}
         
-    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0)
+    llm = ChatGoogleGenerativeAI(model="gemini-flash-latest", temperature=0)
     llm_with_tools = llm.bind_tools(tools)
     
     response = llm_with_tools.invoke([system_prompt] + list(messages))
