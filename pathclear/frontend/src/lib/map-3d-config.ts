@@ -290,22 +290,34 @@ export const DEMO_3D_ENTRANCE_PORTALS: EntrancePortal3DData[] = [
 export function setup3DMapLayers(map: any) {
   if (!map) return;
 
-  // Add 3D building extrusions source if not already present
+  // Add 3D building extrusions source from real OpenStreetMap BKC GeoJSON dataset
   if (!map.getSource("bkc-3d-buildings")) {
     map.addSource("bkc-3d-buildings", {
       type: "geojson",
-      data: BKC_3D_BUILDINGS_GEOJSON,
+      data: "/data/bkc_buildings.geojson",
     });
   }
 
-  // Add 3D Extruded Buildings Layer with dynamic elevation
+  // Add 3D Extruded Buildings Layer with dynamic architectural elevation & lighting
   if (!map.getLayer("3d-buildings-extrusion")) {
     map.addLayer({
       id: "3d-buildings-extrusion",
       type: "fill-extrusion",
       source: "bkc-3d-buildings",
       paint: {
-        "fill-extrusion-color": ["get", "color"],
+        "fill-extrusion-color": [
+          "coalesce",
+          ["get", "color"],
+          [
+            "interpolate",
+            ["linear"],
+            ["get", "height"],
+            15, "#cbd5e1",
+            30, "#94a3b8",
+            50, "#64748b",
+            70, "#334155"
+          ]
+        ],
         "fill-extrusion-height": ["get", "height"],
         "fill-extrusion-base": ["get", "min_height"],
         "fill-extrusion-opacity": 0.88,
@@ -321,9 +333,36 @@ export function setup3DMapLayers(map: any) {
       source: "bkc-3d-buildings",
       paint: {
         "line-color": "#ffffff",
-        "line-width": 2,
-        "line-opacity": 0.6,
+        "line-width": 1.5,
+        "line-opacity": 0.5,
       },
     });
   }
+
+  // Add interactive click tooltip for 3D buildings
+  map.on("click", "3d-buildings-extrusion", (e: any) => {
+    if (!e.features || !e.features[0]) return;
+    const feature = e.features[0];
+    const props = feature.properties || {};
+    const name = props.name || "BKC Commercial Building";
+    const height = props.height ? `${props.height}m` : "45m";
+    const levels = props.levels ? `${props.levels} floors` : "Commercial";
+
+    new (map.constructor as any).Popup({ offset: [0, -10] })
+      .setLngLat(e.lngLat)
+      .setHTML(`
+        <div style="font-family: inherit; padding: 4px 6px;">
+          <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 2px;">🏢 ${name}</div>
+          <div style="font-size: 10px; font-weight: 600; color: #059669;">Height: ${height} • ${levels}</div>
+        </div>
+      `)
+      .addTo(map);
+  });
+
+  map.on("mouseenter", "3d-buildings-extrusion", () => {
+    map.getCanvas().style.cursor = "pointer";
+  });
+  map.on("mouseleave", "3d-buildings-extrusion", () => {
+    map.getCanvas().style.cursor = "";
+  });
 }
