@@ -127,7 +127,7 @@ export async function calculateRoute(
   profile: AccessibilityProfile
 ): Promise<Route> {
   try {
-    const res = await fetch(`${API_BASE_URL}/routes/calculate`, {
+    const res = await fetch(`${API_BASE_URL}/navigation/route`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

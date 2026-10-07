@@ -118,11 +118,13 @@ const MAP_CENTER: [number, number] = [72.850, 19.0595]; // Midpoint approx
 // ============================================================
 
 function PlannerMapOverlay({
-  originCoords = ORIGIN_COORDS,
-  destCoords = DEST_COORDS,
+  routeCoords = ROUTE_COORDINATES,
+  origin = ORIGIN_COORDS,
+  dest = DEST_COORDS,
 }: {
-  originCoords?: [number, number];
-  destCoords?: [number, number];
+  routeCoords?: [number, number][];
+  origin?: [number, number];
+  dest?: [number, number];
 }) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -154,15 +156,15 @@ function PlannerMapOverlay({
 
       // Current position at ~30% along the route (simulated progress)
       const currentPosition: [number, number] = [
-        ORIGIN_COORDS[0] + (DEST_COORDS[0] - ORIGIN_COORDS[0]) * 0.3,
-        ORIGIN_COORDS[1] + (DEST_COORDS[1] - ORIGIN_COORDS[1]) * 0.3,
+        origin[0] + (dest[0] - origin[0]) * 0.3,
+        origin[1] + (dest[1] - origin[1]) * 0.3,
       ];
 
       // Already-traveled path (start → current position)
-      const completedCoords: [number, number][] = [ORIGIN_COORDS, currentPosition];
+      const completedCoords: [number, number][] = [origin, currentPosition];
 
       // Remaining path (current position → destination)
-      const remainingCoords: [number, number][] = [currentPosition, DEST_COORDS];
+      const remainingCoords: [number, number][] = [currentPosition, dest];
 
       // ---- COMPLETED path source (already traveled) ----
       map.addSource("route-completed", {
@@ -236,7 +238,7 @@ function PlannerMapOverlay({
       const originEl = document.createElement("div");
       originEl.className = "w-6 h-6 bg-blue-600 border-4 border-white rounded-full shadow-md";
       new maplibregl.Marker({ element: originEl })
-        .setLngLat(ORIGIN_COORDS)
+        .setLngLat(origin)
         .addTo(map);
 
       // ---- Destination Marker: Double-ring target + Badge ----
@@ -262,12 +264,12 @@ function PlannerMapOverlay({
         </div>
       `;
       new maplibregl.Marker({ element: destEl, anchor: "bottom" })
-        .setLngLat(DEST_COORDS)
+        .setLngLat(dest)
         .addTo(map);
 
       // Fit bounds to show full route
       const bounds = new maplibregl.LngLatBounds();
-      (ROUTE_COORDINATES as [number, number][]).forEach((coord) => bounds.extend(coord));
+      (routeCoords as [number, number][]).forEach((coord) => bounds.extend(coord));
       map.fitBounds(bounds, { padding: { top: 80, bottom: 80, left: 50, right: 50 }, maxZoom: 15 });
 
       // ---- Animated dot flowing from user to destination ----
@@ -358,7 +360,7 @@ function PlannerMapOverlay({
       map.remove();
       mapRef.current = null;
     };
-  }, []);
+  }, [routeCoords, origin, dest]);
 
   return (
     <div className="absolute inset-0 bg-[#eef1f6] overflow-hidden z-0">
@@ -525,7 +527,8 @@ function PlannerPageContent() {
   const idParam = searchParams.get("id");
   const filterParam = searchParams.get("filter");
 
-  const route = MOCK_ROUTE_DATA;
+  const [route, setRoute] = useState<RoutePreviewData>(MOCK_ROUTE_DATA);
+  const [routeCoords, setRouteCoords] = useState<[number, number][]>(ROUTE_COORDINATES);
   const [panelWidth, setPanelWidth] = useState(380);
   const [isResizing, setIsResizing] = useState(false);
   const [originText, setOriginText] = useState(originParam || route.origin);
@@ -548,6 +551,44 @@ function PlannerPageContent() {
     setOriginText(destinationText);
     setDestinationText(temp);
   };
+
+  useEffect(() => {
+    const fetchRoute = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/v1/navigation/route", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            origin: [ORIGIN_COORDS[0], ORIGIN_COORDS[1]],
+            destination: [DEST_COORDS[0], DEST_COORDS[1]],
+            profile: { mobility_type: "wheelchair_manual", require_step_free: true, max_incline_percent: 5.0 }
+          })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setRouteCoords(data.geometry?.coordinates || data.coordinates);
+          
+          setRoute(prev => ({
+            ...prev,
+            stats: {
+              ...prev.stats,
+              totalTime: `${Math.round(data.total_duration_seconds / 60)} min total`,
+              distance: `${(data.total_distance_meters / 1000).toFixed(1)} km distance`,
+              maxIncline: `${data.max_incline_percent}% max incline`,
+            },
+            header: {
+              ...prev.header,
+              title: data.step_count === 0 ? "100% Step-Free Route (Live API)" : "PathClear Route (Live API)",
+            }
+          }));
+        }
+      } catch (err) {
+        console.error("Failed to fetch live route, using mock", err);
+      }
+    };
+    fetchRoute();
+  }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -577,7 +618,7 @@ function PlannerPageContent() {
       <Navbar />
 
       {/* Map Background - Full Screen */}
-      <PlannerMapOverlay originCoords={originCoords} destCoords={destCoords} />
+      <PlannerMapOverlay routeCoords={routeCoords} origin={routeCoords[0]} dest={routeCoords[routeCoords.length - 1]} />
 
       {/* Floating Left Card: Route Preview - Resizable */}
       <aside

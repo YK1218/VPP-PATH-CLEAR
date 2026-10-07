@@ -6,9 +6,10 @@ import { submitVerification } from "@/lib/api";
 import NavHeader from "@/components/navigation/NavHeader";
 import NavMapOverlay from "@/components/navigation/NavMapOverlay";
 import TurnInstructionCard from "@/components/navigation/TurnInstructionCard";
-import RouteAlertCard from "@/components/navigation/RouteAlertCard";
+
 import MapControls from "@/components/navigation/MapControls";
 import NavFooter from "@/components/navigation/NavFooter";
+import Last50FeetCard from "@/components/navigation/Last50FeetCard";
 import { Entrance, Route, Hazard } from "@/types";
 import { CheckCircle2, ArrowRight, Sparkles, Navigation, DoorOpen } from "lucide-react";
 import { useVoiceAgent } from "@/contexts/VoiceAgentContext";
@@ -54,6 +55,7 @@ export default function NavigationContent({ data }: NavigationContentProps) {
   const isWithinArrivalRange = distanceRemainingMeters <= 50;
 
   const { speak, isMuted } = useVoiceAgent();
+  const [showApproach, setShowApproach] = useState(false);
 
   // Speak initial turn instruction for blind / low-vision users via VoiceAgent (respects mute & accessibility)
   useEffect(() => {
@@ -133,15 +135,7 @@ export default function NavigationContent({ data }: NavigationContentProps) {
       {/* 3. Floating Left Card: Turn Instructions */}
       <TurnInstructionCard {...data.turnInstruction} />
 
-      {/* 4. Floating Right Card: Route Alert (1-Tap Verification with Fatigue Fix) */}
-      {!isAlertDismissed && (
-        <RouteAlertCard 
-          {...data.routeAlert} 
-          isVerified={isHazardVerified}
-          onVerify={handleVerify}
-          onDismiss={() => setIsAlertDismissed(true)}
-        />
-      )}
+
 
       {/* 5. Map Controls (Floating Bottom-Right above NavFooter) */}
       <MapControls />
@@ -164,7 +158,16 @@ export default function NavigationContent({ data }: NavigationContentProps) {
         timeRemaining={isWithinArrivalRange ? "1 min" : data.footer.timeRemaining}
         distance={isWithinArrivalRange ? "35 m" : data.footer.distance}
         entranceName={data.footer.entranceName}
+        onViewApproach={() => setShowApproach(true)}
       />
+
+      {/* 7. Last 50 Feet Overlay */}
+      {showApproach && (
+        <Last50FeetCard 
+          entrance={data.entrance} 
+          onClose={() => setShowApproach(false)} 
+        />
+      )}
     </div>
   );
 }
