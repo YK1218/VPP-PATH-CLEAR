@@ -130,9 +130,14 @@ export async function fetchEntrances(): Promise<Entrance[]> {
  * Fetch active route hazards
  */
 export async function fetchHazards(latitude: number, longitude: number, radius = 500): Promise<Hazard[]> {
-  const query = new URLSearchParams({ lat: String(latitude), lng: String(longitude), radius: String(radius) });
-  const data = await requestJson<any[]>(`/hazards/nearby?${query.toString()}`);
-  return data.map(mapHazard);
+  try {
+    const query = new URLSearchParams({ lat: String(latitude), lng: String(longitude), radius: String(radius) });
+    const data = await requestJson<any[]>(`/hazards/nearby?${query.toString()}`);
+    return data.map(mapHazard);
+  } catch (err) {
+    console.warn("Hazards fetch failed, returning empty array:", err);
+    return [];
+  }
 }
 
 export interface HazardReport {
