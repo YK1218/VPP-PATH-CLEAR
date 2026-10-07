@@ -3,3 +3,10 @@
 __pycache__/
 *.pyc
 opencode.json
+
+# Python virtual environment
+pathclear/backend/.venv/
+
+# Next.js dependencies and build output
+pathclear/frontend/node_modules/
+pathclear/frontend/.next/

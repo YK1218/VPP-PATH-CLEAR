@@ -6,10 +6,10 @@ interface NavFooterProps {
   timeRemaining: string;
   distance: string;
   entranceName: string;
-  onViewApproach?: () => void;
+  entranceId?: string;
 }
 
-export default function NavFooter({ eta, timeRemaining, distance, entranceName, onViewApproach }: NavFooterProps) {
+export default function NavFooter({ eta, timeRemaining, distance, entranceName, entranceId }: NavFooterProps) {
   return (
     <footer className="absolute bottom-0 left-0 right-0 bg-[#1c2a3a] text-white p-4 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
       <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
@@ -52,12 +52,9 @@ export default function NavFooter({ eta, timeRemaining, distance, entranceName, 
             <AlertTriangle size={14} strokeWidth={2.5} className="md:w-4 md:h-4" />
             Report
           </Link>
-          <button 
-            onClick={onViewApproach}
-            className="flex items-center justify-center gap-1.5 md:gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-2 md:px-5 py-2.5 rounded-lg text-xs md:text-sm font-bold transition-colors shadow-sm focus-visible:outline-white text-center"
-          >
+          <Link href={`/arrival?dest=${encodeURIComponent(entranceName)}${entranceId ? `&id=${encodeURIComponent(entranceId)}` : ""}`} className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-colors shadow-sm focus-visible:outline-white text-center">
             Arriving Soon
-          </button>
+          </Link>
           <Link href="/" className="flex items-center justify-center bg-[#4c5c6d] hover:bg-[#5b6e82] text-white px-2 md:px-6 py-2.5 rounded-lg text-xs md:text-sm font-bold transition-colors shadow-sm focus-visible:outline-white text-center">
             End Route
           </Link>

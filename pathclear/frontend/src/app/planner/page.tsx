@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState, Suspense } from "react";
+import React, { useEffect, useMemo, useRef, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
@@ -10,6 +10,9 @@ import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { OSM_RASTER_STYLE, DEFAULT_MAP_ZOOM, DEFAULT_MAP_PITCH, DEFAULT_MAP_BEARING } from "@/lib/map-config";
 import { setup3DMapLayers } from "@/lib/map-3d-config";
+import { calculateRoute, fetchEntrances } from "@/lib/api";
+import { Entrance, Route } from "@/types";
+import { useProfile } from "@/contexts/ProfileContext";
 
 // ============================================================
 // MOCK DATA - Self-contained, no backend required
@@ -118,25 +121,30 @@ const MAP_CENTER: [number, number] = [72.850, 19.0595]; // Midpoint approx
 // ============================================================
 
 function PlannerMapOverlay({
-  routeCoords = ROUTE_COORDINATES,
-  origin = ORIGIN_COORDS,
-  dest = DEST_COORDS,
+  originCoords = ORIGIN_COORDS,
+  destCoords = DEST_COORDS,
+  routeCoordinates,
+  destinationLabel,
 }: {
-  routeCoords?: [number, number][];
-  origin?: [number, number];
-  dest?: [number, number];
+  originCoords?: [number, number];
+  destCoords?: [number, number];
+  routeCoordinates?: [number, number][];
+  destinationLabel: string;
 }) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const animationIdRef = useRef<number | null>(null);
+  const activeRouteCoordinates = routeCoordinates && routeCoordinates.length > 1
+    ? routeCoordinates
+    : ROUTE_COORDINATES;
 
   useEffect(() => {
     if (mapRef.current || !mapContainer.current) return;
 
     let animationActive = true;
     const centerPoint: [number, number] = [
-      (origin[0] + dest[0]) / 2,
-      (origin[1] + dest[1]) / 2,
+      (originCoords[0] + destCoords[0]) / 2,
+      (originCoords[1] + destCoords[1]) / 2,
     ];
 
     const map = new maplibregl.Map({
@@ -155,16 +163,15 @@ function PlannerMapOverlay({
       setup3DMapLayers(map);
 
       // Current position at ~30% along the route (simulated progress)
-      const currentPosition: [number, number] = [
-        origin[0] + (dest[0] - origin[0]) * 0.3,
-        origin[1] + (dest[1] - origin[1]) * 0.3,
-      ];
+      const progressIndex = Math.max(1, Math.floor((activeRouteCoordinates.length - 1) * 0.3));
+      const currentPosition = activeRouteCoordinates[progressIndex];
 
       // Already-traveled path (start → current position)
-      const completedCoords: [number, number][] = [origin, currentPosition];
+      const completedCoords: [number, number][] = [activeRouteCoordinates[0], currentPosition];
 
       // Remaining path (current position → destination)
-      const remainingCoords: [number, number][] = [currentPosition, dest];
+      const remainingCoords: [number, number][] = [currentPosition, ...activeRouteCoordinates.slice(progressIndex + 1)];
+      if (remainingCoords.length === 1) remainingCoords.push(activeRouteCoordinates[activeRouteCoordinates.length - 1]);
 
       // ---- COMPLETED path source (already traveled) ----
       map.addSource("route-completed", {
@@ -238,7 +245,7 @@ function PlannerMapOverlay({
       const originEl = document.createElement("div");
       originEl.className = "w-6 h-6 bg-blue-600 border-4 border-white rounded-full shadow-md";
       new maplibregl.Marker({ element: originEl })
-        .setLngLat(origin)
+        .setLngLat(activeRouteCoordinates[0])
         .addTo(map);
 
       // ---- Destination Marker: Double-ring target + Badge ----
@@ -258,18 +265,20 @@ function PlannerMapOverlay({
           <!-- Badge above marker -->
           <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap">
             <div class="bg-gray-900 text-white text-xs font-semibold px-2.5 py-1 rounded shadow-md flex items-center gap-1.5">
-              Gate 2 Accessible Entry
+              <span data-destination-label></span>
             </div>
           </div>
         </div>
       `;
+      const destinationLabelNode = destEl.querySelector("[data-destination-label]");
+      if (destinationLabelNode) destinationLabelNode.textContent = destinationLabel;
       new maplibregl.Marker({ element: destEl, anchor: "bottom" })
-        .setLngLat(dest)
+        .setLngLat(activeRouteCoordinates[activeRouteCoordinates.length - 1])
         .addTo(map);
 
       // Fit bounds to show full route
       const bounds = new maplibregl.LngLatBounds();
-      (routeCoords as [number, number][]).forEach((coord) => bounds.extend(coord));
+      activeRouteCoordinates.forEach((coord) => bounds.extend(coord));
       map.fitBounds(bounds, { padding: { top: 80, bottom: 80, left: 50, right: 50 }, maxZoom: 15 });
 
       // ---- Animated dot flowing from user to destination ----
@@ -360,7 +369,7 @@ function PlannerMapOverlay({
       map.remove();
       mapRef.current = null;
     };
-  }, [routeCoords, origin, dest]);
+  }, [originCoords, destCoords, routeCoordinates, destinationLabel]);
 
   return (
     <div className="absolute inset-0 bg-[#eef1f6] overflow-hidden z-0">
@@ -416,6 +425,7 @@ function ElevationProfileChart({ data }: { data: RoutePreviewData["elevationProf
           </span>
         </div>
       </div>
+      <p className="text-[10px] text-gray-400 mb-2">Illustrative only; elevation data is not included in the backend response.</p>
 
       <div className="relative h-28 w-full">
         <svg viewBox="0 0 100 100" className="w-full h-full" preserveAspectRatio="none">
@@ -470,11 +480,7 @@ function SurfaceCompositionBar({ surfaces }: { surfaces: RoutePreviewData["surfa
         <Mountain size={16} className="text-pathclear-primary" />
         Surface Composition
       </h4>
-      <p className="text-sm text-gray-600 mb-3">{surfaceText}</p>
-      <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold">
-        <CheckCircle2 size={12} strokeWidth={2.5} />
-        Zero Cobblestones
-      </span>
+      <p className="text-sm text-gray-600 mb-3">{surfaceText || "Surface data not provided by the backend."}</p>
     </div>
   );
 }
@@ -519,6 +525,7 @@ function HazardAlertStrip({ hazards }: { hazards: RoutePreviewData["hazards"] })
 // ============================================================
 
 function PlannerPageContent() {
+  const { profile } = useProfile();
   const searchParams = useSearchParams();
   const destParam = searchParams.get("dest");
   const originParam = searchParams.get("origin");
@@ -527,12 +534,16 @@ function PlannerPageContent() {
   const idParam = searchParams.get("id");
   const filterParam = searchParams.get("filter");
 
-  const [route, setRoute] = useState<RoutePreviewData>(MOCK_ROUTE_DATA);
-  const [routeCoords, setRouteCoords] = useState<[number, number][]>(ROUTE_COORDINATES);
+
   const [panelWidth, setPanelWidth] = useState(380);
   const [isResizing, setIsResizing] = useState(false);
-  const [originText, setOriginText] = useState(originParam || route.origin);
-  const [destinationText, setDestinationText] = useState(destParam || route.destination);
+  const [originText, setOriginText] = useState(originParam || MOCK_ROUTE_DATA.origin);
+  const [destinationText, setDestinationText] = useState(destParam || MOCK_ROUTE_DATA.destination);
+  const [backendRoute, setBackendRoute] = useState<Route | null>(null);
+  const [backendEntrance, setBackendEntrance] = useState<Entrance | null>(null);
+  const [resolvedDestCoords, setResolvedDestCoords] = useState<[number, number] | null>(null);
+  const [routeLoading, setRouteLoading] = useState(false);
+  const [routeError, setRouteError] = useState<string | null>(null);
 
   // Sync state if searchParams change
   useEffect(() => {
@@ -540,11 +551,129 @@ function PlannerPageContent() {
     if (originParam) setOriginText(originParam);
   }, [destParam, originParam]);
 
-  const destCoords: [number, number] = (latParam && lngParam)
-    ? [parseFloat(lngParam), parseFloat(latParam)]
-    : DEST_COORDS;
-  const originCoords: [number, number] = ORIGIN_COORDS;
-  const navTargetId = idParam || route.navigationTargetId || "ent-101";
+  const hasDestinationCoordinates = Boolean(latParam && lngParam && Number.isFinite(Number(latParam)) && Number.isFinite(Number(lngParam)));
+  const destCoords = useMemo<[number, number]>(() => hasDestinationCoordinates
+    ? [Number(lngParam), Number(latParam)]
+    : DEST_COORDS, [hasDestinationCoordinates, latParam, lngParam]);
+  const originCoords = ORIGIN_COORDS;
+  const expectedOrigin = originParam || MOCK_ROUTE_DATA.origin;
+  const expectedDestination = destParam || MOCK_ROUTE_DATA.destination;
+  const inputsMatchCoordinates = originText.trim() === expectedOrigin.trim() && destinationText.trim() === expectedDestination.trim();
+
+  useEffect(() => {
+    let isCurrent = true;
+    setBackendRoute(null);
+    setBackendEntrance(null);
+    setResolvedDestCoords(null);
+    if (!inputsMatchCoordinates) {
+      setRouteLoading(false);
+      setRouteError("Edited locations do not have resolved coordinates. Select a mapped suggestion before routing.");
+      return () => { isCurrent = false; };
+    }
+
+    setRouteLoading(true);
+    setRouteError(null);
+    let entranceLookupError: string | null = null;
+    fetchEntrances()
+      .catch((error: unknown) => {
+        entranceLookupError = error instanceof Error ? error.message : "Entrance lookup failed.";
+        return [];
+      })
+      .then((entrances) => {
+        if (!isCurrent) return;
+        const exactId = idParam ? entrances.find((item) => item.id === idParam) : undefined;
+        const normalizedDestination = (destParam || "").toLowerCase();
+        const namedMatch = normalizedDestination
+          ? entrances.find((item) => `${item.buildingName} ${item.entranceName || ""}`.toLowerCase().includes(normalizedDestination)
+            || normalizedDestination.includes(item.buildingName.toLowerCase()))
+          : undefined;
+        const selectedEntrance = idParam ? exactId || null : namedMatch || null;
+        setBackendEntrance(selectedEntrance);
+        const targetCoordinates: [number, number] | null = hasDestinationCoordinates
+          ? destCoords
+          : selectedEntrance ? [selectedEntrance.longitude, selectedEntrance.latitude] : null;
+        if (!targetCoordinates) {
+          throw new Error(entranceLookupError
+            ? `No destination coordinates were supplied, and the entrance lookup failed: ${entranceLookupError}`
+            : "No destination coordinates or matching backend entrance were returned.");
+        }
+        if (entranceLookupError) setRouteError(`Route uses selected coordinates, but backend entrance lookup failed: ${entranceLookupError}`);
+        setResolvedDestCoords(targetCoordinates);
+        return calculateRoute(originCoords, targetCoordinates, profile);
+      })
+      .then((calculatedRoute) => {
+        if (isCurrent && calculatedRoute) setBackendRoute(calculatedRoute);
+      })
+      .catch((error: unknown) => {
+        if (isCurrent) setRouteError(error instanceof Error ? error.message : "The backend route request failed.");
+      })
+      .finally(() => {
+        if (isCurrent) setRouteLoading(false);
+      });
+
+    return () => { isCurrent = false; };
+  }, [hasDestinationCoordinates, inputsMatchCoordinates, originCoords, destCoords, profile, idParam, destParam]);
+
+  const route = useMemo<RoutePreviewData>(() => {
+    if (!backendRoute) {
+      return {
+        ...MOCK_ROUTE_DATA,
+        origin: originText,
+        destination: destinationText,
+        header: {
+          ...MOCK_ROUTE_DATA.header,
+          verifiedAgo: routeLoading ? "Requesting route from backend…" : routeError ? "Demo preview · backend unavailable" : "Demo preview · coordinates required",
+        },
+      };
+    }
+
+    const groupedSurfaces = new Map<string, number>();
+    for (const segment of backendRoute.segments) {
+      groupedSurfaces.set(segment.surfaceType, (groupedSurfaces.get(segment.surfaceType) || 0) + segment.distanceMeters);
+    }
+    const segmentDistance = [...groupedSurfaces.values()].reduce((sum, distance) => sum + distance, 0);
+    const surfaceComposition = [...groupedSurfaces.entries()].map(([type, distance]) => ({
+      type: type.replaceAll("_", " "),
+      percentage: segmentDistance > 0 ? Math.round(distance / segmentDistance * 100) : 0,
+      color: "bg-gray-600",
+      icon: <Mountain size={12} />,
+    }));
+
+    return {
+      ...MOCK_ROUTE_DATA,
+      origin: originText,
+      destination: destinationText,
+      header: {
+        title: backendRoute.isRecommended ? "Backend Recommended Route" : "Backend Route",
+        verifiedAgo: "Backend response · demo routing service",
+      },
+      stats: {
+        totalTime: `${Math.round(backendRoute.totalDurationSeconds / 60)} min total`,
+        distance: `${(backendRoute.totalDistanceMeters / 1000).toFixed(1)} km distance`,
+        maxIncline: `${backendRoute.maxInclinePercent}% max incline`,
+      },
+      surfaceComposition,
+      hazards: [],
+      navigationTargetId: backendEntrance?.id || "",
+    };
+  }, [backendRoute, backendEntrance, originText, destinationText, routeLoading, routeError]);
+
+  const navTargetId = backendEntrance?.id || (idParam && backendEntrance?.id === idParam ? idParam : null);
+  const navigationQuery = new URLSearchParams({
+    dest: destinationText,
+    origin: originText,
+    mobility_type: profile.mobilityType,
+    max_incline_percent: String(profile.maxInclinePercent),
+    require_step_free: String(profile.requireStepFree),
+    require_tactile_paving: String(profile.requireTactilePaving),
+    require_well_lit: String(profile.requireWellLit),
+    avoid_broken_surfaces: String(profile.avoidBrokenSurfaces),
+  });
+  const routeOrigin = backendRoute?.coordinates[0];
+  if (routeOrigin) {
+    navigationQuery.set("origin_lng", String(routeOrigin[0]));
+    navigationQuery.set("origin_lat", String(routeOrigin[1]));
+  }
 
   const handleSwap = () => {
     const temp = originText;
@@ -618,7 +747,12 @@ function PlannerPageContent() {
       <Navbar />
 
       {/* Map Background - Full Screen */}
-      <PlannerMapOverlay routeCoords={routeCoords} origin={routeCoords[0]} dest={routeCoords[routeCoords.length - 1]} />
+      <PlannerMapOverlay
+        originCoords={originCoords}
+        destCoords={resolvedDestCoords || destCoords}
+        routeCoordinates={backendRoute?.coordinates}
+        destinationLabel={backendEntrance?.entranceName || backendEntrance?.buildingName || "Demo destination"}
+      />
 
       {/* Floating Left Card: Route Preview - Resizable */}
       <aside
@@ -656,7 +790,7 @@ function PlannerPageContent() {
               <p className="text-xs md:text-sm font-bold text-gray-900 truncate">
                 {originText.split("(")[0].trim()} → {destinationText.split("(")[0].trim()}
               </p>
-              <p className="text-[10px] md:text-xs font-medium text-gray-500">{route.header.verifiedAgo}</p>
+          <p className="text-xs font-medium text-gray-500">{route.header.verifiedAgo}</p>
             </div>
           </div>
           <button className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors shrink-0" aria-label="Close preview">
@@ -667,6 +801,12 @@ function PlannerPageContent() {
             </svg>
           </button>
         </div>
+
+        {(routeError || routeLoading) && (
+          <div role={routeError ? "alert" : "status"} className={`mx-3 mt-3 rounded-lg px-3 py-2 text-xs ${routeError ? "bg-amber-50 text-amber-900 border border-amber-200" : "bg-blue-50 text-blue-800 border border-blue-100"}`}>
+            {routeError || "Loading route from the PathClear backend…"}
+          </div>
+        )}
 
         {/* Scrollable Content - Compact */}
         <div className="flex-1 overflow-y-auto p-3 space-y-3">
@@ -763,8 +903,12 @@ function PlannerPageContent() {
                 <CheckCircle2 size={16} strokeWidth={2.5} />
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-bold text-gray-900">Entrance Guaranteed Step-Free</h4>
-                <p className="text-xs text-gray-500 mt-1">Door B: Automatic sliding doors with flush-level threshold. Verified by PathClear community 12 min ago.</p>
+                <h4 className="text-sm font-bold text-gray-900">{backendEntrance ? "Backend Entrance Details" : "Entrance Details Unavailable"}</h4>
+                <p className="text-xs text-gray-500 mt-1">
+                  {backendEntrance
+                    ? `${backendEntrance.entranceName || backendEntrance.buildingName}. ${backendEntrance.stepCount === undefined ? "Step count not provided." : `${backendEntrance.stepCount} step(s).`} ${backendEntrance.rampAvailable === undefined ? "Ramp status not provided." : backendEntrance.rampAvailable ? `Ramp present${backendEntrance.rampSlopePercent === undefined ? "; slope not provided." : `; ${backendEntrance.rampSlopePercent}% slope.`}` : "No ramp reported."}`
+                    : "The backend did not return a matching entrance record. No access guarantee is available."}
+                </p>
               </div>
             </div>
           </div>
@@ -775,13 +919,20 @@ function PlannerPageContent() {
 
         {/* Card Footer: Primary Action + Secondary Actions */}
         <div className="border-t border-gray-100 p-4 bg-gray-50/50 rounded-b-2xl space-y-3">
-          <Link
-            href={`/navigation/${navTargetId}?dest=${encodeURIComponent(destinationText)}&origin=${encodeURIComponent(originText)}`}
-            className="w-full flex items-center justify-center gap-2 bg-pathclear-primary hover:bg-pathclear-secondary text-white px-5 py-3.5 rounded-xl font-bold text-base shadow-lg shadow-pathclear-primary/20 transition-all focus-visible:outline-pathclear-primary"
-          >
-            <CheckCircle2 size={20} strokeWidth={2.5} />
-            Start Step-Free Navigation
-          </Link>
+          {navTargetId ? (
+            <Link
+              href={`/navigation/${encodeURIComponent(navTargetId)}?${navigationQuery.toString()}`}
+              className="w-full flex items-center justify-center gap-2 bg-pathclear-primary hover:bg-pathclear-secondary text-white px-5 py-3.5 rounded-xl font-bold text-base shadow-lg shadow-pathclear-primary/20 transition-all focus-visible:outline-pathclear-primary"
+            >
+              <CheckCircle2 size={20} strokeWidth={2.5} />
+              Start Step-Free Navigation
+            </Link>
+          ) : (
+            <button type="button" disabled className="w-full flex items-center justify-center gap-2 bg-gray-400 text-white px-5 py-3.5 rounded-xl font-bold text-base cursor-not-allowed">
+              <CheckCircle2 size={20} strokeWidth={2.5} />
+              No matching backend entrance
+            </button>
+          )}
 
           <div className="grid grid-cols-2 gap-3">
             <button className="w-full flex items-center justify-center gap-2 bg-[#f0f4ff] hover:bg-blue-50 text-blue-700 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors border border-blue-100 focus-visible:outline-pathclear-primary">

@@ -4,14 +4,25 @@ import TurnInstructionCard from "@/components/navigation/TurnInstructionCard";
 
 import MapControls from "@/components/navigation/MapControls";
 import NavFooter from "@/components/navigation/NavFooter";
-import { notFound } from "next/navigation";
+import Link from "next/link";
 import { fetchEntrances, calculateRoute, fetchHazards } from "@/lib/api";
-import { Entrance, Route, Hazard } from "@/types";
+import { AccessibilityProfile, Entrance, Hazard, MobilityProfileType, Route } from "@/types";
 import NavigationContent from "@/components/navigation/NavigationContent";
 
 interface NavigationPageProps {
   params: Promise<{ id: string }>;
-  searchParams?: Promise<{ dest?: string; origin?: string }>;
+  searchParams?: Promise<{
+    dest?: string;
+    origin?: string;
+    origin_lng?: string;
+    origin_lat?: string;
+    mobility_type?: string;
+    max_incline_percent?: string;
+    require_step_free?: string;
+    require_tactile_paving?: string;
+    require_well_lit?: string;
+    avoid_broken_surfaces?: string;
+  }>;
 }
 
 interface NavigationData {
@@ -28,7 +39,7 @@ interface NavigationData {
     title: string;
     distanceAhead: string;
     question: string;
-    travelerImpactCount: number;
+    travelerImpactCount?: number;
     hazardId?: string;
   };
   footer: {
@@ -45,18 +56,23 @@ interface NavigationData {
 async function fetchNavigationData(
   entranceId: string, 
   customDest?: string, 
-  customOrigin?: string
+  customOrigin?: string,
+  profile?: AccessibilityProfile,
+  originCoordinates?: [number, number]
 ): Promise<NavigationData> {
   // Fetch all entrances to find the target entrance
   const entrances = await fetchEntrances();
-  const entrance = entrances.find(e => e.id === entranceId) || entrances[0];
+  const entrance = entrances.find(e => e.id === entranceId);
 
   if (!entrance) {
     throw new Error(`Entrance ${entranceId} not found`);
   }
 
-  // Calculate the route from the BKC demo start point to this entrance.
-  const profile = {
+  // Use the origin from the planner's backend route when provided.
+  if (!originCoordinates) {
+    throw new Error("The planner did not provide origin coordinates. Return to the planner and calculate a route first.");
+  }
+  const routeProfile = profile || {
     id: "wheelchair",
     name: "Wheelchair",
     mobilityType: "wheelchair_manual" as const,
@@ -68,19 +84,17 @@ async function fetchNavigationData(
   };
 
   const route = await calculateRoute(
-    [72.864, 19.064],
+    originCoordinates,
     [entrance.longitude, entrance.latitude],
-    profile
+    routeProfile
   );
 
   // Fetch hazards
-  const hazards = await fetchHazards();
-
-  // Find hazards near the route
-  const routeHazards = hazards.filter(h => h.isActive);
+  // The backend accepts a point query, so request hazards near the route midpoint.
+  const routePoint = route.coordinates[Math.floor(route.coordinates.length / 2)] || [entrance.longitude, entrance.latitude];
+  const routeHazards = await fetchHazards(routePoint[1], routePoint[0]);
 
   // Format data for navigation components
-  const totalDurationMin = Math.round(route.totalDurationSeconds / 60);
   const now = new Date();
   const eta = new Date(now.getTime() + route.totalDurationSeconds * 1000);
 
@@ -96,7 +110,7 @@ async function fetchNavigationData(
 
   // Get first hazard for route alert (or create default)
   const primaryHazard = routeHazards[0];
-  const destinationName = customDest || `${entrance.buildingName}, ${entrance.entranceName}`;
+  const destinationName = customDest || [entrance.buildingName, entrance.entranceName].filter(Boolean).join(", ");
 
   return {
     destination: destinationName,
@@ -109,23 +123,23 @@ async function fetchNavigationData(
       slope: route.segments[0]
         ? `${route.segments[0].inclinePercent}% slope`
         : "Gentle slope",
-      width: "2m width safe",
+      width: entrance.widthCm === undefined ? "Width not provided by backend" : `${entrance.widthCm} cm width`,
     },
     routeAlert: {
-      timeReported: primaryHazard
+      timeReported: primaryHazard?.lastVerifiedAt
         ? `${Math.round((Date.now() - new Date(primaryHazard.lastVerifiedAt).getTime()) / 60000)} MIN AGO`
-        : "LIVE",
-      title: primaryHazard?.description || "Route clear - no active hazards",
+        : primaryHazard ? "TIME UNKNOWN" : "NONE NEAR ROUTE POINT",
+      title: primaryHazard?.description || primaryHazard?.hazardType || "No nearby hazards returned",
       distanceAhead: primaryHazard
         ? `${Math.round(Math.sqrt(
-            Math.pow(primaryHazard.latitude - entrance.latitude, 2) +
-            Math.pow(primaryHazard.longitude - entrance.longitude, 2)
+            Math.pow(primaryHazard.latitude - routePoint[1], 2) +
+            Math.pow(primaryHazard.longitude - routePoint[0], 2)
           ) * 111000)}m`
-        : "0m",
+        : "",
       question: primaryHazard
-        ? `Can you confirm if this hazard is still present? ${primaryHazard.description}`
-        : "No active hazards on this route. Is the path clear?",
-      travelerImpactCount: primaryHazard?.verificationCount || 0,
+        ? `Can you confirm if this ${primaryHazard.hazardType} is still present?${primaryHazard.description ? ` ${primaryHazard.description}` : ""}`
+        : "No nearby hazard was returned for the queried point.",
+      travelerImpactCount: primaryHazard?.verificationCount,
       hazardId: primaryHazard?.id,
     },
     footer: {
@@ -145,12 +159,37 @@ export default async function NavigationPage(props: NavigationPageProps) {
   const searchParams = props.searchParams ? await props.searchParams : {};
   const customDest = searchParams.dest;
   const customOrigin = searchParams.origin;
+  const parsedIncline = Number(searchParams.max_incline_percent);
+  const parsedOriginLng = Number(searchParams.origin_lng);
+  const parsedOriginLat = Number(searchParams.origin_lat);
+  const originCoordinates: [number, number] | undefined =
+    Number.isFinite(parsedOriginLng) && Number.isFinite(parsedOriginLat)
+      ? [parsedOriginLng, parsedOriginLat]
+      : undefined;
+  const profile: AccessibilityProfile = {
+    id: "navigation-profile",
+    name: "Navigation profile",
+    mobilityType: (searchParams.mobility_type || "wheelchair_manual") as MobilityProfileType,
+    maxInclinePercent: Number.isFinite(parsedIncline) ? parsedIncline : 5,
+    requireStepFree: searchParams.require_step_free !== "false",
+    requireTactilePaving: searchParams.require_tactile_paving === "true",
+    requireWellLit: searchParams.require_well_lit === "true",
+    avoidBrokenSurfaces: searchParams.avoid_broken_surfaces !== "false",
+  };
 
   try {
-    const data = await fetchNavigationData(id, customDest, customOrigin);
+    const data = await fetchNavigationData(id, customDest, customOrigin, profile, originCoordinates);
 
     return <NavigationContent data={data} />;
   } catch (error) {
-    notFound();
+    return (
+      <main className="min-h-screen bg-[#f5f8fa] flex items-center justify-center p-6">
+        <section className="max-w-lg bg-white rounded-2xl border border-gray-200 shadow-lg p-6 text-center">
+          <h1 className="text-xl font-bold text-gray-900">Unable to load this navigation</h1>
+          <p className="mt-3 text-sm text-gray-600">{error instanceof Error ? error.message : "The backend request failed."}</p>
+          <Link href="/planner" className="inline-block mt-5 px-4 py-2 rounded-lg bg-emerald-800 text-white font-semibold">Return to planner</Link>
+        </section>
+      </main>
+    );
   }
 }

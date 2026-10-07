@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { OSM_RASTER_STYLE, DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM } from "@/lib/map-config";
+import { reportHazard } from "@/lib/api";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { 
@@ -127,6 +128,7 @@ export default function ReportBarrierPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [submitError, setSubmitError] = useState(false);
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -143,35 +145,33 @@ export default function ReportBarrierPage() {
     if (!selectedBarrierType || !selectedSeverity) return;
     
     setIsSubmitting(true);
+    setSubmitError(false);
     setToastMessage("Submitting report...");
     setShowToast(true);
-    
     try {
-      const response = await fetch("http://localhost:8000/api/v1/hazards/report", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: selectedBarrierType,
-          lat: 19.0660,
-          lng: 72.8687,
-          severity: selectedSeverity,
-          description: observations
-        })
+      await reportHazard({
+        type: selectedBarrierType,
+        latitude: coordinates[1],
+        longitude: coordinates[0],
+        severity: selectedSeverity,
+        description: observations,
       });
-      if (!response.ok) throw new Error("Failed");
-      
-      setIsSubmitting(false);
-      setToastMessage("Barrier reported successfully! Your report helps keep routes step-free.");
+      setToastMessage(photos.length > 0
+        ? "Barrier report accepted by the backend. Selected photos were not uploaded because this endpoint does not accept files."
+        : "Barrier report accepted by the backend.");
       setShowToast(true);
-      
       setTimeout(() => {
-        router.back();
-      }, 2000);
-    } catch (err) {
-      setIsSubmitting(false);
-      setToastMessage("Failed to submit report. Please try again.");
+        setSelectedBarrierType("broken-elevator");
+        setSelectedSeverity("critical");
+        setObservations("");
+        setShowToast(false);
+      }, 4000);
+    } catch (error) {
+      setSubmitError(true);
+      setToastMessage(error instanceof Error ? error.message : "Barrier report could not be sent to the backend.");
       setShowToast(true);
-      setTimeout(() => setShowToast(false), 2000);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -309,7 +309,7 @@ export default function ReportBarrierPage() {
                       <div className="text-center">
                         <p className="font-semibold text-slate-900 text-lg">Drop clear photo or tap to browse</p>
                         <p className="text-sm text-slate-500 mt-2 max-w-xs">
-                          GPS geo-tag auto-extracted &bull; Clear view helps field audit teams reroute safely (JPG, PNG up to 15MB)
+                          Photos remain selected in this page; the current backend report endpoint does not accept photo uploads (JPG, PNG up to 15MB)
                         </p>
                       </div>
                       {photos.length > 0 && (
@@ -489,7 +489,7 @@ export default function ReportBarrierPage() {
         <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-right-4 fade-in duration-300">
           <div className="bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 max-w-md border border-slate-800">
             <CheckCircle2 size={22} className="text-emerald-400 flex-shrink-0" />
-            <p className="text-sm font-medium">{toastMessage}</p>
+            <p role={submitError ? "alert" : "status"} className="text-sm font-medium">{toastMessage}</p>
           </div>
         </div>
       )}

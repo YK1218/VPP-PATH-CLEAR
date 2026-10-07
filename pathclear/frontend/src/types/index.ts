@@ -20,6 +20,8 @@ export interface AccessibilityProfile {
 
 export type DoorType =
   | "automatic"
+  | "sliding"
+  | "heavy_manual"
   | "push_button"
   | "manual_light"
   | "manual_heavy"
@@ -31,20 +33,21 @@ export type DoorType =
 export interface Entrance {
   id: string;
   buildingName: string;
-  entranceName: string;
+  entranceName?: string;
   latitude: number;
   longitude: number;
-  doorType: string;
-  stepCount: number;
-  rampAvailable: boolean;
+  doorType?: DoorType;
+  stepCount?: number;
+  rampAvailable?: boolean;
   rampSlopePercent?: number;
+  curbStepHeight?: number;
+  tactilePaving?: boolean;
   widthCm?: number;
   photoUrl?: string;
   notes?: string;
-  confidenceScore: number;
-  lastVerifiedAt: string;
-  tactilePaving?: boolean;
-  last_50_feet_instructions?: string;
+  last50FeetInstructions?: string;
+  confidenceScore?: number; // 0.0 - 1.0 when supplied by backend
+  lastVerifiedAt?: string;
 }
 
 export type HazardType =
@@ -72,13 +75,13 @@ export interface Hazard {
   id: string;
   hazardType: HazardType;
   severity: HazardSeverity;
-  description: string;
+  description?: string;
   latitude: number;
   longitude: number;
-  isActive: boolean;
-  confidenceScore: number;
-  verificationCount: number;
-  lastVerifiedAt: string;
+  isActive?: boolean;
+  confidenceScore?: number;
+  verificationCount?: number;
+  lastVerifiedAt?: string;
 }
 
 export interface RouteSegment {

@@ -11,7 +11,9 @@ interface EntranceCardProps {
 }
 
 export const EntranceCard: React.FC<EntranceCardProps> = ({ entrance, onConfirmTarget }) => {
-  const confidencePercent = Math.round(entrance.confidenceScore * 100);
+  const confidencePercent = entrance.confidenceScore === undefined
+    ? null
+    : Math.round(entrance.confidenceScore * 100);
 
   const getDoorLabel = (type: string) => {
     switch (type) {
@@ -40,7 +42,7 @@ export const EntranceCard: React.FC<EntranceCardProps> = ({ entrance, onConfirmT
         </div>
         <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-400 border border-emerald-500/20">
           <CheckCircle className="w-3.5 h-3.5" />
-          <span>{confidencePercent}% Verified</span>
+          <span>{confidencePercent === null ? "Verification unavailable" : `${confidencePercent}% verified`}</span>
         </div>
       </div>
 
@@ -58,7 +60,7 @@ export const EntranceCard: React.FC<EntranceCardProps> = ({ entrance, onConfirmT
           </div>
         )}
         <div className="absolute bottom-2 left-2 rounded-md bg-black/80 px-2 py-1 text-[11px] font-bold text-white backdrop-blur-md">
-          {entrance.entranceName}
+          {entrance.entranceName || "Entrance"}
         </div>
       </div>
 
@@ -67,7 +69,7 @@ export const EntranceCard: React.FC<EntranceCardProps> = ({ entrance, onConfirmT
         <h4 className="text-lg font-black text-white">{entrance.buildingName}</h4>
         <p className="text-sm text-blue-300 font-medium flex items-center gap-1.5 mt-0.5">
           <DoorClosed className="w-4 h-4 text-blue-400" />
-          {getDoorLabel(entrance.doorType)}
+          {entrance.doorType ? getDoorLabel(entrance.doorType) : "Door type not provided by backend"}
         </p>
       </div>
 
@@ -76,13 +78,15 @@ export const EntranceCard: React.FC<EntranceCardProps> = ({ entrance, onConfirmT
         <div className="rounded-lg bg-zinc-800/70 p-2.5 border border-zinc-700/50">
           <span className="text-zinc-400 block text-[10px]">Curb & Steps</span>
           <span className="font-bold text-emerald-400">
-            {entrance.stepCount === 0 ? "0 Steps (Zero Threshold)" : `${entrance.stepCount} Steps`}
+            {entrance.stepCount !== undefined
+              ? entrance.stepCount === 0 ? "0 Steps" : `${entrance.stepCount} Steps`
+              : entrance.curbStepHeight === undefined ? "Step count not provided" : `Curb step ${entrance.curbStepHeight}`}
           </span>
         </div>
         <div className="rounded-lg bg-zinc-800/70 p-2.5 border border-zinc-700/50">
           <span className="text-zinc-400 block text-[10px]">Ramp Incline</span>
           <span className="font-bold text-white">
-            {entrance.rampAvailable ? `${entrance.rampSlopePercent || 3.5}% (ADA Compliant)` : "Level Entry"}
+            {entrance.rampAvailable === undefined ? "Ramp details not provided" : entrance.rampAvailable ? entrance.rampSlopePercent === undefined ? "Ramp present; slope unavailable" : `${entrance.rampSlopePercent}% slope` : "No ramp"}
           </span>
         </div>
       </div>
