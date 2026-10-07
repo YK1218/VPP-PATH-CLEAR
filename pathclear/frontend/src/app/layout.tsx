@@ -6,6 +6,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { VoiceAgentProvider } from "@/contexts/VoiceAgentContext";
 import { MapProvider } from "@/contexts/MapContext";
 import VoiceAgentPanel from "@/components/voice/VoiceAgentPanel";
+import Script from "next/script";
 
 const atkinson = Atkinson_Hyperlegible({
   weight: ["400", "700"],
@@ -28,6 +29,21 @@ export default function RootLayout({
   return (
     <html lang="en" className={`h-full antialiased ${atkinson.variable}`}>
       <body className="min-h-full flex flex-col bg-[#f5f8fa] text-gray-900 font-sans" suppressHydrationWarning>
+        <div id="google_translate_element" style={{ display: "none" }}></div>
+        <Script id="google-translate-init" strategy="beforeInteractive">
+          {`
+            function googleTranslateElementInit() {
+              new window.google.translate.TranslateElement(
+                { pageLanguage: 'en', autoDisplay: false },
+                'google_translate_element'
+              );
+            }
+          `}
+        </Script>
+        <Script 
+          src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" 
+          strategy="afterInteractive"
+        />
         <ProfileProvider>
           <AuthProvider>
             <VoiceAgentProvider>

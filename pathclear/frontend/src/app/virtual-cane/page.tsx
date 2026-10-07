@@ -113,10 +113,10 @@ export default function VirtualCanePage() {
               key={i}
               className="absolute border-4 border-red-500 bg-red-500/20 rounded-xl transition-all duration-500 animate-pulse flex flex-col items-center justify-center"
               style={{
-                left: \`\${obs.bbox.x * 100}%\`,
-                top: \`\${obs.bbox.y * 100}%\`,
-                width: \`\${obs.bbox.width * 100}%\`,
-                height: \`\${obs.bbox.height * 100}%\`,
+                left: `${obs.bbox.x * 100}%`,
+                top: `${obs.bbox.y * 100}%`,
+                width: `${obs.bbox.width * 100}%`,
+                height: `${obs.bbox.height * 100}%`,
               }}
             >
               <div className="bg-red-600 text-white text-xs font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-xl flex items-center gap-1.5 absolute -top-4">
@@ -154,11 +154,11 @@ export default function VirtualCanePage() {
         {/* Big Activation Button */}
         <button
           onClick={() => setIsActive(!isActive)}
-          className={\`w-32 h-32 rounded-full flex flex-col items-center justify-center gap-2 transition-all duration-300 shadow-2xl \${
+          className={`w-32 h-32 rounded-full flex flex-col items-center justify-center gap-2 transition-all duration-300 shadow-2xl ${
             isActive 
               ? "bg-red-600 hover:bg-red-700 shadow-red-900/50 scale-95" 
               : "bg-pathclear-primary hover:bg-pathclear-secondary shadow-emerald-900/50 scale-100"
-          }\`}
+          }`}
         >
           {isActive ? (
             <>
@@ -193,3 +193,4 @@ export default function VirtualCanePage() {
     </div>
   );
 }
+

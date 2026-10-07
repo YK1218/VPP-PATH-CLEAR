@@ -10,6 +10,7 @@ export default function Hero() {
   const [isLoading, setIsLoading] = useState(false);
   const [agentResponse, setAgentResponse] = useState<{message: string, action?: string, payload?: any} | null>(null);
   const cities = ["Mumbai", "Delhi NCR", "Bengaluru", "Pune", "Hyderabad", "Ahmedabad"];
+  const [selectedCity, setSelectedCity] = useState("Mumbai");
   
   return (
     <section className="w-full flex flex-col items-center pt-8 pb-12 px-4 relative">
@@ -31,19 +32,23 @@ export default function Hero() {
         
         {/* City Filter Tabs */}
         <div className="flex flex-wrap items-center justify-center gap-2 mb-8 bg-white px-2 py-1.5 rounded-full shadow-sm border border-gray-100">
-          {cities.map((city, i) => (
-            <button 
-              key={city}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                i === 0 
-                  ? "bg-gray-100 text-pathclear-primary relative" 
-                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
-              }`}
-            >
-              {i === 0 && <span className="absolute left-2.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-pathclear-primary"></span>}
-              <span className={i === 0 ? "pl-3" : ""}>{city}</span>
-            </button>
-          ))}
+          {cities.map((city) => {
+            const isActive = selectedCity === city;
+            return (
+              <button 
+                key={city}
+                onClick={() => setSelectedCity(city)}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  isActive 
+                    ? "bg-gray-100 text-pathclear-primary relative font-bold" 
+                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                }`}
+              >
+                {isActive && <span className="absolute left-2.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-pathclear-primary"></span>}
+                <span className={isActive ? "pl-3" : ""}>{city}</span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Active Profile Chip */}
@@ -59,7 +64,7 @@ export default function Hero() {
 
         {/* Hero Headings */}
         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">
-          Where are you going?
+          Where are you going in {selectedCity}?
         </h1>
         <p className="text-gray-500 text-base md:text-lg max-w-2xl mx-auto mb-8 font-medium">
           Every route verified for elevator reliability, zero curb steps, and continuous ramp gradients.
@@ -104,7 +109,7 @@ export default function Hero() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="e.g. Find me a step-free route to Jio World Centre"
-            className="flex-1 bg-transparent border-none outline-none py-3 text-gray-700 placeholder:text-gray-400 font-medium text-base md:text-lg min-w-0"
+            className="flex-1 bg-transparent border-none outline-none py-2 md:py-3 text-gray-700 placeholder:text-gray-400 font-medium text-sm md:text-lg min-w-0 truncate"
             aria-label="Search destination"
           />
           <button type="button" className="p-3 text-pathclear-primary hover:bg-gray-50 rounded-full transition-colors mr-2" aria-label="Voice search">
@@ -113,9 +118,9 @@ export default function Hero() {
           <button 
             type="submit" 
             disabled={isLoading}
-            className="bg-pathclear-primary hover:bg-pathclear-secondary text-white px-6 py-3.5 rounded-full font-semibold flex items-center gap-2 transition-colors whitespace-nowrap disabled:opacity-70"
+            className="bg-pathclear-primary hover:bg-pathclear-secondary text-white px-4 md:px-6 py-2.5 md:py-3.5 rounded-full font-semibold flex items-center gap-2 transition-colors whitespace-nowrap disabled:opacity-70"
           >
-            {isLoading ? <Loader2 className="animate-spin" size={18} /> : "Ask AI"}
+            {isLoading ? <Loader2 className="animate-spin" size={18} /> : <span className="hidden md:inline">Ask AI</span>}
             {!isLoading && <ArrowRight size={18} />}
           </button>
         </form>

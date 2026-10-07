@@ -8,4 +8,4 @@ python-dotenv
 osmnx
 langgraph
 langchain
-langchain-google-genai
+langchain-openai

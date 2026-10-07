@@ -622,12 +622,24 @@ function PlannerPageContent() {
 
       {/* Floating Left Card: Route Preview - Resizable */}
       <aside
-        className={`absolute top-[88px] left-4 md:left-6 bottom-4 bg-white rounded-2xl shadow-xl border border-gray-100 z-40 flex flex-col overflow-hidden select-none ${isResizing ? "select-none" : ""}`}
-        style={{ width: panelWidth }}
+        className={`absolute bottom-0 left-0 right-0 md:top-[88px] md:left-6 md:bottom-4 md:right-auto bg-white rounded-t-3xl md:rounded-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] md:shadow-xl border-t md:border border-gray-100 z-40 flex flex-col overflow-hidden select-none transition-transform duration-300 ${isResizing ? "select-none" : ""}`}
+        style={{ width: "100%", maxWidth: "100%" }}
+        ref={(el) => {
+          if (el) {
+            // Apply dynamic width only on desktop (>=768px)
+            if (window.innerWidth >= 768) {
+              el.style.width = `${panelWidth}px`;
+              el.style.maxWidth = "none";
+            } else {
+              el.style.width = "100%";
+              el.style.height = "60vh"; // Bottom sheet height on mobile
+            }
+          }
+        }}
       >
-        {/* Drag Handle */}
+        {/* Drag Handle (Desktop only) */}
         <div
-          className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-pathclear-secondary/30 active:bg-pathclear-secondary/50 transition-colors flex items-center justify-center"
+          className="hidden md:flex absolute right-0 top-0 bottom-0 w-2 cursor-col-resize hover:bg-pathclear-secondary/30 active:bg-pathclear-secondary/50 transition-colors items-center justify-center z-50"
           onMouseDown={handleMouseDown}
           aria-label="Resize panel"
         >
@@ -635,16 +647,16 @@ function PlannerPageContent() {
         </div>
 
         {/* Card Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50/50 rounded-t-2xl">
+        <div className="flex items-center justify-between p-3 md:p-4 border-b border-gray-100 bg-gray-50/50 rounded-t-3xl md:rounded-t-2xl">
           <div className="flex items-center gap-2 min-w-0">
             <div className="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-600 border border-emerald-500/20 shrink-0">
               <CheckCircle2 size={20} strokeWidth={2.5} />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-bold text-gray-900 truncate">
+              <p className="text-xs md:text-sm font-bold text-gray-900 truncate">
                 {originText.split("(")[0].trim()} → {destinationText.split("(")[0].trim()}
               </p>
-              <p className="text-xs font-medium text-gray-500">{route.header.verifiedAgo}</p>
+              <p className="text-[10px] md:text-xs font-medium text-gray-500">{route.header.verifiedAgo}</p>
             </div>
           </div>
           <button className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors shrink-0" aria-label="Close preview">

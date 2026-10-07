@@ -40,25 +40,25 @@ export default function NavFooter({ eta, timeRemaining, distance, entranceName, 
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-3 w-full md:w-auto justify-stretch md:justify-end">
-          <button className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-[#fbebeb] hover:bg-[#f5d5d5] text-[#d93838] px-4 py-2.5 rounded-lg text-sm font-bold transition-colors shadow-sm focus-visible:outline-white">
-            <Split size={16} className="-scale-x-100" />
-            Avoid & Recalculate
+        <div className="grid grid-cols-2 md:flex items-center gap-2 md:gap-3 w-full md:w-auto justify-stretch md:justify-end">
+          <button className="flex items-center justify-center gap-1.5 md:gap-2 bg-[#fbebeb] hover:bg-[#f5d5d5] text-[#d93838] px-2 md:px-4 py-2.5 rounded-lg text-xs md:text-sm font-bold transition-colors shadow-sm focus-visible:outline-white">
+            <Split size={14} className="-scale-x-100 md:w-4 md:h-4" />
+            Recalculate
           </button>
           <Link
             href="/report-barrier"
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 px-4 py-2.5 rounded-lg text-sm font-bold transition-colors shadow-sm focus-visible:outline-white"
+            className="flex items-center justify-center gap-1.5 md:gap-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 px-2 md:px-4 py-2.5 rounded-lg text-xs md:text-sm font-bold transition-colors shadow-sm focus-visible:outline-white"
           >
-            <AlertTriangle size={16} strokeWidth={2.5} />
-            Report Change
+            <AlertTriangle size={14} strokeWidth={2.5} className="md:w-4 md:h-4" />
+            Report
           </Link>
           <button 
             onClick={onViewApproach}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-colors shadow-sm focus-visible:outline-white text-center"
+            className="flex items-center justify-center gap-1.5 md:gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-2 md:px-5 py-2.5 rounded-lg text-xs md:text-sm font-bold transition-colors shadow-sm focus-visible:outline-white text-center"
           >
             Arriving Soon
           </button>
-          <Link href="/" className="flex-1 md:flex-none flex items-center justify-center bg-[#4c5c6d] hover:bg-[#5b6e82] text-white px-6 py-2.5 rounded-lg text-sm font-bold transition-colors shadow-sm focus-visible:outline-white text-center">
+          <Link href="/" className="flex items-center justify-center bg-[#4c5c6d] hover:bg-[#5b6e82] text-white px-2 md:px-6 py-2.5 rounded-lg text-xs md:text-sm font-bold transition-colors shadow-sm focus-visible:outline-white text-center">
             End Route
           </Link>
         </div>
