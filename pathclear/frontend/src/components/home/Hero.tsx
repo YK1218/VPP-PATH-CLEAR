@@ -11,7 +11,7 @@ export default function Hero() {
   const [agentResponse, setAgentResponse] = useState<{message: string, action?: string, payload?: any} | null>(null);
   const cities = ["Mumbai", "Delhi NCR", "Bengaluru", "Pune", "Hyderabad", "Ahmedabad"];
   const [selectedCity, setSelectedCity] = useState("Mumbai");
-  
+
   return (
     <section className="w-full flex flex-col items-center pt-8 pb-12 px-4 relative">
       {/* Background decoration to mimic faint map lines */}

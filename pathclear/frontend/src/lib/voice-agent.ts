@@ -166,7 +166,8 @@ export const createSpeechRecognizer = (
   return recognition;
 };
 
-// Intent Resolution for PathClear
+import { findPresetLocation } from "./geocoding";
+
 export interface ParsedVoiceIntent {
   intent:
     | "navigate_planner"
@@ -180,12 +181,57 @@ export interface ParsedVoiceIntent {
   targetRoute?: string;
   targetProfileType?: string;
   responseReply: string;
+  extractedDestination?: string;
+}
+
+export function extractDestinationFromSpeech(input: string): string | null {
+  const trimmed = input.trim();
+  const patterns = [
+    /^(?:please\s+)?(?:take\s+me\s+to|navigate\s+to|navigate\s+towards|go\s+to|find\s+route\s+to|plan\s+route\s+to|plan\s+a\s+route\s+to|route\s+to|show\s+route\s+to|how\s+to\s+go\s+to|how\s+do\s+i\s+go\s+to|how\s+do\s+i\s+reach|how\s+to\s+reach|direct\s+me\s+to|guide\s+me\s+to|directions?\s+to|head\s+to|drive\s+to|walk\s+to)\s+(.+)/i,
+    /^(?:i\s+want\s+to\s+go\s+to|i\s+need\s+to\s+reach|i\s+want\s+to\s+reach|i\s+want\s+to\s+visit)\s+(.+)/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = trimmed.match(pattern);
+    if (match && match[1]) {
+      const cleaned = match[1].replace(/[.?!]+$/, "").trim();
+      if (cleaned.length > 1) {
+        return cleaned;
+      }
+    }
+  }
+
+  // Check if the input itself directly matches any of our known preset landmarks
+  const preset = findPresetLocation(trimmed);
+  if (preset) {
+    return preset.name;
+  }
+
+  return null;
 }
 
 export const parseVoiceIntent = (input: string): ParsedVoiceIntent => {
   const query = input.toLowerCase().trim();
 
-  // Navigation / Planner
+  // Dynamic Navigation / Destination Extraction
+  const extractedDest = extractDestinationFromSpeech(input);
+  if (extractedDest) {
+    const preset = findPresetLocation(extractedDest);
+    const queryParams = new URLSearchParams({ dest: extractedDest });
+    if (preset) {
+      queryParams.set("lat", preset.lat.toString());
+      queryParams.set("lng", preset.lng.toString());
+    }
+
+    return {
+      intent: "navigate_planner",
+      targetRoute: `/planner?${queryParams.toString()}`,
+      extractedDestination: extractedDest,
+      responseReply: `Routing to ${extractedDest}. Opening Step-Free Route Planner with verified gentle slopes.`,
+    };
+  }
+
+  // Navigation / Planner generic keywords
   if (
     query.includes("plan route") ||
     query.includes("route planner") ||
@@ -195,10 +241,29 @@ export const parseVoiceIntent = (input: string): ParsedVoiceIntent => {
     query.includes("go to") ||
     query.includes("planner")
   ) {
+    const cleanup = query
+      .replace(/^(plan route|route planner|find route|take me to|navigate to|go to|planner)\s*/i, "")
+      .trim();
+
+    if (cleanup.length > 2) {
+      const preset = findPresetLocation(cleanup);
+      const queryParams = new URLSearchParams({ dest: cleanup });
+      if (preset) {
+        queryParams.set("lat", preset.lat.toString());
+        queryParams.set("lng", preset.lng.toString());
+      }
+      return {
+        intent: "navigate_planner",
+        targetRoute: `/planner?${queryParams.toString()}`,
+        extractedDestination: cleanup,
+        responseReply: `Routing to ${cleanup}. Opening Step-Free Route Planner.`,
+      };
+    }
+
     return {
       intent: "navigate_planner",
       targetRoute: "/planner",
-      responseReply: "Opening Step-Free Route Planner. Calculating gentle slopes and verified entrances.",
+      responseReply: "Opening Step-Free Route Planner. Please speak or type your destination.",
     };
   }
 
