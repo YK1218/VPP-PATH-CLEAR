@@ -4,6 +4,7 @@ import "./globals.css";
 import { ProfileProvider } from "@/contexts/ProfileContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { VoiceAgentProvider } from "@/contexts/VoiceAgentContext";
+import { MapProvider } from "@/contexts/MapContext";
 import VoiceAgentPanel from "@/components/voice/VoiceAgentPanel";
 
 const atkinson = Atkinson_Hyperlegible({
@@ -30,8 +31,10 @@ export default function RootLayout({
         <ProfileProvider>
           <AuthProvider>
             <VoiceAgentProvider>
-              {children}
-              <VoiceAgentPanel />
+              <MapProvider>
+                {children}
+                <VoiceAgentPanel />
+              </MapProvider>
             </VoiceAgentProvider>
           </AuthProvider>
         </ProfileProvider>

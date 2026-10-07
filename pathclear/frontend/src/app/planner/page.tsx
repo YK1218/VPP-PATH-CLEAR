@@ -9,6 +9,7 @@ import { MapPin, TrendingUp, Volume2, Send, CheckCircle2, AlertTriangle, BarChar
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { OSM_RASTER_STYLE, DEFAULT_MAP_ZOOM, DEFAULT_MAP_PITCH, DEFAULT_MAP_BEARING } from "@/lib/map-config";
+import { setup3DMapLayers } from "@/lib/map-3d-config";
 
 // ============================================================
 // MOCK DATA - Self-contained, no backend required
@@ -149,6 +150,8 @@ function PlannerMapOverlay({
     mapRef.current = map;
 
     map.on("load", () => {
+      setup3DMapLayers(map);
+
       // Current position at ~30% along the route (simulated progress)
       const currentPosition: [number, number] = [
         ORIGIN_COORDS[0] + (DEST_COORDS[0] - ORIGIN_COORDS[0]) * 0.3,

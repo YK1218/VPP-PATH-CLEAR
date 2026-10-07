@@ -3,7 +3,9 @@
 import React, { useEffect, useRef } from "react";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { OSM_RASTER_STYLE, DEFAULT_MAP_ZOOM, DEFAULT_MAP_PITCH, DEFAULT_MAP_BEARING } from "@/lib/map-config";
+import { OSM_RASTER_STYLE, OPENFREEMAP_LIBERTY_STYLE, DEFAULT_MAP_ZOOM, DEFAULT_MAP_PITCH, DEFAULT_MAP_BEARING } from "@/lib/map-config";
+import { setup3DMapLayers, MAP_3D_PITCH, MAP_3D_BEARING } from "@/lib/map-3d-config";
+import { useMap } from "@/contexts/MapContext";
 import { Route, Entrance, Hazard } from "@/types";
 
 interface NavMapOverlayProps {
@@ -134,6 +136,7 @@ export default function NavMapOverlay({ route, entrance, hazards }: NavMapOverla
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const animationIdRef = useRef<number | null>(null);
+  const { registerMap, unregisterMap } = useMap();
 
   useEffect(() => {
     if (mapRef.current || !mapContainer.current) return;
@@ -154,6 +157,8 @@ export default function NavMapOverlay({ route, entrance, hazards }: NavMapOverla
     mapRef.current = map;
 
     map.on("load", () => {
+      registerMap(map);
+      setup3DMapLayers(map);
       const destinationCoordinate: LngLat = [entrance.longitude, entrance.latitude];
       const routeCoordinates: LngLat[] = route.coordinates.length > 0
         ? route.coordinates
@@ -303,13 +308,21 @@ export default function NavMapOverlay({ route, entrance, hazards }: NavMapOverla
         }
       }
 
-      // ---- Primary Red Hazard Marker ----
+      // ---- 3D Primary Hazard Marker (Caution Cone & Alert Pulse) ----
       if (primaryHazard) {
         const hazardEl = document.createElement("div");
-        hazardEl.className = "w-9 h-9 bg-red-100 border-2 border-white rounded-full shadow-md flex items-center justify-center text-red-600 cursor-pointer hover:scale-110 transition-transform";
+        hazardEl.className = "relative group cursor-pointer flex flex-col items-center -top-3";
         hazardEl.innerHTML = `
-          <div class="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white shadow-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          <div class="mb-1 px-2.5 py-0.5 rounded-lg bg-red-950/90 text-red-200 border border-red-500/60 shadow-xl flex items-center gap-1.5 whitespace-nowrap text-[10px] font-bold">
+            <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping"></span>
+            <span>${primaryHazard.description || "Hazard Ahead"}</span>
+          </div>
+          <div class="relative w-8 h-8 rounded-full bg-red-600 border-2 border-white shadow-xl shadow-red-950/50 flex items-center justify-center text-white hover:scale-110 transition-transform">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
           </div>
         `;
 
@@ -318,12 +331,30 @@ export default function NavMapOverlay({ route, entrance, hazards }: NavMapOverla
           .addTo(map);
       }
 
-      // ---- Destination Marker (Entrance) ----
+      // ---- 3D Destination Entrance Portal Beacon Marker ----
       const destEl = document.createElement("div");
-      destEl.className = "relative w-11 h-11 bg-gray-900 border-[3px] border-white rounded-full shadow-2xl flex items-center justify-center text-white -top-3";
+      destEl.className = "relative group cursor-pointer flex flex-col items-center -top-6";
       destEl.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>
-        <div class="absolute -bottom-[8px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[10px] border-t-gray-900"></div>
+        <div class="mb-1 px-3 py-1.5 rounded-xl bg-slate-950/90 text-white border border-emerald-400/50 shadow-2xl flex items-center gap-2 whitespace-nowrap backdrop-blur-md">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <div class="flex flex-col text-left">
+            <span class="text-[11px] font-extrabold text-white">${entrance.entranceName || entrance.buildingName || "Gate 2 Accessible Entrance"}</span>
+            <span class="text-[9px] font-mono font-bold text-emerald-300">0cm Threshold • 2.1m Door Clearance</span>
+          </div>
+        </div>
+
+        <div class="relative w-12 h-12 flex items-center justify-center">
+          <div class="absolute inset-0 rounded-full bg-emerald-500/20 animate-ping scale-150"></div>
+          <div class="absolute inset-1 rounded-full bg-emerald-500/30 animate-pulse"></div>
+          <div class="relative w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-600 via-teal-600 to-emerald-400 border-2 border-white shadow-xl shadow-emerald-950/50 flex items-center justify-center text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 4h3a2 2 0 0 1 2 2v14"/>
+              <path d="M2 20h20"/>
+              <path d="M13 20V4a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v16"/>
+            </svg>
+          </div>
+          <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-emerald-600"></div>
+        </div>
       `;
 
       new maplibregl.Marker({ element: destEl })
@@ -361,10 +392,11 @@ export default function NavMapOverlay({ route, entrance, hazards }: NavMapOverla
         animationIdRef.current = null;
       }
       removeRouteOverlay?.();
+      unregisterMap();
       map.remove();
       mapRef.current = null;
     };
-  }, [route, entrance, hazards]);
+  }, [route, entrance, hazards, registerMap, unregisterMap]);
 
   return (
     <div className="absolute inset-0 bg-[#eef1f6] overflow-hidden z-0">

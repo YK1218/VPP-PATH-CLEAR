@@ -90,9 +90,13 @@ function AuthPageContent() {
     router.refresh();
   };
 
-  const handleGuestSelect = (guestProfile: AccessibilityProfile) => {
+  const handleSelectProfile = (guestProfile: AccessibilityProfile) => {
     setProfile(guestProfile);
-    continueAsGuest(guestProfile.mobilityType);
+    setSelectedMobility(guestProfile.mobilityType);
+  };
+
+  const handleProceedAsGuest = () => {
+    continueAsGuest(activeProfile.mobilityType);
     router.push(redirect);
   };
 
@@ -519,8 +523,8 @@ function AuthPageContent() {
                   <button
                     key={p.id}
                     type="button"
-                    onClick={() => handleGuestSelect(p)}
-                    className={`group p-4 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between focus:ring-4 focus:ring-emerald-500/20 ${
+                    onClick={() => handleSelectProfile(p)}
+                    className={`group p-4 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between focus:ring-4 focus:ring-emerald-500/20 cursor-pointer ${
                       isCurrentActive
                         ? "bg-emerald-50/90 border-2 border-emerald-600 shadow-sm"
                         : "bg-white hover:bg-emerald-50/40 border-slate-200 hover:border-emerald-500 hover:shadow-md"
@@ -552,11 +556,39 @@ function AuthPageContent() {
                           : "text-slate-400 group-hover:text-emerald-700 group-hover:bg-emerald-100/60"
                       }`}
                     >
-                      <ArrowRight size={16} />
+                      {isCurrentActive ? <Check size={16} strokeWidth={2.5} /> : <ArrowRight size={16} />}
                     </div>
                   </button>
                 );
               })}
+            </div>
+
+            {/* Selected Profile Confirmation & Exploration Action */}
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 p-4.5 rounded-2xl bg-emerald-50/90 border border-emerald-200 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0 ${getProfileMeta(activeProfile.mobilityType).iconBg}`}>
+                  {getProfileMeta(activeProfile.mobilityType).emoji}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-emerald-800">
+                      Selected Profile
+                    </span>
+                    <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+                  </div>
+                  <p className="text-sm font-extrabold text-slate-900">{activeProfile.name}</p>
+                  <p className="text-xs text-slate-600">{getProfileMeta(activeProfile.mobilityType).desc}</p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleProceedAsGuest}
+                className="w-full sm:w-auto px-6 py-3.5 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl font-bold text-sm shadow-md shadow-emerald-950/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Explore as Guest ({activeProfile.name})</span>
+                <ArrowRight size={16} />
+              </button>
             </div>
 
             {/* Voice-Guided Authentication Note Banner */}

@@ -143,10 +143,11 @@ export default function NavigationContent({ data }: NavigationContentProps) {
         />
       )}
 
-      {/* 5. Map Controls & Live Simulation Toolbar */}
-      <div className="absolute top-[88px] right-4 md:right-6 z-30 flex flex-col items-end gap-2">
-        <MapControls />
-        {/* Simulate Arrival button for verification & testing */}
+      {/* 5. Map Controls (Floating Bottom-Right above NavFooter) */}
+      <MapControls />
+
+      {/* Live Simulation Toolbar (Top-Right under header) */}
+      <div className="absolute top-[88px] right-4 md:right-6 z-30 flex items-center gap-2">
         <button
           onClick={handleSimulateArrival}
           className="px-3 py-1.5 rounded-xl bg-white/90 backdrop-blur-md border border-gray-200 text-xs font-bold text-gray-700 hover:text-emerald-700 shadow-md hover:bg-white transition-all flex items-center gap-1.5 cursor-pointer"
