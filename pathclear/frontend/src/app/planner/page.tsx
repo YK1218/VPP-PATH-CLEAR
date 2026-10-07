@@ -5,7 +5,11 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+<<<<<<< HEAD
 import { MapPin, TrendingUp, Volume2, Send, CheckCircle2, AlertTriangle, BarChart2, Mountain, Droplet, Sun, Loader2, GripVertical, ArrowUpDown, Navigation } from "lucide-react";
+=======
+import { MapPin, TrendingUp, Volume2, Send, CheckCircle2, AlertTriangle, BarChart2, Mountain, Droplet, Sun, Loader2, Map as MapIcon, GripVertical, ArrowUpDown } from "lucide-react";
+>>>>>>> Next-backend_jay
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { OSM_RASTER_STYLE, DEFAULT_MAP_ZOOM, DEFAULT_MAP_PITCH, DEFAULT_MAP_BEARING } from "@/lib/map-config";
@@ -885,6 +889,58 @@ function PlannerPageContent() {
     require_well_lit: String(profile.requireWellLit),
     avoid_broken_surfaces: String(profile.avoidBrokenSurfaces),
   });
+<<<<<<< HEAD
+=======
+  const routeOrigin = backendRoute?.coordinates[0];
+  if (routeOrigin) {
+    navigationQuery.set("origin_lng", String(routeOrigin[0]));
+    navigationQuery.set("origin_lat", String(routeOrigin[1]));
+  }
+
+  const handleSwap = () => {
+    const temp = originText;
+    setOriginText(destinationText);
+    setDestinationText(temp);
+  };
+
+  useEffect(() => {
+    const fetchRoute = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/v1/navigation/route", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            origin: [ORIGIN_COORDS[0], ORIGIN_COORDS[1]],
+            destination: [DEST_COORDS[0], DEST_COORDS[1]],
+            profile: { mobility_type: "wheelchair_manual", require_step_free: true, max_incline_percent: 5.0 }
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setRouteCoords(data.geometry?.coordinates || data.coordinates);
+
+          setRoute(prev => ({
+            ...prev,
+            stats: {
+              ...prev.stats,
+              totalTime: `${Math.round(data.total_duration_seconds / 60)} min total`,
+              distance: `${(data.total_distance_meters / 1000).toFixed(1)} km distance`,
+              maxIncline: `${data.max_incline_percent}% max incline`,
+            },
+            header: {
+              ...prev.header,
+              title: data.step_count === 0 ? "100% Step-Free Route (Live API)" : "PathClear Route (Live API)",
+            }
+          }));
+        }
+      } catch (err) {
+        console.warn("Failed to fetch live route, using mock data instead.");
+      }
+    };
+    fetchRoute();
+  }, []);
+>>>>>>> Next-backend_jay
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -957,7 +1013,7 @@ function PlannerPageContent() {
               <p className="text-xs md:text-sm font-bold text-gray-900 truncate">
                 {originText.split("(")[0].trim()} → {destinationText.split("(")[0].trim()}
               </p>
-          <p className="text-xs font-medium text-gray-500">{route.header.verifiedAgo}</p>
+              <p className="text-xs font-medium text-gray-500">{route.header.verifiedAgo}</p>
             </div>
           </div>
           <button className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors shrink-0" aria-label="Close preview">
@@ -1229,3 +1285,13 @@ export default function PlannerPage() {
     </Suspense>
   );
 }
+
+
+function setRouteCoords(arg0: any) {
+  throw new Error("Function not implemented.");
+}
+
+function setRoute(arg0: (prev: any) => any) {
+  throw new Error("Function not implemented.");
+}
+

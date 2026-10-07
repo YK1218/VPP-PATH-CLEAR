@@ -64,3 +64,5 @@ export default function NavFooter({ eta, timeRemaining, distance, entranceName, 
     </footer>
   );
 }
+
+

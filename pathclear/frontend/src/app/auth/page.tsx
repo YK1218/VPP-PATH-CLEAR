@@ -385,7 +385,6 @@ function AuthPageContent() {
                 <label className="block text-xs font-extrabold tracking-wider text-slate-600 uppercase" htmlFor="email-address">
                   Email Address
                 </label>
-                <span className="text-xs text-slate-400">Student / Institutional</span>
               </div>
               <div className="relative rounded-2xl shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
