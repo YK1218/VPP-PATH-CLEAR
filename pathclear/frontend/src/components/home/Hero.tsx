@@ -1,186 +1,16 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Mic, ArrowRight, Activity, Eye, Volume2, MapPin, Building2, TrainFront, Check, Loader2, X } from "lucide-react";
-import { useVoiceAgent } from "@/contexts/VoiceAgentContext";
-import { useProfile } from "@/contexts/ProfileContext";
-
-interface SearchSuggestion {
-  name: string;
-  subtitle: string;
-  type: "transit" | "building" | "location";
-  lat?: number;
-  lng?: number;
-}
-
-const CITY_DESTINATIONS: Record<string, SearchSuggestion[]> = {
-  Mumbai: [
-    { name: "Jio World Centre", subtitle: "BKC South Accessible Gate 2 • Mumbai", type: "building", lat: 19.0633, lng: 72.8684 },
-    { name: "Bandra Kurla Complex Metro", subtitle: "Aqua Line 3 • Low-Threshold Elevator", type: "transit", lat: 19.0598, lng: 72.8520 },
-    { name: "Bandra Railway Station", subtitle: "West Accessible Footbridge & Ramp • Western Railway", type: "transit", lat: 19.0558, lng: 72.8315 },
-    { name: "Dadar Central Station", subtitle: "Platform 1 Wheelchair Ramp & Tactile Guide", type: "transit", lat: 19.0178, lng: 72.8478 },
-    { name: "Chhatrapati Shivaji Maharaj Terminus", subtitle: "CSMT Star Chamber Level Access", type: "transit", lat: 18.9400, lng: 72.8353 },
-    { name: "Mumbai Airport Terminal 2", subtitle: "Accessible Drop-off Pier 4 • Sahar", type: "transit", lat: 19.0968, lng: 72.8745 },
-  ],
-  "Delhi NCR": [
-    { name: "Rajiv Chowk Metro Station", subtitle: "Gate 7 Elevator Access • Blue/Yellow Line", type: "transit", lat: 28.6328, lng: 77.2195 },
-    { name: "India Habitat Centre", subtitle: "Lodhi Road • Step-free Auditorium Level", type: "building", lat: 28.5898, lng: 77.2249 },
-    { name: "Indira Gandhi International Airport T3", subtitle: "Pillar 10 Wheelchair Bay", type: "transit", lat: 28.5562, lng: 77.1000 },
-  ],
-  Bengaluru: [
-    { name: "Majestic Metro Station (Nadaprabhu Kempegowda)", subtitle: "Interchange Lift Access • Green/Purple Line", type: "transit", lat: 12.9757, lng: 77.5728 },
-    { name: "UB City", subtitle: "Vittal Mallya Road • Ramp Level Entrance", type: "building", lat: 12.9716, lng: 77.5958 },
-  ],
-  Pune: [
-    { name: "Pune Railway Station", subtitle: "Platform 1 Low Incline Ramp", type: "transit", lat: 18.5289, lng: 73.8743 },
-    { name: "Shivaji Nagar Metro Station", subtitle: "Civil Court Interchange Accessible Gate", type: "transit", lat: 18.5314, lng: 73.8446 },
-  ],
-  Hyderabad: [
-    { name: "Ameerpet Metro Station", subtitle: "Red & Blue Line Level Elevators", type: "transit", lat: 17.4375, lng: 78.4482 },
-    { name: "HITEC City Cyber Towers", subtitle: "Ground Concierge Accessible Ramp", type: "building", lat: 17.4504, lng: 78.3808 },
-  ],
-  Ahmedabad: [
-    { name: "Kalupur Railway Station", subtitle: "West Entrance Step-Free Pathway", type: "transit", lat: 23.0238, lng: 72.6012 },
-    { name: "Sabarmati Riverfront Promenade", subtitle: "Usmanpura Wheelchair Ramp Access", type: "location", lat: 23.0525, lng: 72.5714 },
-  ],
-};
+import { Search, Mic, ArrowRight, Activity, Eye, Volume2, Loader2, Bot } from "lucide-react";
 
 export default function Hero() {
   const router = useRouter();
-  const { toggleListening, isListening, transcript } = useVoiceAgent();
-  const { profile } = useProfile();
-
+  const [query, setQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [agentResponse, setAgentResponse] = useState<{message: string, action?: string, payload?: any} | null>(null);
   const cities = ["Mumbai", "Delhi NCR", "Bengaluru", "Pune", "Hyderabad", "Ahmedabad"];
   const [selectedCity, setSelectedCity] = useState("Mumbai");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
-  const [isLoadingGeocoding, setIsLoadingGeocoding] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState<string>("Max 3% Incline");
-  const searchContainerRef = useRef<HTMLDivElement>(null);
-
-  // Sync voice transcript to search if user is speaking on Home page
-  useEffect(() => {
-    if (transcript && transcript.length > 2) {
-      // Remove leading filler phrases like "navigate to", "search for", "go to"
-      const cleaned = transcript
-        .replace(/^(navigate to|find route to|take me to|search for|go to|plan route to)\s+/i, "")
-        .trim();
-      if (cleaned) {
-        setSearchQuery(cleaned);
-        setShowDropdown(true);
-      }
-    }
-  }, [transcript]);
-
-  // Click outside listener for suggestions dropdown
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
-        setShowDropdown(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Update suggestions based on city or user typing
-  useEffect(() => {
-    const cityList = CITY_DESTINATIONS[selectedCity] || CITY_DESTINATIONS["Mumbai"];
-
-    if (!searchQuery.trim()) {
-      setSuggestions(cityList.slice(0, 5));
-      return;
-    }
-
-    const queryLower = searchQuery.toLowerCase();
-    const localFiltered = cityList.filter(
-      (item) =>
-        item.name.toLowerCase().includes(queryLower) ||
-        item.subtitle.toLowerCase().includes(queryLower)
-    );
-
-    if (localFiltered.length > 0) {
-      setSuggestions(localFiltered);
-    } else {
-      // Nominatim debounce search
-      const timer = setTimeout(async () => {
-        setIsLoadingGeocoding(true);
-        try {
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-              `${searchQuery}, ${selectedCity}, India`
-            )}&format=json&limit=4&addressdetails=1`,
-            { headers: { "Accept-Language": "en" } }
-          );
-          if (res.ok) {
-            const data = await res.json();
-            if (Array.isArray(data) && data.length > 0) {
-              const geoResults: SearchSuggestion[] = data.map((item: any) => ({
-                name: item.display_name.split(",")[0] || searchQuery,
-                subtitle: item.display_name.split(",").slice(1, 3).join(", ") || `${selectedCity}, India`,
-                type: item.type === "station" || item.class === "railway" ? "transit" : "location",
-                lat: parseFloat(item.lat),
-                lng: parseFloat(item.lon),
-              }));
-              setSuggestions(geoResults);
-            } else {
-              setSuggestions([
-                {
-                  name: searchQuery,
-                  subtitle: `Search around ${selectedCity}`,
-                  type: "location",
-                },
-              ]);
-            }
-          }
-        } catch (err) {
-          console.warn("Geocoding fallback", err);
-        } finally {
-          setIsLoadingGeocoding(false);
-        }
-      }, 400);
-
-      return () => clearTimeout(timer);
-    }
-  }, [searchQuery, selectedCity]);
-
-  const handleSelectDestination = (dest: SearchSuggestion) => {
-    setSearchQuery(dest.name);
-    setShowDropdown(false);
-    const params = new URLSearchParams({
-      dest: dest.name,
-      city: selectedCity,
-    });
-    if (dest.lat && dest.lng) {
-      params.set("lat", dest.lat.toString());
-      params.set("lng", dest.lng.toString());
-    }
-    if (selectedFilter) {
-      params.set("filter", selectedFilter);
-    }
-    router.push(`/planner?${params.toString()}`);
-  };
-
-  const handleSearchSubmit = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    const target = searchQuery.trim() || suggestions[0]?.name || "Jio World Centre";
-    const bestMatch = suggestions.find((s) => s.name.toLowerCase() === target.toLowerCase()) || suggestions[0];
-    
-    const params = new URLSearchParams({
-      dest: target,
-      city: selectedCity,
-    });
-    if (bestMatch?.lat && bestMatch?.lng) {
-      params.set("lat", bestMatch.lat.toString());
-      params.set("lng", bestMatch.lng.toString());
-    }
-    if (selectedFilter) {
-      params.set("filter", selectedFilter);
-    }
-    router.push(`/planner?${params.toString()}`);
-  };
 
   return (
     <section className="w-full flex flex-col items-center pt-8 pb-12 px-4 relative">
@@ -195,27 +25,26 @@ export default function Hero() {
         </svg>
       </div>
 
+
+      
+
       <div className="relative z-10 w-full max-w-4xl mx-auto flex flex-col items-center text-center">
+        
         {/* City Filter Tabs */}
         <div className="flex flex-wrap items-center justify-center gap-2 mb-8 bg-white px-2 py-1.5 rounded-full shadow-sm border border-gray-100">
           {cities.map((city) => {
             const isActive = selectedCity === city;
             return (
-              <button
+              <button 
                 key={city}
-                onClick={() => {
-                  setSelectedCity(city);
-                  setSearchQuery("");
-                }}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer ${
-                  isActive
-                    ? "bg-gray-100 text-pathclear-primary font-bold shadow-2xs relative"
+                onClick={() => setSelectedCity(city)}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  isActive 
+                    ? "bg-gray-100 text-pathclear-primary relative font-bold" 
                     : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                 }`}
               >
-                {isActive && (
-                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-pathclear-primary" />
-                )}
+                {isActive && <span className="absolute left-2.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-pathclear-primary"></span>}
                 <span className={isActive ? "pl-3" : ""}>{city}</span>
               </button>
             );
@@ -223,14 +52,14 @@ export default function Hero() {
         </div>
 
         {/* Active Profile Chip */}
-        <div className="inline-flex items-center gap-1.5 bg-green-50 text-pathclear-secondary text-xs font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-full mb-6 border border-emerald-100 shadow-2xs">
+        <div className="inline-flex items-center gap-1.5 bg-green-50 text-pathclear-secondary text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-6">
           <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 16v-4" />
-            <path d="M12 8h.01" />
-            <path d="M8 12h8" />
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 16v-4"></path>
+            <path d="M12 8h.01"></path>
+            <path d="M8 12h8"></path>
           </svg>
-          <span>{profile.name} • Step-Free Active</span>
+          Wheelchair • Step-Free Active
         </div>
 
         {/* Hero Headings */}
@@ -241,138 +70,117 @@ export default function Hero() {
           Every route verified for elevator reliability, zero curb steps, and continuous ramp gradients.
         </p>
 
-        {/* Search Bar with Autocomplete Dropdown */}
-        <div ref={searchContainerRef} className="w-full max-w-3xl relative mb-6">
-          <form
-            onSubmit={handleSearchSubmit}
-            className="w-full bg-white rounded-full shadow-md border border-gray-200 p-2 flex items-center focus-within:ring-2 focus-within:ring-pathclear-secondary focus-within:border-transparent transition-all"
+        {/* Search Form */}
+        <form 
+          onSubmit={async (e) => {
+            e.preventDefault();
+            if (!query.trim()) return;
+            setIsLoading(true);
+            setAgentResponse(null);
+            
+            try {
+              const res = await fetch("http://localhost:8000/api/v1/agent/invoke", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query })
+              });
+              const data = await res.json();
+              
+              if (data.action === "SHOW_ROUTE" || (data.message && data.message.includes("Agent Error:"))) {
+                setAgentResponse({ message: "Agent error or quota exceeded. Falling back to default step-free route..." });
+                setTimeout(() => router.push("/planner"), 800);
+              } else {
+                setAgentResponse(data);
+              }
+            } catch (err) {
+              setAgentResponse({ message: "Failed to connect to the PathClear Agent. Falling back to planner..." });
+              setTimeout(() => router.push("/planner"), 1500);
+            } finally {
+              setIsLoading(false);
+            }
+          }}
+          className="w-full max-w-3xl bg-white rounded-full shadow-md border border-gray-200 p-2 flex items-center mb-6 focus-within:ring-2 focus-within:ring-pathclear-secondary focus-within:border-transparent transition-shadow"
+        >
+          <div className="pl-4 pr-2 text-pathclear-primary">
+            <Search size={20} />
+          </div>
+          <input 
+            type="text" 
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="e.g. Find me a step-free route to Jio World Centre"
+            className="flex-1 bg-transparent border-none outline-none py-2 md:py-3 text-gray-700 placeholder:text-gray-400 font-medium text-sm md:text-lg min-w-0 truncate"
+            aria-label="Search destination"
+          />
+          <button type="button" className="p-3 text-pathclear-primary hover:bg-gray-50 rounded-full transition-colors mr-2" aria-label="Voice search">
+            <Mic size={20} />
+          </button>
+          <button 
+            type="submit" 
+            disabled={isLoading}
+            className="bg-pathclear-primary hover:bg-pathclear-secondary text-white px-4 md:px-6 py-2.5 md:py-3.5 rounded-full font-semibold flex items-center gap-2 transition-colors whitespace-nowrap disabled:opacity-70"
           >
-            <div className="pl-4 pr-2 text-pathclear-primary">
-              <Search size={20} />
-            </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setShowDropdown(true);
-              }}
-              onFocus={() => setShowDropdown(true)}
-              placeholder={`Search an accessible station, building or place in ${selectedCity}...`}
-              className="flex-1 bg-transparent border-none outline-none py-3 text-gray-800 placeholder:text-gray-400 font-medium text-base md:text-lg min-w-0"
-              aria-label="Search destination"
-            />
+            {isLoading ? <Loader2 className="animate-spin" size={18} /> : <span className="hidden md:inline">Ask AI</span>}
+            {!isLoading && <ArrowRight size={18} />}
+          </button>
+        </form>
 
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchQuery("");
-                  setShowDropdown(false);
-                }}
-                className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-                title="Clear input"
-              >
-                <X size={16} />
-              </button>
-            )}
-
-            <button
-              type="button"
-              onClick={toggleListening}
-              className={`p-3 rounded-full transition-all mr-2 cursor-pointer ${
-                isListening
-                  ? "bg-rose-500 text-white animate-pulse"
-                  : "text-pathclear-primary hover:bg-gray-50"
-              }`}
-              aria-label="Voice search destination"
-              title={isListening ? "Listening..." : "Click to speak destination"}
-            >
-              <Mic size={20} />
-            </button>
-
-            <button
-              type="submit"
-              className="bg-pathclear-primary hover:bg-pathclear-secondary text-white px-6 py-3.5 rounded-full font-semibold flex items-center gap-2 transition-colors whitespace-nowrap shadow-sm cursor-pointer"
-            >
-              <span>Find Route</span>
-              <ArrowRight size={18} />
-            </button>
-          </form>
-
-          {/* Autocomplete Dropdown Menu */}
-          {showDropdown && suggestions.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50 text-left animate-in fade-in duration-150">
-              <div className="p-2.5 border-b border-gray-100 flex items-center justify-between text-xs text-gray-400 font-semibold px-4">
-                <span>VERIFIED ACCESSIBLE DESTINATIONS ({selectedCity})</span>
-                {isLoadingGeocoding && <Loader2 size={13} className="animate-spin text-pathclear-primary" />}
+        {/* AI Response Display */}
+        {agentResponse && (
+          <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl border border-pathclear-secondary/20 p-6 mb-8 text-left animate-in slide-in-from-bottom-4">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 flex-shrink-0">
+                <Bot size={24} />
               </div>
-
-              <div className="max-h-72 overflow-y-auto py-1">
-                {suggestions.map((item, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleSelectDestination(item)}
-                    className="w-full px-4 py-3 hover:bg-gray-50 flex items-start gap-3 transition-colors text-left border-b border-gray-50 last:border-0 cursor-pointer"
+              <div className="flex-1">
+                <h3 className="font-bold text-gray-900 mb-2">PathClear Agent</h3>
+                <p className="text-gray-700 font-medium whitespace-pre-wrap leading-relaxed">{agentResponse.message}</p>
+                
+                {agentResponse.action === "SHOW_ROUTE" && (
+                  <button 
+                    onClick={() => router.push("/planner")}
+                    className="mt-4 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-colors shadow-lg shadow-emerald-500/30"
                   >
-                    <div className="mt-0.5 p-2 rounded-lg bg-emerald-50 text-emerald-700">
-                      {item.type === "transit" ? (
-                        <TrainFront size={16} />
-                      ) : item.type === "building" ? (
-                        <Building2 size={16} />
-                      ) : (
-                        <MapPin size={16} />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-gray-900 text-sm truncate">{item.name}</p>
-                      <p className="text-xs text-gray-500 truncate mt-0.5">{item.subtitle}</p>
-                    </div>
-                    <span className="text-xs text-pathclear-secondary font-semibold shrink-0 self-center">
-                      Plan Route →
-                    </span>
+                    View Step-Free Route Map
+                    <ArrowRight size={16} />
                   </button>
-                ))}
+                )}
+                
+                {agentResponse.action === "SHOW_HAZARDS" && agentResponse.payload && (
+                  <div className="mt-4 p-4 bg-amber-50 rounded-xl border border-amber-200">
+                    <p className="font-bold text-amber-800 mb-2">Verified Hazards Found:</p>
+                    <ul className="list-disc pl-5 text-sm text-amber-700 space-y-1">
+                      {agentResponse.payload.map((h: any, i: number) => (
+                        <li key={i}>{h.type.replace("_", " ")} ({h.severity} severity)</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Filter Chips */}
         <div className="flex flex-wrap items-center justify-center gap-3 w-full max-w-3xl">
-          {[
-            { label: "Max 3% Incline", icon: <Activity size={16} /> },
-            {
-              label: "Require Dropped Curbs",
-              icon: (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 10h-2a2 2 0 0 0-2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2h2" />
-                </svg>
-              ),
-            },
-            { label: "Audible Crossings", icon: <Volume2 size={16} /> },
-            { label: "Live Elevator Feed", icon: <Eye size={16} /> },
-          ].map((chip) => {
-            const isSelected = selectedFilter === chip.label;
-            return (
-              <button
-                key={chip.label}
-                type="button"
-                onClick={() => setSelectedFilter(isSelected ? "" : chip.label)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer border ${
-                  isSelected
-                    ? "bg-[#046c4e] text-white border-[#046c4e] shadow-sm"
-                    : "bg-[#f8f9fa] hover:bg-gray-100 text-gray-700 border-gray-200"
-                }`}
-              >
-                {chip.icon}
-                <span>{chip.label}</span>
-                {isSelected && <Check size={14} className="ml-0.5" />}
-              </button>
-            );
-          })}
+          <button className="flex items-center gap-2 bg-[#f0f4ff] hover:bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-sm font-semibold transition-colors border border-blue-100">
+            <Activity size={16} />
+            Max 3% Incline
+          </button>
+          <button className="flex items-center gap-2 bg-[#f0f4ff] hover:bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-sm font-semibold transition-colors border border-blue-100">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 10h-2a2 2 0 0 0-2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2h2"></path></svg>
+            Require Dropped Curbs
+          </button>
+          
+          <button 
+            onClick={() => router.push('/virtual-cane')}
+            className="flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg text-sm font-bold transition-colors border border-indigo-200 shadow-sm shadow-indigo-200/50"
+          >
+            <Eye size={16} />
+            Virtual Cane (Beta)
+          </button>
         </div>
+        
       </div>
     </section>
   );

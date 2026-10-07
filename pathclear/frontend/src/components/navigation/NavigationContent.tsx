@@ -7,8 +7,10 @@ import NavHeader from "@/components/navigation/NavHeader";
 import NavMapOverlay from "@/components/navigation/NavMapOverlay";
 import TurnInstructionCard from "@/components/navigation/TurnInstructionCard";
 import RouteAlertCard from "@/components/navigation/RouteAlertCard";
+
 import MapControls from "@/components/navigation/MapControls";
 import NavFooter from "@/components/navigation/NavFooter";
+import Last50FeetCard from "@/components/navigation/Last50FeetCard";
 import { Entrance, Route, Hazard } from "@/types";
 import { CheckCircle2, ArrowRight, Sparkles, Navigation, DoorOpen } from "lucide-react";
 import { useVoiceAgent } from "@/contexts/VoiceAgentContext";
@@ -56,6 +58,7 @@ export default function NavigationContent({ data }: NavigationContentProps) {
   const isWithinArrivalRange = distanceRemainingMeters <= 50;
 
   const { speak, isMuted } = useVoiceAgent();
+  const [showApproach, setShowApproach] = useState(false);
 
   // Speak initial turn instruction for blind / low-vision users via VoiceAgent (respects mute & accessibility)
   useEffect(() => {
@@ -156,7 +159,7 @@ export default function NavigationContent({ data }: NavigationContentProps) {
       <MapControls />
 
       {/* Live Simulation Toolbar (Top-Right under header) */}
-      <div className="absolute top-[88px] right-4 md:right-6 z-30 flex items-center gap-2">
+      <div className="absolute top-[88px] right-4 md:right-6 z-30 hidden md:flex items-center gap-2">
         <button
           onClick={handleSimulateArrival}
           className="px-3 py-1.5 rounded-xl bg-white/90 backdrop-blur-md border border-gray-200 text-xs font-bold text-gray-700 hover:text-emerald-700 shadow-md hover:bg-white transition-all flex items-center gap-1.5 cursor-pointer"
@@ -175,6 +178,14 @@ export default function NavigationContent({ data }: NavigationContentProps) {
         entranceName={data.footer.entranceName}
         entranceId={data.entrance.id}
       />
+
+      {/* 7. Last 50 Feet Overlay */}
+      {showApproach && (
+        <Last50FeetCard 
+          entrance={data.entrance} 
+          onClose={() => setShowApproach(false)} 
+        />
+      )}
     </div>
   );
 }

@@ -10,7 +10,7 @@ interface TurnInstructionCardProps {
 
 export default function TurnInstructionCard({ distance, instruction, street, slope, width }: TurnInstructionCardProps) {
   return (
-    <div className="absolute top-[96px] left-4 md:left-6 w-full max-w-sm bg-white rounded-2xl shadow-xl border border-gray-100 p-4 z-40">
+    <div className="absolute top-[96px] left-4 right-4 md:right-auto md:w-[380px] bg-white rounded-2xl shadow-xl border border-gray-100 p-4 z-40">
       <div className="flex gap-4">
         {/* Turn Icon */}
         <div className="flex-shrink-0">

@@ -2,7 +2,7 @@ from typing import TypedDict, Annotated, Sequence
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, SystemMessage
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
 from app.agents.navigation.tools import calculate_route_tool, find_nearby_hazards_tool
 from langgraph.prebuilt import ToolNode
 import os
@@ -28,11 +28,11 @@ def call_model(state: AgentState):
     When a tool returns a JSON string with an 'action' and 'data', you MUST pass that exact JSON back to the user in your thought process, but summarize the results naturally in your response.
     """)
     
-    api_key = os.environ.get("GOOGLE_API_KEY", "")
+    api_key = os.environ.get("OPENAI_API_KEY", "")
     if not api_key:
-        return {"messages": [AIMessage(content="I am operating without a Google API key right now. I cannot use my tools or process intent.", name="PathClear")]}
+        return {"messages": [AIMessage(content="I am operating without an OpenAI API key right now. I cannot use my tools or process intent.", name="PathClear")]}
         
-    llm = ChatGoogleGenerativeAI(model="gemini-flash-latest", temperature=0)
+    llm = ChatOpenAI(model="gpt-4o", temperature=0)
     llm_with_tools = llm.bind_tools(tools)
     
     response = llm_with_tools.invoke([system_prompt] + list(messages))

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
@@ -41,6 +41,31 @@ function AuthPageContent() {
   const [highContrast, setHighContrast] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState("en");
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    // Initialize selected language from Google Translate cookie
+    const match = document.cookie.match(/googtrans=\/en\/([a-z]{2})/);
+    if (match && match[1]) {
+      setSelectedLanguage(match[1]);
+    }
+  }, []);
+
+  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const lang = e.target.value;
+    setSelectedLanguage(lang);
+    
+    // Set Google Translate cookie
+    if (lang === "en") {
+      document.cookie = "googtrans=/en/en; path=/";
+      document.cookie = `googtrans=/en/en; domain=${window.location.hostname}; path=/`;
+    } else {
+      document.cookie = `googtrans=/en/${lang}; path=/`;
+      document.cookie = `googtrans=/en/${lang}; domain=${window.location.hostname}; path=/`;
+    }
+    
+    // Reload to apply translation via the layout.tsx script
+    window.location.reload();
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -233,7 +258,7 @@ function AuthPageContent() {
               <select
                 id="lang-selector"
                 value={selectedLanguage}
-                onChange={(e) => setSelectedLanguage(e.target.value)}
+                onChange={handleLanguageChange}
                 className="h-10 pl-3 pr-8 text-xs font-semibold rounded-xl bg-slate-50 border border-slate-200 text-slate-700 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 cursor-pointer"
               >
                 <option value="en">English (US)</option>
