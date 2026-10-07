@@ -102,6 +102,12 @@ const MOCK_ROUTE_DATA: RoutePreviewData = {
   navigationTargetId: "ent-101",
 };
 
+function extractDestinationName(input: string): string {
+  const trimmed = input.trim();
+  const match = trimmed.match(/^(?:(?:show\s+me\s+)?route\s+to|take\s+me\s+to|navigate\s+to|guide\s+me\s+to(?:\s+reach)?|go\s+to|i\s+want\s+to\s+go\s+to)\s+(.+)$/i);
+  return match ? match[1].trim() : trimmed;
+}
+
 // Route coordinates: Bandra West (Hill Road) -> Jio World Centre (Gate 2, BKC)
 // User provided in [lat, lng] format; MapLibre expects [lng, lat]
 const ROUTE_COORDINATES: [number, number][] = [
@@ -538,7 +544,7 @@ function PlannerPageContent() {
   const [panelWidth, setPanelWidth] = useState(380);
   const [isResizing, setIsResizing] = useState(false);
   const [originText, setOriginText] = useState(originParam || MOCK_ROUTE_DATA.origin);
-  const [destinationText, setDestinationText] = useState(destParam || MOCK_ROUTE_DATA.destination);
+  const [destinationText, setDestinationText] = useState(extractDestinationName(destParam || MOCK_ROUTE_DATA.destination));
   const [backendRoute, setBackendRoute] = useState<Route | null>(null);
   const [backendEntrance, setBackendEntrance] = useState<Entrance | null>(null);
   const [resolvedDestCoords, setResolvedDestCoords] = useState<[number, number] | null>(null);
@@ -547,7 +553,7 @@ function PlannerPageContent() {
 
   // Sync state if searchParams change
   useEffect(() => {
-    if (destParam) setDestinationText(destParam);
+    if (destParam) setDestinationText(extractDestinationName(destParam));
     if (originParam) setOriginText(originParam);
   }, [destParam, originParam]);
 
@@ -557,7 +563,7 @@ function PlannerPageContent() {
     : DEST_COORDS, [hasDestinationCoordinates, latParam, lngParam]);
   const originCoords = ORIGIN_COORDS;
   const expectedOrigin = originParam || MOCK_ROUTE_DATA.origin;
-  const expectedDestination = destParam || MOCK_ROUTE_DATA.destination;
+  const expectedDestination = extractDestinationName(destParam || MOCK_ROUTE_DATA.destination);
   const inputsMatchCoordinates = originText.trim() === expectedOrigin.trim() && destinationText.trim() === expectedDestination.trim();
 
   useEffect(() => {
@@ -582,7 +588,7 @@ function PlannerPageContent() {
       .then((entrances) => {
         if (!isCurrent) return;
         const exactId = idParam ? entrances.find((item) => item.id === idParam) : undefined;
-        const normalizedDestination = (destParam || "").toLowerCase();
+        const normalizedDestination = extractDestinationName(destParam || "").toLowerCase();
         const namedMatch = normalizedDestination
           ? entrances.find((item) => `${item.buildingName} ${item.entranceName || ""}`.toLowerCase().includes(normalizedDestination)
             || normalizedDestination.includes(item.buildingName.toLowerCase()))
@@ -863,7 +869,7 @@ function PlannerPageContent() {
                   id="dest-location-input"
                   type="text"
                   value={destinationText}
-                  onChange={(e) => setDestinationText(e.target.value)}
+                  onChange={(e) => setDestinationText(extractDestinationName(e.target.value))}
                   placeholder="Enter destination location..."
                   className="w-full text-xs sm:text-sm font-bold text-gray-900 bg-white hover:bg-white focus:bg-white px-2.5 py-1.5 rounded-lg border border-gray-200 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all truncate"
                 />
