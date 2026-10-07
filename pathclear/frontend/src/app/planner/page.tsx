@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { MapPin, TrendingUp, Volume2, Send, CheckCircle2, AlertTriangle, BarChart2, Mountain, Droplet, Sun, Loader2, Map, GripVertical, ArrowUpDown } from "lucide-react";
+import { MapPin, TrendingUp, Volume2, Send, CheckCircle2, AlertTriangle, BarChart2, Mountain, Droplet, Sun, Loader2, Map as MapIcon, GripVertical, ArrowUpDown } from "lucide-react";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { OSM_RASTER_STYLE, DEFAULT_MAP_ZOOM, DEFAULT_MAP_PITCH, DEFAULT_MAP_BEARING } from "@/lib/map-config";
@@ -693,11 +693,11 @@ function PlannerPageContent() {
             profile: { mobility_type: "wheelchair_manual", require_step_free: true, max_incline_percent: 5.0 }
           })
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           setRouteCoords(data.geometry?.coordinates || data.coordinates);
-          
+
           setRoute(prev => ({
             ...prev,
             stats: {
@@ -790,7 +790,7 @@ function PlannerPageContent() {
               <p className="text-xs md:text-sm font-bold text-gray-900 truncate">
                 {originText.split("(")[0].trim()} → {destinationText.split("(")[0].trim()}
               </p>
-          <p className="text-xs font-medium text-gray-500">{route.header.verifiedAgo}</p>
+              <p className="text-xs font-medium text-gray-500">{route.header.verifiedAgo}</p>
             </div>
           </div>
           <button className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors shrink-0" aria-label="Close preview">
@@ -975,3 +975,13 @@ export default function PlannerPage() {
     </Suspense>
   );
 }
+
+
+function setRouteCoords(arg0: any) {
+  throw new Error("Function not implemented.");
+}
+
+function setRoute(arg0: (prev: any) => any) {
+  throw new Error("Function not implemented.");
+}
+
