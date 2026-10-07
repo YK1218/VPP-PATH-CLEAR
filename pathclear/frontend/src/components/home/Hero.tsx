@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Search, Mic, ArrowRight, Activity, Eye, Volume2, MapPin, Building2, TrainFront, Check, Loader2, X } from "lucide-react";
 import { useVoiceAgent } from "@/contexts/VoiceAgentContext";
 import { useProfile } from "@/contexts/ProfileContext";
+import { geocodeLocation, smartGeocodeLocation } from "@/lib/geocoding";
 
 interface SearchSuggestion {
   name: string;
@@ -16,6 +17,7 @@ interface SearchSuggestion {
 
 const CITY_DESTINATIONS: Record<string, SearchSuggestion[]> = {
   Mumbai: [
+    { name: "Phoenix Palladium Mall", subtitle: "Lower Parel • Step-Free Valet Concourse", type: "building", lat: 18.9950, lng: 72.8242 },
     { name: "Jio World Centre", subtitle: "BKC South Accessible Gate 2 • Mumbai", type: "building", lat: 19.0633, lng: 72.8684 },
     { name: "Bandra Kurla Complex Metro", subtitle: "Aqua Line 3 • Low-Threshold Elevator", type: "transit", lat: 19.0598, lng: 72.8520 },
     { name: "Bandra Railway Station", subtitle: "West Accessible Footbridge & Ramp • Western Railway", type: "transit", lat: 19.0558, lng: 72.8315 },
@@ -163,19 +165,30 @@ export default function Hero() {
     router.push(`/planner?${params.toString()}`);
   };
 
-  const handleSearchSubmit = (e?: React.FormEvent) => {
+  const handleSearchSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    const target = searchQuery.trim() || suggestions[0]?.name || "Jio World Centre";
-    const bestMatch = suggestions.find((s) => s.name.toLowerCase() === target.toLowerCase()) || suggestions[0];
-    
+    const target = searchQuery.trim() || "Phoenix Palladium Mall";
+    const bestMatch = suggestions.find((s) => s.name.toLowerCase() === target.toLowerCase());
+
     const params = new URLSearchParams({
       dest: target,
       city: selectedCity,
     });
+
     if (bestMatch?.lat && bestMatch?.lng) {
       params.set("lat", bestMatch.lat.toString());
       params.set("lng", bestMatch.lng.toString());
+      params.set("dest", bestMatch.name);
+    } else {
+      // Use smart geocoding (AI-powered normalization + Photon/Nominatim fallback)
+      const resolved = await smartGeocodeLocation(target, selectedCity);
+      if (resolved) {
+        params.set("lat", resolved.lat.toString());
+        params.set("lng", resolved.lng.toString());
+        params.set("dest", resolved.name);
+      }
     }
+
     if (selectedFilter) {
       params.set("filter", selectedFilter);
     }

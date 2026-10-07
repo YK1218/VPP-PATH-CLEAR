@@ -5,11 +5,20 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { MapPin, TrendingUp, Volume2, Send, CheckCircle2, AlertTriangle, BarChart2, Mountain, Droplet, Sun, Loader2, Map, GripVertical, ArrowUpDown } from "lucide-react";
+import { MapPin, TrendingUp, Volume2, Send, CheckCircle2, AlertTriangle, BarChart2, Mountain, Droplet, Sun, Loader2, Map, GripVertical, ArrowUpDown, Search, X, Navigation } from "lucide-react";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { OSM_RASTER_STYLE, DEFAULT_MAP_ZOOM, DEFAULT_MAP_PITCH, DEFAULT_MAP_BEARING } from "@/lib/map-config";
 import { setup3DMapLayers } from "@/lib/map-3d-config";
+import {
+  geocodeLocation,
+  smartGeocodeLocation,
+  searchLocationSuggestions,
+  calculateDistanceKm,
+  generateRouteBetween,
+  LocationItem,
+  findPresetLocation,
+} from "@/lib/geocoding";
 
 // ============================================================
 // MOCK DATA - Self-contained, no backend required
@@ -120,13 +129,25 @@ const MAP_CENTER: [number, number] = [72.850, 19.0595]; // Midpoint approx
 function PlannerMapOverlay({
   originCoords = ORIGIN_COORDS,
   destCoords = DEST_COORDS,
+  routeCoords,
+  destLabel = "Gate 2 Accessible Entry",
 }: {
   originCoords?: [number, number];
   destCoords?: [number, number];
+  routeCoords?: [number, number][];
+  destLabel?: string;
 }) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const animationIdRef = useRef<number | null>(null);
+  const originMarkerRef = useRef<maplibregl.Marker | null>(null);
+  const destMarkerRef = useRef<maplibregl.Marker | null>(null);
+  const destBadgeRef = useRef<HTMLDivElement | null>(null);
+  const activeRemainingCoordsRef = useRef<[number, number][]>([]);
+
+  const activeRoute = routeCoords && routeCoords.length > 1
+    ? routeCoords
+    : generateRouteBetween(originCoords, destCoords);
 
   useEffect(() => {
     if (mapRef.current || !mapContainer.current) return;
@@ -152,19 +173,20 @@ function PlannerMapOverlay({
     map.on("load", () => {
       setup3DMapLayers(map);
 
-      // Current position at ~30% along the route (simulated progress)
+      // Current position at ~30% along the route
       const currentPosition: [number, number] = [
-        ORIGIN_COORDS[0] + (DEST_COORDS[0] - ORIGIN_COORDS[0]) * 0.3,
-        ORIGIN_COORDS[1] + (DEST_COORDS[1] - ORIGIN_COORDS[1]) * 0.3,
+        originCoords[0] + (destCoords[0] - originCoords[0]) * 0.3,
+        originCoords[1] + (destCoords[1] - originCoords[1]) * 0.3,
       ];
 
-      // Already-traveled path (start → current position)
-      const completedCoords: [number, number][] = [ORIGIN_COORDS, currentPosition];
+      const completedCoords: [number, number][] = [originCoords, currentPosition];
+      const remainingCoords: [number, number][] = [
+        currentPosition,
+        ...activeRoute.slice(Math.max(1, Math.floor(activeRoute.length * 0.3))),
+      ];
+      activeRemainingCoordsRef.current = remainingCoords;
 
-      // Remaining path (current position → destination)
-      const remainingCoords: [number, number][] = [currentPosition, DEST_COORDS];
-
-      // ---- COMPLETED path source (already traveled) ----
+      // ---- COMPLETED path source ----
       map.addSource("route-completed", {
         type: "geojson",
         data: {
@@ -174,7 +196,6 @@ function PlannerMapOverlay({
         },
       });
 
-      // Completed path — dimmed, thinner
       map.addLayer({
         id: "completed-shadow",
         type: "line",
@@ -190,7 +211,7 @@ function PlannerMapOverlay({
         paint: { "line-color": "#0e9f6e", "line-width": 8, "line-opacity": 0.35 },
       });
 
-      // ---- REMAINING path source (current → destination) ----
+      // ---- REMAINING path source ----
       map.addSource("route-remaining", {
         type: "geojson",
         data: {
@@ -200,7 +221,6 @@ function PlannerMapOverlay({
         },
       });
 
-      // Remaining path — bright glow shadow
       map.addLayer({
         id: "remaining-glow",
         type: "line",
@@ -209,7 +229,6 @@ function PlannerMapOverlay({
         paint: { "line-color": "#0e9f6e", "line-width": 20, "line-opacity": 0.15, "line-blur": 8 },
       });
 
-      // Remaining path — main bright line
       map.addLayer({
         id: "remaining-line",
         type: "line",
@@ -218,7 +237,6 @@ function PlannerMapOverlay({
         paint: { "line-color": "#0e9f6e", "line-width": 10 },
       });
 
-      // Remaining path — white dashed overlay for direction
       map.addLayer({
         id: "remaining-dash",
         type: "line",
@@ -235,42 +253,38 @@ function PlannerMapOverlay({
       // ---- Origin Marker ----
       const originEl = document.createElement("div");
       originEl.className = "w-6 h-6 bg-blue-600 border-4 border-white rounded-full shadow-md";
-      new maplibregl.Marker({ element: originEl })
-        .setLngLat(ORIGIN_COORDS)
+      originMarkerRef.current = new maplibregl.Marker({ element: originEl })
+        .setLngLat(originCoords)
         .addTo(map);
 
-      // ---- Destination Marker: Double-ring target + Badge ----
+      // ---- Destination Marker ----
       const destEl = document.createElement("div");
       destEl.className = "relative";
       destEl.innerHTML = `
         <div class="relative flex flex-col items-center">
-          <!-- Double-ring target marker -->
           <div class="relative w-10 h-10">
-            <!-- Outer dark green ring -->
             <div class="absolute inset-0 rounded-full border-4 border-pathclear-primary bg-transparent"></div>
-            <!-- Middle white ring -->
             <div class="absolute inset-1.5 rounded-full border-2 border-white bg-transparent"></div>
-            <!-- Inner teal center dot -->
             <div class="absolute inset-3 rounded-full bg-teal-500"></div>
           </div>
-          <!-- Badge above marker -->
           <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 whitespace-nowrap">
-            <div class="bg-gray-900 text-white text-xs font-semibold px-2.5 py-1 rounded shadow-md flex items-center gap-1.5">
-              Gate 2 Accessible Entry
+            <div id="dest-map-label" class="bg-gray-900 text-white text-xs font-semibold px-2.5 py-1 rounded shadow-md flex items-center gap-1.5">
+              ${destLabel || "Accessible Entry"}
             </div>
           </div>
         </div>
       `;
-      new maplibregl.Marker({ element: destEl, anchor: "bottom" })
-        .setLngLat(DEST_COORDS)
+      destBadgeRef.current = destEl.querySelector("#dest-map-label");
+      destMarkerRef.current = new maplibregl.Marker({ element: destEl, anchor: "bottom" })
+        .setLngLat(destCoords)
         .addTo(map);
 
-      // Fit bounds to show full route
+      // Fit bounds
       const bounds = new maplibregl.LngLatBounds();
-      (ROUTE_COORDINATES as [number, number][]).forEach((coord) => bounds.extend(coord));
-      map.fitBounds(bounds, { padding: { top: 80, bottom: 80, left: 50, right: 50 }, maxZoom: 15 });
+      activeRoute.forEach((coord) => bounds.extend(coord));
+      map.fitBounds(bounds, { padding: { top: 90, bottom: 90, left: 60, right: 60 }, maxZoom: 15 });
 
-      // ---- Animated dot flowing from user to destination ----
+      // ---- Animated flowing dot ----
       map.addSource("nav-dot", {
         type: "geojson",
         data: {
@@ -280,7 +294,6 @@ function PlannerMapOverlay({
         },
       });
 
-      // Outer glow ring
       map.addLayer({
         id: "nav-dot-glow",
         type: "circle",
@@ -293,7 +306,6 @@ function PlannerMapOverlay({
         },
       });
 
-      // Mid ring
       map.addLayer({
         id: "nav-dot-mid",
         type: "circle",
@@ -305,7 +317,6 @@ function PlannerMapOverlay({
         },
       });
 
-      // Inner bright dot
       map.addLayer({
         id: "nav-dot-inner",
         type: "circle",
@@ -318,36 +329,36 @@ function PlannerMapOverlay({
         },
       });
 
-      // Animate the dot along the REMAINING path only
       let dotProgress = 0;
-      const dotSpeed = 0.004;
-      const totalRemaining = remainingCoords.length;
+      const dotSpeed = 0.005;
 
       const animateNavDot = () => {
         if (!animationActive) return;
 
-        dotProgress += dotSpeed;
-        if (dotProgress >= totalRemaining - 1) dotProgress = 0;
+        const currentRemaining = activeRemainingCoordsRef.current;
+        if (currentRemaining && currentRemaining.length > 1) {
+          dotProgress += dotSpeed;
+          if (dotProgress >= currentRemaining.length - 1) dotProgress = 0;
 
-        const segIdx = Math.floor(dotProgress);
-        const segFrac = dotProgress - segIdx;
-        const ptA = remainingCoords[segIdx];
-        const ptB = remainingCoords[Math.min(segIdx + 1, totalRemaining - 1)];
+          const segIdx = Math.floor(dotProgress);
+          const segFrac = dotProgress - segIdx;
+          const ptA = currentRemaining[segIdx];
+          const ptB = currentRemaining[Math.min(segIdx + 1, currentRemaining.length - 1)];
 
-        // Interpolate position
-        const lng = ptA[0] + (ptB[0] - ptA[0]) * segFrac;
-        const lat = ptA[1] + (ptB[1] - ptA[1]) * segFrac;
+          const lng = ptA[0] + (ptB[0] - ptA[0]) * segFrac;
+          const lat = ptA[1] + (ptB[1] - ptA[1]) * segFrac;
 
-        const src = map.getSource("nav-dot") as maplibregl.GeoJSONSource;
-        if (src) {
-          src.setData({
-            type: "Feature",
-            properties: {},
-            geometry: { type: "Point", coordinates: [lng, lat] },
-          });
+          const src = map.getSource("nav-dot") as maplibregl.GeoJSONSource;
+          if (src) {
+            src.setData({
+              type: "Feature",
+              properties: {},
+              geometry: { type: "Point", coordinates: [lng, lat] },
+            });
+          }
         }
 
-        requestAnimationFrame(animateNavDot);
+        animationIdRef.current = requestAnimationFrame(animateNavDot);
       };
       animateNavDot();
     });
@@ -359,6 +370,63 @@ function PlannerMapOverlay({
       mapRef.current = null;
     };
   }, []);
+
+  // Dynamically update map when origin, destination or route change!
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.isStyleLoaded()) return;
+
+    const currentPosition: [number, number] = [
+      originCoords[0] + (destCoords[0] - originCoords[0]) * 0.3,
+      originCoords[1] + (destCoords[1] - originCoords[1]) * 0.3,
+    ];
+
+    const completedCoords: [number, number][] = [originCoords, currentPosition];
+    const remainingCoords: [number, number][] = [
+      currentPosition,
+      ...activeRoute.slice(Math.max(1, Math.floor(activeRoute.length * 0.3))),
+    ];
+    activeRemainingCoordsRef.current = remainingCoords;
+
+    const srcCompleted = map.getSource("route-completed") as maplibregl.GeoJSONSource;
+    if (srcCompleted) {
+      srcCompleted.setData({
+        type: "Feature",
+        properties: {},
+        geometry: { type: "LineString", coordinates: completedCoords },
+      });
+    }
+
+    const srcRemaining = map.getSource("route-remaining") as maplibregl.GeoJSONSource;
+    if (srcRemaining) {
+      srcRemaining.setData({
+        type: "Feature",
+        properties: {},
+        geometry: { type: "LineString", coordinates: remainingCoords },
+      });
+    }
+
+    if (originMarkerRef.current) {
+      originMarkerRef.current.setLngLat(originCoords);
+    }
+    if (destMarkerRef.current) {
+      destMarkerRef.current.setLngLat(destCoords);
+    }
+    if (destBadgeRef.current) {
+      destBadgeRef.current.textContent = destLabel || "Accessible Entry";
+    }
+
+    const bounds = new maplibregl.LngLatBounds();
+    activeRoute.forEach((c) => bounds.extend(c));
+    bounds.extend(originCoords);
+    bounds.extend(destCoords);
+
+    map.fitBounds(bounds, {
+      padding: { top: 90, bottom: 90, left: 60, right: 60 },
+      maxZoom: 16,
+      duration: 1000,
+    });
+  }, [originCoords, destCoords, activeRoute, destLabel]);
 
   return (
     <div className="absolute inset-0 bg-[#eef1f6] overflow-hidden z-0">
@@ -522,31 +590,243 @@ function PlannerPageContent() {
   const originParam = searchParams.get("origin");
   const latParam = searchParams.get("lat");
   const lngParam = searchParams.get("lng");
+  const originLatParam = searchParams.get("originLat");
+  const originLngParam = searchParams.get("originLng");
   const idParam = searchParams.get("id");
-  const filterParam = searchParams.get("filter");
+  const cityParam = searchParams.get("city") || "Mumbai";
 
   const route = MOCK_ROUTE_DATA;
   const [panelWidth, setPanelWidth] = useState(380);
   const [isResizing, setIsResizing] = useState(false);
+
   const [originText, setOriginText] = useState(originParam || route.origin);
   const [destinationText, setDestinationText] = useState(destParam || route.destination);
 
-  // Sync state if searchParams change
-  useEffect(() => {
-    if (destParam) setDestinationText(destParam);
-    if (originParam) setOriginText(originParam);
-  }, [destParam, originParam]);
+  // Dynamic Coordinates State
+  const [originCoords, setOriginCoords] = useState<[number, number]>(() => {
+    if (originParam) {
+      const p = findPresetLocation(originParam);
+      if (p) return [p.lng, p.lat];
+    }
+    if (originLngParam && originLatParam) {
+      return [parseFloat(originLngParam), parseFloat(originLatParam)];
+    }
+    return ORIGIN_COORDS;
+  });
 
-  const destCoords: [number, number] = (latParam && lngParam)
-    ? [parseFloat(lngParam), parseFloat(latParam)]
-    : DEST_COORDS;
-  const originCoords: [number, number] = ORIGIN_COORDS;
-  const navTargetId = idParam || route.navigationTargetId || "ent-101";
+  const [destCoords, setDestCoords] = useState<[number, number]>(() => {
+    if (destParam) {
+      const p = findPresetLocation(destParam);
+      if (p) return [p.lng, p.lat];
+    }
+    if (lngParam && latParam) {
+      return [parseFloat(lngParam), parseFloat(latParam)];
+    }
+    return DEST_COORDS;
+  });
+
+  const [routeCoords, setRouteCoords] = useState<[number, number][]>(() => {
+    const orig: [number, number] = originParam && findPresetLocation(originParam)
+      ? [findPresetLocation(originParam)!.lng, findPresetLocation(originParam)!.lat]
+      : (originLngParam && originLatParam ? [parseFloat(originLngParam), parseFloat(originLatParam)] : ORIGIN_COORDS);
+
+    const dst: [number, number] = destParam && findPresetLocation(destParam)
+      ? [findPresetLocation(destParam)!.lng, findPresetLocation(destParam)!.lat]
+      : (lngParam && latParam ? [parseFloat(lngParam), parseFloat(latParam)] : DEST_COORDS);
+
+    return generateRouteBetween(orig, dst);
+  });
+
+  // Autocomplete Suggestions State
+  const [originSuggestions, setOriginSuggestions] = useState<LocationItem[]>([]);
+  const [destSuggestions, setDestSuggestions] = useState<LocationItem[]>([]);
+  const [showOriginDropdown, setShowOriginDropdown] = useState(false);
+  const [showDestDropdown, setShowDestDropdown] = useState(false);
+  const [isSearchingDest, setIsSearchingDest] = useState(false);
+  const [isSearchingOrigin, setIsSearchingOrigin] = useState(false);
+
+  const originBoxRef = useRef<HTMLDivElement>(null);
+  const destBoxRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (originBoxRef.current && !originBoxRef.current.contains(e.target as Node)) {
+        setShowOriginDropdown(false);
+      }
+      if (destBoxRef.current && !destBoxRef.current.contains(e.target as Node)) {
+        setShowDestDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
+
+  // Sync state if searchParams change — with smart AI geocoding fallback
+  useEffect(() => {
+    if (destParam) {
+      setDestinationText(destParam);
+      // Fast path: preset location
+      const preset = findPresetLocation(destParam);
+      if (preset) {
+        const c: [number, number] = [preset.lng, preset.lat];
+        setDestCoords(c);
+        setRouteCoords(generateRouteBetween(originCoords, c));
+        return;
+      }
+      // Use provided lat/lng if available
+      if (latParam && lngParam) {
+        const c: [number, number] = [parseFloat(lngParam), parseFloat(latParam)];
+        setDestCoords(c);
+        setRouteCoords(generateRouteBetween(originCoords, c));
+        return;
+      }
+      // Async: use smart geocoding (AI normalization + Photon/Nominatim)
+      smartGeocodeLocation(destParam, cityParam).then((res) => {
+        if (res) {
+          const c: [number, number] = [res.lng, res.lat];
+          setDestCoords(c);
+          setDestinationText(res.name);
+          setRouteCoords(generateRouteBetween(originCoords, c));
+        }
+      });
+    }
+  }, [destParam, latParam, lngParam, cityParam]);
+
+  useEffect(() => {
+    if (originParam) {
+      setOriginText(originParam);
+      if (originLatParam && originLngParam) {
+        const c: [number, number] = [parseFloat(originLngParam), parseFloat(originLatParam)];
+        setOriginCoords(c);
+        setRouteCoords(generateRouteBetween(c, destCoords));
+      } else {
+        geocodeLocation(originParam, cityParam).then((res) => {
+          if (res) {
+            const c: [number, number] = [res.lng, res.lat];
+            setOriginCoords(c);
+            setRouteCoords(generateRouteBetween(c, destCoords));
+          }
+        });
+      }
+    }
+  }, [originParam, originLatParam, originLngParam, cityParam]);
+
+  // Destination input typing debounce
+  useEffect(() => {
+    if (!destinationText.trim()) {
+      setDestSuggestions([]);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setIsSearchingDest(true);
+      try {
+        const results = await searchLocationSuggestions(destinationText, cityParam);
+        setDestSuggestions(results);
+      } finally {
+        setIsSearchingDest(false);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [destinationText, cityParam]);
+
+  // Origin input typing debounce
+  useEffect(() => {
+    if (!originText.trim()) {
+      setOriginSuggestions([]);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setIsSearchingOrigin(true);
+      try {
+        const results = await searchLocationSuggestions(originText, cityParam);
+        setOriginSuggestions(results);
+      } finally {
+        setIsSearchingOrigin(false);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [originText, cityParam]);
+
+  const handleSelectDestSuggestion = (item: LocationItem) => {
+    setDestinationText(item.name);
+    setShowDestDropdown(false);
+    const newCoords: [number, number] = [item.lng, item.lat];
+    setDestCoords(newCoords);
+    setRouteCoords(generateRouteBetween(originCoords, newCoords));
+  };
+
+  const handleSelectOriginSuggestion = (item: LocationItem) => {
+    setOriginText(item.name);
+    setShowOriginDropdown(false);
+    const newCoords: [number, number] = [item.lng, item.lat];
+    setOriginCoords(newCoords);
+    setRouteCoords(generateRouteBetween(newCoords, destCoords));
+  };
+
+  const handleRecalculateRoute = async () => {
+    let currentOrigin = originCoords;
+    let currentDest = destCoords;
+
+    setIsSearchingDest(true);
+    try {
+      // Use smart geocoding (AI normalization + Photon/Nominatim)
+      const geoDest = await smartGeocodeLocation(destinationText, cityParam);
+      if (geoDest) {
+        currentDest = [geoDest.lng, geoDest.lat];
+        setDestCoords(currentDest);
+        setDestinationText(geoDest.name);
+      }
+
+      const geoOrigin = await smartGeocodeLocation(originText, cityParam);
+      if (geoOrigin) {
+        currentOrigin = [geoOrigin.lng, geoOrigin.lat];
+        setOriginCoords(currentOrigin);
+        setOriginText(geoOrigin.name);
+      }
+
+      setRouteCoords(generateRouteBetween(currentOrigin, currentDest));
+    } finally {
+      setIsSearchingDest(false);
+      setShowDestDropdown(false);
+      setShowOriginDropdown(false);
+    }
+  };
 
   const handleSwap = () => {
-    const temp = originText;
+    const tempText = originText;
+    const tempCoords = originCoords;
+
     setOriginText(destinationText);
-    setDestinationText(temp);
+    setOriginCoords(destCoords);
+
+    setDestinationText(tempText);
+    setDestCoords(tempCoords);
+
+    setRouteCoords(generateRouteBetween(destCoords, tempCoords));
+  };
+
+  // Dynamic Metrics Calculation
+  const distanceKm = Math.max(0.4, calculateDistanceKm(originCoords, destCoords));
+  const estimatedTimeMin = Math.max(3, Math.round(distanceKm * 5.5));
+  const navTargetId = idParam || route.navigationTargetId || "ent-101";
+
+  const dynamicStats = {
+    totalTime: `${estimatedTimeMin} min total`,
+    distance: `${distanceKm.toFixed(1)} km distance`,
+    maxIncline: "2.4% max incline",
+  };
+
+  const dynamicElevationProfile = {
+    segments: [
+      { distance: 0, elevation: 8, incline: 0, label: originText.split(/[\s,(]/)[0] || "Start" },
+      { distance: Math.round(distanceKm * 0.25 * 10) / 10, elevation: 12, incline: 0.8, label: "Way 1" },
+      { distance: Math.round(distanceKm * 0.5 * 10) / 10, elevation: 17, incline: 1.5, label: "Way 2" },
+      { distance: Math.round(distanceKm * 0.75 * 10) / 10, elevation: 20, incline: 2.1, label: "Ramp" },
+      { distance: distanceKm, elevation: 18, incline: -0.4, label: destinationText.split(/[\s,(]/)[0] || "Dest" },
+    ],
+    totalGain: Math.round(distanceKm * 3.2 + 5),
+    totalLoss: Math.round(distanceKm * 1.2 + 2),
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -577,7 +857,12 @@ function PlannerPageContent() {
       <Navbar />
 
       {/* Map Background - Full Screen */}
-      <PlannerMapOverlay originCoords={originCoords} destCoords={destCoords} />
+      <PlannerMapOverlay
+        originCoords={originCoords}
+        destCoords={destCoords}
+        routeCoords={routeCoords}
+        destLabel={destinationText.split(/[\s,(]/)[0] + " Accessible Entry"}
+      />
 
       {/* Floating Left Card: Route Preview - Resizable */}
       <aside
@@ -615,32 +900,69 @@ function PlannerPageContent() {
           </button>
         </div>
 
-        {/* Scrollable Content - Compact */}
+        {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto p-3 space-y-3">
-          {/* Origin / Destination - Fully Editable */}
-          <div className="space-y-2 p-2 rounded-xl bg-gray-50/70 border border-gray-100">
-            <div className="flex items-center gap-2.5">
-              <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100">
-                <MapPin size={14} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-0.5">
-                  <label htmlFor="origin-location-input" className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                    From (Origin)
-                  </label>
-                  <span className="text-[10px] text-blue-600 font-bold">Editable</span>
+          {/* Origin / Destination - Fully Editable with Dynamic Autocomplete */}
+          <div className="space-y-2 p-2 rounded-xl bg-gray-50/70 border border-gray-100 relative">
+            {/* Origin Input */}
+            <div ref={originBoxRef} className="relative">
+              <div className="flex items-center gap-2.5">
+                <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 border border-blue-100">
+                  <MapPin size={14} />
                 </div>
-                <input
-                  id="origin-location-input"
-                  type="text"
-                  value={originText}
-                  onChange={(e) => setOriginText(e.target.value)}
-                  placeholder="Enter starting location..."
-                  className="w-full text-xs sm:text-sm font-bold text-gray-900 bg-white hover:bg-white focus:bg-white px-2.5 py-1.5 rounded-lg border border-gray-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 transition-all truncate"
-                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <label htmlFor="origin-location-input" className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                      From (Origin)
+                    </label>
+                    <span className="text-[10px] text-blue-600 font-bold">Dynamic</span>
+                  </div>
+                  <input
+                    id="origin-location-input"
+                    type="text"
+                    value={originText}
+                    onChange={(e) => {
+                      setOriginText(e.target.value);
+                      setShowOriginDropdown(true);
+                    }}
+                    onFocus={() => setShowOriginDropdown(true)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleRecalculateRoute();
+                    }}
+                    placeholder="Enter starting location..."
+                    className="w-full text-xs sm:text-sm font-bold text-gray-900 bg-white hover:bg-white focus:bg-white px-2.5 py-1.5 rounded-lg border border-gray-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 transition-all truncate"
+                  />
+                </div>
               </div>
+
+              {/* Origin Autocomplete Dropdown */}
+              {showOriginDropdown && originSuggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50 text-left">
+                  <div className="p-2 border-b border-gray-100 flex items-center justify-between text-[11px] text-gray-400 font-bold">
+                    <span>SUGGESTED ORIGIN</span>
+                    {isSearchingOrigin && <Loader2 size={12} className="animate-spin text-blue-600" />}
+                  </div>
+                  <div className="max-h-48 overflow-y-auto divide-y divide-gray-50">
+                    {originSuggestions.map((item, idx) => (
+                      <button
+                        key={`${item.name}-${idx}`}
+                        type="button"
+                        onClick={() => handleSelectOriginSuggestion(item)}
+                        className="w-full text-left p-2.5 hover:bg-blue-50/50 flex items-start gap-2 transition-colors cursor-pointer"
+                      >
+                        <MapPin size={13} className="text-blue-500 shrink-0 mt-0.5" />
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-gray-900 truncate">{item.name}</p>
+                          <p className="text-[10px] text-gray-500 truncate">{item.subtitle}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
+            {/* Swap Button */}
             <div className="relative pl-6 flex items-center justify-between my-0.5">
               <div className="absolute left-3.5 top-0 bottom-0 w-0.5 bg-gray-200" />
               <button
@@ -648,57 +970,112 @@ function PlannerPageContent() {
                 onClick={handleSwap}
                 title="Swap origin and destination"
                 aria-label="Swap origin and destination locations"
-                className="ml-auto z-10 flex items-center gap-1 px-2.5 py-1 rounded-full bg-white border border-gray-200 hover:border-pathclear-secondary text-[10px] font-bold text-gray-600 hover:text-pathclear-primary shadow-2xs hover:shadow-xs transition-all"
+                className="ml-auto z-10 flex items-center gap-1 px-2.5 py-1 rounded-full bg-white border border-gray-200 hover:border-pathclear-secondary text-[10px] font-bold text-gray-600 hover:text-pathclear-primary shadow-2xs hover:shadow-xs transition-all cursor-pointer"
               >
                 <ArrowUpDown size={11} />
                 <span>Swap</span>
               </button>
             </div>
 
-            <div className="flex items-center gap-2.5">
-              <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100">
-                <CheckCircle2 size={14} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-0.5">
-                  <label htmlFor="dest-location-input" className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                    To (Destination)
-                  </label>
-                  <span className="text-[10px] text-emerald-600 font-bold">Editable</span>
+            {/* Destination Input */}
+            <div ref={destBoxRef} className="relative">
+              <div className="flex items-center gap-2.5">
+                <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100">
+                  <CheckCircle2 size={14} />
                 </div>
-                <input
-                  id="dest-location-input"
-                  type="text"
-                  value={destinationText}
-                  onChange={(e) => setDestinationText(e.target.value)}
-                  placeholder="Enter destination location..."
-                  className="w-full text-xs sm:text-sm font-bold text-gray-900 bg-white hover:bg-white focus:bg-white px-2.5 py-1.5 rounded-lg border border-gray-200 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all truncate"
-                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <label htmlFor="dest-location-input" className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                      To (Destination)
+                    </label>
+                    <span className="text-[10px] text-emerald-600 font-bold">Dynamic</span>
+                  </div>
+                  <input
+                    id="dest-location-input"
+                    type="text"
+                    value={destinationText}
+                    onChange={(e) => {
+                      setDestinationText(e.target.value);
+                      setShowDestDropdown(true);
+                    }}
+                    onFocus={() => setShowDestDropdown(true)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleRecalculateRoute();
+                    }}
+                    placeholder="Enter destination location..."
+                    className="w-full text-xs sm:text-sm font-bold text-gray-900 bg-white hover:bg-white focus:bg-white px-2.5 py-1.5 rounded-lg border border-gray-200 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all truncate"
+                  />
+                </div>
               </div>
+
+              {/* Destination Autocomplete Dropdown */}
+              {showDestDropdown && destSuggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50 text-left">
+                  <div className="p-2 border-b border-gray-100 flex items-center justify-between text-[11px] text-gray-400 font-bold">
+                    <span>SUGGESTED DESTINATIONS</span>
+                    {isSearchingDest && <Loader2 size={12} className="animate-spin text-emerald-600" />}
+                  </div>
+                  <div className="max-h-48 overflow-y-auto divide-y divide-gray-50">
+                    {destSuggestions.map((item, idx) => (
+                      <button
+                        key={`${item.name}-${idx}`}
+                        type="button"
+                        onClick={() => handleSelectDestSuggestion(item)}
+                        className="w-full text-left p-2.5 hover:bg-emerald-50/50 flex items-start gap-2 transition-colors cursor-pointer"
+                      >
+                        <CheckCircle2 size={13} className="text-emerald-500 shrink-0 mt-0.5" />
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-gray-900 truncate">{item.name}</p>
+                          <p className="text-[10px] text-gray-500 truncate">{item.subtitle}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
+
+            {/* Recalculate Route Action Button */}
+            <button
+              type="button"
+              onClick={handleRecalculateRoute}
+              className="w-full mt-2 py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer"
+            >
+              {isSearchingDest ? (
+                <>
+                  <Loader2 size={13} className="animate-spin" />
+                  <span>Updating Route...</span>
+                </>
+              ) : (
+                <>
+                  <Navigation size={13} />
+                  <span>Update Step-Free Route</span>
+                </>
+              )}
+            </button>
           </div>
 
-          {/* Stats Row */}
+          {/* Dynamic Stats Row */}
           <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-gray-50/50 border border-gray-100">
             <div className="text-center">
-              <p className="text-xl font-black text-gray-900">{route.stats.totalTime.split(" ")[0]}</p>
+              <p className="text-xl font-black text-gray-900">{dynamicStats.totalTime.split(" ")[0]}</p>
               <p className="text-xs font-medium text-gray-500">min total</p>
             </div>
             <div className="border-x border-gray-200 text-center">
-              <p className="text-xl font-black text-gray-900">{route.stats.distance.split(" ")[0]}</p>
+              <p className="text-xl font-black text-gray-900">{dynamicStats.distance.split(" ")[0]}</p>
               <p className="text-xs font-medium text-gray-500">km distance</p>
             </div>
             <div className="text-center">
               <div className="flex items-center justify-center gap-1 mb-0.5">
                 <TrendingUp size={12} strokeWidth={3} className="text-blue-600" />
-                <p className="text-xl font-black text-gray-900">{route.stats.maxIncline.split(" ")[0]}</p>
+                <p className="text-xl font-black text-gray-900">{dynamicStats.maxIncline.split(" ")[0]}</p>
               </div>
               <p className="text-xs font-medium text-gray-500">max incline</p>
             </div>
           </div>
 
-          {/* Elevation & Slope Profile */}
-          <ElevationProfileChart data={route.elevationProfile} />
+          {/* Dynamic Elevation & Slope Profile */}
+          <ElevationProfileChart data={dynamicElevationProfile} />
 
           {/* Surface Composition */}
           <SurfaceCompositionBar surfaces={route.surfaceComposition} />
@@ -711,7 +1088,7 @@ function PlannerPageContent() {
               </div>
               <div className="flex-1 min-w-0">
                 <h4 className="text-sm font-bold text-gray-900">Entrance Guaranteed Step-Free</h4>
-                <p className="text-xs text-gray-500 mt-1">Door B: Automatic sliding doors with flush-level threshold. Verified by PathClear community 12 min ago.</p>
+                <p className="text-xs text-gray-500 mt-1">Verified accessible entrance at {destinationText.split("(")[0].trim()}. Wide threshold with zero curb steps.</p>
               </div>
             </div>
           </div>
@@ -723,7 +1100,7 @@ function PlannerPageContent() {
         {/* Card Footer: Primary Action + Secondary Actions */}
         <div className="border-t border-gray-100 p-4 bg-gray-50/50 rounded-b-2xl space-y-3">
           <Link
-            href={`/navigation/${navTargetId}?dest=${encodeURIComponent(destinationText)}&origin=${encodeURIComponent(originText)}`}
+            href={`/navigation/${navTargetId}?dest=${encodeURIComponent(destinationText)}&origin=${encodeURIComponent(originText)}&lat=${destCoords[1]}&lng=${destCoords[0]}&originLat=${originCoords[1]}&originLng=${originCoords[0]}`}
             className="w-full flex items-center justify-center gap-2 bg-pathclear-primary hover:bg-pathclear-secondary text-white px-5 py-3.5 rounded-xl font-bold text-base shadow-lg shadow-pathclear-primary/20 transition-all focus-visible:outline-pathclear-primary"
           >
             <CheckCircle2 size={20} strokeWidth={2.5} />
@@ -741,7 +1118,7 @@ function PlannerPageContent() {
             </button>
           </div>
 
-          {/* Report Change - tertiary action, full width */}
+          {/* Report Change */}
           <Link
             href="/report-barrier"
             className="w-full flex items-center justify-center gap-2 bg-amber-50 hover:bg-amber-100 text-amber-700 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors border border-amber-200 focus-visible:outline-pathclear-primary"

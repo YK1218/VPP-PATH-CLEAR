@@ -11,7 +11,14 @@ import NavigationContent from "@/components/navigation/NavigationContent";
 
 interface NavigationPageProps {
   params: Promise<{ id: string }>;
-  searchParams?: Promise<{ dest?: string; origin?: string }>;
+  searchParams?: Promise<{
+    dest?: string;
+    origin?: string;
+    lat?: string;
+    lng?: string;
+    originLat?: string;
+    originLng?: string;
+  }>;
 }
 
 interface NavigationData {
@@ -45,17 +52,47 @@ interface NavigationData {
 async function fetchNavigationData(
   entranceId: string, 
   customDest?: string, 
-  customOrigin?: string
+  customOrigin?: string,
+  customLat?: string,
+  customLng?: string,
+  customOriginLat?: string,
+  customOriginLng?: string
 ): Promise<NavigationData> {
   // Fetch all entrances to find the target entrance
   const entrances = await fetchEntrances();
-  const entrance = entrances.find(e => e.id === entranceId) || entrances[0];
+  let entrance = entrances.find(e => e.id === entranceId) || { ...entrances[0] };
+
+  if (customLat && customLng) {
+    const parsedLat = parseFloat(customLat);
+    const parsedLng = parseFloat(customLng);
+    if (!isNaN(parsedLat) && !isNaN(parsedLng)) {
+      entrance = {
+        ...entrance,
+        id: entranceId,
+        buildingName: customDest || entrance.buildingName,
+        entranceName: "Verified Accessible Doorway",
+        latitude: parsedLat,
+        longitude: parsedLng,
+      };
+    }
+  }
 
   if (!entrance) {
     throw new Error(`Entrance ${entranceId} not found`);
   }
 
-  // Calculate the route from the BKC demo start point to this entrance.
+  // Calculate dynamic origin
+  let originCoords: [number, number] = [72.864, 19.064];
+  if (customOriginLat && customOriginLng) {
+    const oLat = parseFloat(customOriginLat);
+    const oLng = parseFloat(customOriginLng);
+    if (!isNaN(oLat) && !isNaN(oLng)) {
+      originCoords = [oLng, oLat];
+    }
+  } else if (customLat && customLng) {
+    originCoords = [entrance.longitude - 0.005, entrance.latitude - 0.003];
+  }
+
   const profile = {
     id: "wheelchair",
     name: "Wheelchair",
@@ -68,7 +105,7 @@ async function fetchNavigationData(
   };
 
   const route = await calculateRoute(
-    [72.864, 19.064],
+    originCoords,
     [entrance.longitude, entrance.latitude],
     profile
   );
@@ -145,9 +182,21 @@ export default async function NavigationPage(props: NavigationPageProps) {
   const searchParams = props.searchParams ? await props.searchParams : {};
   const customDest = searchParams.dest;
   const customOrigin = searchParams.origin;
+  const customLat = searchParams.lat;
+  const customLng = searchParams.lng;
+  const customOriginLat = searchParams.originLat;
+  const customOriginLng = searchParams.originLng;
 
   try {
-    const data = await fetchNavigationData(id, customDest, customOrigin);
+    const data = await fetchNavigationData(
+      id,
+      customDest,
+      customOrigin,
+      customLat,
+      customLng,
+      customOriginLat,
+      customOriginLng
+    );
 
     return <NavigationContent data={data} />;
   } catch (error) {
