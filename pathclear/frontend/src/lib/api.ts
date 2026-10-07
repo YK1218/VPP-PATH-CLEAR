@@ -77,7 +77,7 @@ export async function fetchEntrances(): Promise<Entrance[]> {
     console.warn("Using fallback mock entrances:", err);
     return [
       {
-        id: "ent-101",
+        id: "ent-1",
         buildingName: "Jio World Convention Centre",
         entranceName: "Gate 2",
         latitude: 19.068,
@@ -93,7 +93,7 @@ export async function fetchEntrances(): Promise<Entrance[]> {
         lastVerifiedAt: new Date().toISOString(),
       },
       {
-        id: "ent-102",
+        id: "ent-2",
         buildingName: "Bandra Kurla Complex Metro Station",
         entranceName: "Line 3 Aqua Line",
         latitude: 19.0659,

@@ -107,7 +107,7 @@ const MOCK_ROUTE_DATA: RoutePreviewData = {
       description: "BKC Approach ramp reaches 2.4% for ~80m. Power-assist recommended.",
     },
   ],
-  navigationTargetId: "ent-101",
+  navigationTargetId: "ent-1",
 };
 
 function extractDestinationName(input: string): string {
@@ -885,11 +885,11 @@ function PlannerPageContent() {
         distanceAhead: "Nearby",
         description: h.description || "Obstacle verified along path",
       })) : [],
-      navigationTargetId: backendEntrance?.id || "ent-101",
+      navigationTargetId: backendEntrance?.id || "ent-1",
     };
   }, [backendRoute, backendEntrance, originText, destinationText, routeLoading, originCoords, destCoords, distanceKm, estimatedTimeMin]);
 
-  const navTargetId = backendEntrance?.id || idParam || "ent-101";
+  const navTargetId = backendEntrance?.id || idParam || "ent-1";
   const navigationQuery = new URLSearchParams({
     dest: destinationText,
     origin: originText,

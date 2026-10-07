@@ -282,7 +282,7 @@ export interface EntrancePortal3DData {
 
 export const DEMO_3D_ENTRANCE_PORTALS = [
   {
-    id: "ent-101",
+    id: "ent-1",
     name: "Jio World Centre - Gate 2 South Accessible Entrance",
     coordinates: [72.868, 19.068],
     doorWidthCm: 210,
@@ -293,7 +293,7 @@ export const DEMO_3D_ENTRANCE_PORTALS = [
     beaconColor: "#10b981",
   },
   {
-    id: "ent-102",
+    id: "ent-2",
     name: "Dadar Central Station - Platform 1 West Ramp",
     coordinates: [72.8435, 19.0178],
     doorWidthCm: 180,
