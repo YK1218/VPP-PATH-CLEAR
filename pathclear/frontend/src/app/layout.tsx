@@ -6,6 +6,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { VoiceAgentProvider } from "@/contexts/VoiceAgentContext";
 import { MapProvider } from "@/contexts/MapContext";
 import VoiceAgentPanel from "@/components/voice/VoiceAgentPanel";
+import ThemeApplier from "@/components/layout/ThemeApplier";
 import Script from "next/script";
 
 const atkinson = Atkinson_Hyperlegible({
@@ -48,6 +49,7 @@ export default function RootLayout({
           <AuthProvider>
             <VoiceAgentProvider>
               <MapProvider>
+                <ThemeApplier />
                 {children}
                 <VoiceAgentPanel />
               </MapProvider>

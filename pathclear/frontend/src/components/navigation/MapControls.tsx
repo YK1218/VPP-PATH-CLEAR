@@ -12,11 +12,10 @@ export default function MapControls() {
       <button
         type="button"
         onClick={toggle3DMode}
-        className={`w-11 h-11 rounded-2xl shadow-lg flex flex-col items-center justify-center font-black transition-all border cursor-pointer hover:scale-105 ${
-          is3DMode
+        className={`w-11 h-11 rounded-2xl shadow-lg flex flex-col items-center justify-center font-black transition-all border cursor-pointer hover:scale-105 ${is3DMode
             ? "bg-slate-900 text-emerald-400 border-emerald-500/60 shadow-emerald-950/30 ring-2 ring-emerald-500/20"
             : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-        }`}
+          }`}
         title={is3DMode ? "3D buildings active. Click to switch to 2D view" : "2D view active. Click to switch to 3D perspective"}
         aria-label="Toggle 3D Perspective Mode"
       >
@@ -25,7 +24,7 @@ export default function MapControls() {
       </button>
 
       {/* Recenter / My Location Button */}
-      <button 
+      <button
         type="button"
         onClick={() => recenter()}
         className="w-11 h-11 bg-white rounded-2xl shadow-md flex items-center justify-center text-pathclear-primary border border-gray-100 hover:bg-gray-50 transition-colors focus-visible:outline-pathclear-primary cursor-pointer hover:scale-105"
@@ -37,7 +36,7 @@ export default function MapControls() {
 
       {/* Zoom Controls */}
       <div className="flex flex-col bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
-        <button 
+        <button
           type="button"
           onClick={zoomIn}
           className="w-11 h-11 flex items-center justify-center text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors focus-visible:outline-pathclear-primary cursor-pointer"
@@ -47,7 +46,7 @@ export default function MapControls() {
           <Plus size={20} strokeWidth={2.5} />
         </button>
         <div className="w-full h-px bg-gray-100 mx-auto max-w-[28px]"></div>
-        <button 
+        <button
           type="button"
           onClick={zoomOut}
           className="w-11 h-11 flex items-center justify-center text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors focus-visible:outline-pathclear-primary cursor-pointer"

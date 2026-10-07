@@ -4,8 +4,9 @@ import React, { useEffect, useRef } from "react";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { OSM_RASTER_STYLE, OPENFREEMAP_LIBERTY_STYLE, DEFAULT_MAP_ZOOM, DEFAULT_MAP_PITCH, DEFAULT_MAP_BEARING } from "@/lib/map-config";
-import { setup3DMapLayers, MAP_3D_PITCH, MAP_3D_BEARING } from "@/lib/map-3d-config";
+import { setup3DMapLayers, setup3DMicroSegments, MAP_3D_PITCH, MAP_3D_BEARING } from "@/lib/map-3d-config";
 import { useMap } from "@/contexts/MapContext";
+import { triggerHaptic, HAPTIC_PATTERNS } from "@/lib/voice-agent";
 import { Route, Entrance, Hazard } from "@/types";
 
 interface NavMapOverlayProps {
@@ -158,7 +159,7 @@ export default function NavMapOverlay({ route, entrance, hazards }: NavMapOverla
 
     map.on("load", () => {
       registerMap(map);
-      setup3DMapLayers(map);
+      // setup3DMapLayers(map); // 3D disabled per user request
       const destinationCoordinate: LngLat = [entrance.longitude, entrance.latitude];
       const routeCoordinates: LngLat[] = route.coordinates.length > 0
         ? route.coordinates
@@ -292,6 +293,8 @@ export default function NavMapOverlay({ route, entrance, hazards }: NavMapOverla
             if (segmentProgress >= 1) {
               segmentProgress = 0;
               segmentIndex = (segmentIndex + 1) % (routeCoordinates.length - 1);
+              // Trigger a light tactile bump at each route node (simulating step-free waypoint)
+              triggerHaptic(HAPTIC_PATTERNS.click);
             }
 
             positionMarker.setLngLat(
@@ -372,11 +375,27 @@ export default function NavMapOverlay({ route, entrance, hazards }: NavMapOverla
         new maplibregl.LngLatBounds(visibleCoordinates[0], visibleCoordinates[0]),
       );
 
+      // Initial top-down fit
       map.fitBounds(bounds, {
         padding: 80,
-        maxZoom: 17,
+        maxZoom: 18,
         duration: 0,
+        pitch: 0,
+        bearing: 0,
       });
+
+      // Cinematic 3D camera reveal (Phase 6 Polish)
+      setTimeout(() => {
+        if (!map) return;
+        const targetZoom = Math.max(15.8, map.getZoom());
+        map.easeTo({
+          pitch: MAP_3D_PITCH,
+          bearing: MAP_3D_BEARING,
+          zoom: targetZoom,
+          duration: 2500,
+          easing: (t) => t * (2 - t),
+        });
+      }, 500);
 
       removeRouteOverlay = addRouteOverlay(
         map,
@@ -384,6 +403,12 @@ export default function NavMapOverlay({ route, entrance, hazards }: NavMapOverla
         hazardRouteCoordinates,
       );
 
+      // setup3DMicroSegments(
+      //   map, 
+      //   safeRouteCoordinates, 
+      //   destinationCoordinate, 
+      //   hazards.map(h => [h.longitude, h.latitude])
+      // );
     });
 
     return () => {

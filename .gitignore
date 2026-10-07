@@ -10,3 +10,6 @@ pathclear/backend/.venv/
 # Next.js dependencies and build output
 pathclear/frontend/node_modules/
 pathclear/frontend/.next/
+
+# Generated voice test audio
+pathclear/backend/kokoro_test_*.wav

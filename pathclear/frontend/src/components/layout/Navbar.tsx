@@ -66,11 +66,10 @@ export default function Navbar() {
           <nav className="hidden lg:flex items-center gap-1">
             <Link
               href="/planner"
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                pathname === "/planner"
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${pathname === "/planner"
                   ? "bg-pathclear-primary text-white"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-              }`}
+                }`}
               aria-current={pathname === "/planner" ? "page" : undefined}
             >
               Route Planner
@@ -176,11 +175,10 @@ export default function Navbar() {
                               setProfile(profileOption);
                               setIsProfileOpen(false);
                             }}
-                            className={`w-full text-left px-3.5 py-2 text-xs font-medium flex items-center justify-between transition-colors ${
-                              isSelected
+                            className={`w-full text-left px-3.5 py-2 text-xs font-medium flex items-center justify-between transition-colors ${isSelected
                                 ? "bg-emerald-50/80 text-pathclear-primary font-bold"
                                 : "text-gray-700 hover:bg-gray-50"
-                            }`}
+                              }`}
                           >
                             <span>{profileOption.name}</span>
                             {isSelected && (
