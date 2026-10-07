@@ -81,7 +81,6 @@ export default function LocationList() {
   const locations: LocationCardProps[] = entrances.map((entrance, index) => {
     const dist = formatDistance(entrance.latitude, entrance.longitude);
     const time = formatTime(parseFloat(dist));
-    const distanceKm = parseFloat(dist);
 
     // Infer type from building name: transit for stations/metro/railway
     const isTransit = entrance.buildingName.toLowerCase().includes("station") ||
@@ -104,12 +103,12 @@ export default function LocationList() {
       id: entrance.id,
       type: isTransit ? "transit" : "building",
       title: entrance.buildingName,
-      subLocation: entrance.entranceName,
+      subLocation: entrance.entranceName || "Entrance name not provided by backend",
       subtitle,
       badges: [
-        { text: entrance.stepCount === 0 ? "Verified step-free ramp" : `${entrance.stepCount} step(s)`, isVerified: entrance.stepCount === 0 },
-        { text: entrance.rampAvailable ? `Ramp ${entrance.rampSlopePercent || 3.5}%` : "No ramp", isVerified: entrance.rampAvailable },
-        { text: entrance.notes || `${entrance.confidenceScore * 100}% confidence`, isVerified: entrance.confidenceScore > 0.8 },
+        { text: entrance.stepCount === undefined ? "Step count not provided" : `${entrance.stepCount} step(s)`, isVerified: entrance.stepCount === 0 },
+        { text: entrance.rampAvailable === undefined ? "Ramp details unavailable" : entrance.rampAvailable ? `Ramp${entrance.rampSlopePercent === undefined ? " available" : ` ${entrance.rampSlopePercent}%`}` : "No ramp", isVerified: entrance.rampAvailable === true },
+        { text: entrance.last50FeetInstructions || entrance.notes || (entrance.confidenceScore === undefined ? "Verification confidence unavailable" : `${Math.round(entrance.confidenceScore * 100)}% confidence`), isVerified: entrance.confidenceScore !== undefined && entrance.confidenceScore > 0.8 },
       ],
       time,
       distance: dist,
@@ -126,7 +125,7 @@ export default function LocationList() {
         </h2>
         <div className="flex items-center gap-1.5 text-xs font-bold text-gray-600">
           <span className="w-2 h-2 rounded-full bg-pathclear-secondary animate-pulse"></span>
-          Live Data
+          Backend API
         </div>
       </div>
 

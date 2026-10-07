@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+supabase
+neo4j
+pydantic
+pydantic-settings
+python-dotenv
+osmnx
+langgraph
+langchain
+langchain-google-genai

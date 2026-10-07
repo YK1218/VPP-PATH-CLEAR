@@ -29,7 +29,7 @@ interface NavigationContentProps {
       title: string;
       distanceAhead: string;
       question: string;
-      travelerImpactCount: number;
+      travelerImpactCount?: number;
       hazardId?: string;
     };
     footer: {
@@ -48,6 +48,8 @@ export default function NavigationContent({ data }: NavigationContentProps) {
   const { profileMode } = useProfile();
   const [isHazardVerified, setIsHazardVerified] = useState(false);
   const [isAlertDismissed, setIsAlertDismissed] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationError, setVerificationError] = useState<string | null>(null);
   
   // Simulated distance to destination (starts at 180m, can simulate down to 35m)
   const [distanceRemainingMeters, setDistanceRemainingMeters] = useState(180);
@@ -64,22 +66,25 @@ export default function NavigationContent({ data }: NavigationContentProps) {
   }, [data.destination, profileMode, speak]);
 
   // Handle 1-tap hazard verification
-  const handleVerify = (response: "clear" | "blocked") => {
-    setIsHazardVerified(true);
-    if (data.routeAlert.hazardId) {
-      submitVerification({
+  const handleVerify = async (response: "clear" | "blocked") => {
+    if (!data.routeAlert.hazardId) return;
+    setIsVerifying(true);
+    setVerificationError(null);
+    try {
+      await submitVerification({
         targetType: "hazard",
         targetId: data.routeAlert.hazardId,
         userResponse: response,
-        latitude: data.entrance.latitude,
-        longitude: data.entrance.longitude,
       });
-    }
+      setIsHazardVerified(true);
 
-    // Auto-dismiss confirmed alert after 4 seconds to eliminate clutter
-    setTimeout(() => {
-      setIsAlertDismissed(true);
-    }, 4000);
+      // Auto-dismiss after the backend accepts the verification.
+      setTimeout(() => setIsAlertDismissed(true), 4000);
+    } catch (error) {
+      setVerificationError(error instanceof Error ? error.message : "Verification could not be submitted.");
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
   const handleSimulateArrival = () => {
@@ -108,13 +113,14 @@ export default function NavigationContent({ data }: NavigationContentProps) {
                 Approaching {data.destination}
               </p>
               <p className="text-xs text-emerald-100">
-                100% Step-free doorway with motion sensor & 2.1% ramp ready.
+                {data.entrance.stepCount === 0 ? "Backend reports zero steps." : "Step count not provided by backend."}
+                {data.entrance.rampAvailable === undefined ? " Ramp details unavailable." : data.entrance.rampAvailable ? ` Ramp${data.entrance.rampSlopePercent === undefined ? " present; slope unavailable." : ` slope ${data.entrance.rampSlopePercent}%.`}` : " No ramp reported."}
               </p>
             </div>
           </div>
 
           <Link
-            href={`/arrival?dest=${encodeURIComponent(data.destination)}`}
+            href={`/arrival?dest=${encodeURIComponent(data.destination)}&id=${encodeURIComponent(data.entrance.id)}`}
             className="shrink-0 px-4 py-2.5 rounded-xl bg-white text-emerald-900 font-bold text-xs hover:bg-emerald-50 active:scale-95 transition-all shadow-md flex items-center gap-1.5"
           >
             <span>Arrival Guide</span>
@@ -138,6 +144,9 @@ export default function NavigationContent({ data }: NavigationContentProps) {
         <RouteAlertCard 
           {...data.routeAlert} 
           isVerified={isHazardVerified}
+          isSubmitting={isVerifying}
+          errorMessage={verificationError || undefined}
+          hazardId={data.routeAlert.hazardId}
           onVerify={handleVerify}
           onDismiss={() => setIsAlertDismissed(true)}
         />
@@ -164,6 +173,7 @@ export default function NavigationContent({ data }: NavigationContentProps) {
         timeRemaining={isWithinArrivalRange ? "1 min" : data.footer.timeRemaining}
         distance={isWithinArrivalRange ? "35 m" : data.footer.distance}
         entranceName={data.footer.entranceName}
+        entranceId={data.entrance.id}
       />
     </div>
   );
