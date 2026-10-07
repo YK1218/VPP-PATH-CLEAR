@@ -681,43 +681,6 @@ function PlannerPageContent() {
     setDestinationText(temp);
   };
 
-  useEffect(() => {
-    const fetchRoute = async () => {
-      try {
-        const response = await fetch("http://localhost:8000/api/v1/navigation/route", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            origin: [ORIGIN_COORDS[0], ORIGIN_COORDS[1]],
-            destination: [DEST_COORDS[0], DEST_COORDS[1]],
-            profile: { mobility_type: "wheelchair_manual", require_step_free: true, max_incline_percent: 5.0 }
-          })
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setRouteCoords(data.geometry?.coordinates || data.coordinates);
-
-          setRoute(prev => ({
-            ...prev,
-            stats: {
-              ...prev.stats,
-              totalTime: `${Math.round(data.total_duration_seconds / 60)} min total`,
-              distance: `${(data.total_distance_meters / 1000).toFixed(1)} km distance`,
-              maxIncline: `${data.max_incline_percent}% max incline`,
-            },
-            header: {
-              ...prev.header,
-              title: data.step_count === 0 ? "100% Step-Free Route (Live API)" : "PathClear Route (Live API)",
-            }
-          }));
-        }
-      } catch (err) {
-        console.warn("Failed to fetch live route, using mock data instead.");
-      }
-    };
-    fetchRoute();
-  }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -974,14 +937,5 @@ export default function PlannerPage() {
       <PlannerPageContent />
     </Suspense>
   );
-}
-
-
-function setRouteCoords(arg0: any) {
-  throw new Error("Function not implemented.");
-}
-
-function setRoute(arg0: (prev: any) => any) {
-  throw new Error("Function not implemented.");
 }
 

@@ -16,7 +16,7 @@ MOCK_ENTRANCES = [
         ramp_slope=2.5,
         curb_step_height=0.0,
         tactile_paving=True,
-        photo_url="https://images.unsplash.com/photo-1541888078513-33e38c41f71a?q=80&w=600&auto=format&fit=crop",
+        photo_url="/jio-world-entrance.jpg",
         last_50_feet_instructions="The ramp is located on the far left of the main stairs. The automatic doors are the second set on your right."
     ),
     EntranceDetail(
@@ -29,7 +29,7 @@ MOCK_ENTRANCES = [
         ramp_slope=4.0,
         curb_step_height=0.0,
         tactile_paving=False,
-        photo_url="https://images.unsplash.com/photo-1518005020951-eccb494ad742?q=80&w=600&auto=format&fit=crop",
+        photo_url="/jio-world-entrance.jpg",
         last_50_feet_instructions="Approaching the station, stay to the right side of the sidewalk to avoid the bollards. The ramp leads directly to the elevator."
     )
 ]
