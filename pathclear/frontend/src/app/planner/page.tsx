@@ -135,8 +135,8 @@ function PlannerMapOverlay({
 
     let animationActive = true;
     const centerPoint: [number, number] = [
-      (originCoords[0] + destCoords[0]) / 2,
-      (originCoords[1] + destCoords[1]) / 2,
+      (origin[0] + dest[0]) / 2,
+      (origin[1] + dest[1]) / 2,
     ];
 
     const map = new maplibregl.Map({
@@ -584,7 +584,7 @@ function PlannerPageContent() {
           }));
         }
       } catch (err) {
-        console.error("Failed to fetch live route, using mock", err);
+        console.warn("Failed to fetch live route, using mock data instead.");
       }
     };
     fetchRoute();
