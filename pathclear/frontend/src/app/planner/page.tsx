@@ -633,7 +633,7 @@ function PlannerPageContent() {
       };
     }
 
-    const groupedSurfaces = new Map<string, number>();
+    const groupedSurfaces = new globalThis.Map<string, number>();
     for (const segment of backendRoute.segments) {
       groupedSurfaces.set(segment.surfaceType, (groupedSurfaces.get(segment.surfaceType) || 0) + segment.distanceMeters);
     }

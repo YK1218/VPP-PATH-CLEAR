@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { X, Camera, Volume2, ShieldCheck, Activity, AlertTriangle } from "lucide-react";
+import { OnnxDetector } from "../../lib/vision/onnxDetector";
 
 interface BoundingBox {
   x: number;
@@ -28,7 +29,35 @@ interface VisionResponse {
 export default function VirtualCanePage() {
   const [isActive, setIsActive] = useState(false);
   const [visionData, setVisionData] = useState<VisionResponse | null>(null);
+  const [modelStatus, setModelStatus] = useState<"Loading..." | "Ready" | "Error">("Loading...");
+  const detectorRef = useRef<OnnxDetector | null>(null);
   const audioRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    const detector = new OnnxDetector({
+      modelPath: "/models/pathclear-yolo.onnx",
+      executionProvider: "wasm",
+    });
+    detectorRef.current = detector;
+
+    void detector.initialize()
+      .then(() => {
+        if (isMounted) setModelStatus("Ready");
+      })
+      .catch((error: unknown) => {
+        console.error("ONNX model initialization error:", error);
+        if (isMounted) setModelStatus("Error");
+      });
+
+    return () => {
+      isMounted = false;
+      if (detectorRef.current === detector) detectorRef.current = null;
+      void detector.dispose().catch((error: unknown) => {
+        console.error("ONNX model cleanup error:", error);
+      });
+    };
+  }, []);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -101,6 +130,9 @@ export default function VirtualCanePage() {
           <Activity size={16} className={isActive ? "text-emerald-400 animate-pulse" : "text-gray-400"} />
           <span className="text-white font-bold text-sm tracking-wider uppercase">
             {isActive ? "Vision Active" : "Standby"}
+          </span>
+          <span className="border-l border-white/20 pl-2 text-white/60 text-xs font-medium normal-case tracking-normal">
+            AI Model: {modelStatus}
           </span>
         </div>
       </div>
