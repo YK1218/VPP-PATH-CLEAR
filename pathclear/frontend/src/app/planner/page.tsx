@@ -150,7 +150,7 @@ function PlannerMapOverlay({
     mapRef.current = map;
 
     map.on("load", () => {
-      setup3DMapLayers(map);
+      // setup3DMapLayers(map); // 3D disabled per user request
 
       // Current position at ~30% along the route (simulated progress)
       const currentPosition: [number, number] = [
@@ -265,10 +265,29 @@ function PlannerMapOverlay({
         .setLngLat(DEST_COORDS)
         .addTo(map);
 
-      // Fit bounds to show full route
+      // Initial top-down fit bounds to show full route
       const bounds = new maplibregl.LngLatBounds();
       (ROUTE_COORDINATES as [number, number][]).forEach((coord) => bounds.extend(coord));
-      map.fitBounds(bounds, { padding: { top: 80, bottom: 80, left: 50, right: 50 }, maxZoom: 15 });
+      map.fitBounds(bounds, { 
+        padding: { top: 80, bottom: 80, left: 50, right: 50 }, 
+        maxZoom: 18,
+        duration: 0,
+        pitch: 0,
+        bearing: 0,
+      });
+
+      // Cinematic 3D camera reveal (Phase 6 Polish)
+      setTimeout(() => {
+        if (!map) return;
+        const targetZoom = Math.max(15.8, map.getZoom());
+        map.easeTo({
+          pitch: 58,
+          bearing: -22,
+          zoom: targetZoom,
+          duration: 2500,
+          easing: (t) => t * (2 - t),
+        });
+      }, 500);
 
       // ---- Animated dot flowing from user to destination ----
       map.addSource("nav-dot", {

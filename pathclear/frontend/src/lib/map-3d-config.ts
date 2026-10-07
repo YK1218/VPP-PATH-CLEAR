@@ -4,6 +4,7 @@
  */
 
 import type { StyleSpecification } from "maplibre-gl";
+import type { Map as MapLibreMap } from "maplibre-gl";
 
 // Camera Perspective Constants
 export const MAP_3D_PITCH = 58;
@@ -11,23 +12,41 @@ export const MAP_3D_BEARING = -22;
 export const MAP_3D_ZOOM = 16.2;
 export const MAP_2D_PITCH = 0;
 export const MAP_2D_BEARING = 0;
-
-// AWS Terrarium DEM Terrain Tile Source (Public Open Data - No API Key Needed)
-export const TERRARIUM_DEM_SOURCE = {
-  type: "raster-dem" as const,
-  tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
-  tileSize: 256,
-  encoding: "terrarium" as const,
-  maxzoom: 15,
-};
+export const DEFAULT_MAP_CENTER: [number, number] = [72.8656, 19.0657]; // Mumbai BKC
+export const DEFAULT_MAP_ZOOM = 14.5;
+export const DEFAULT_MAP_PITCH = 45;
+export const DEFAULT_MAP_BEARING = -15;
 
 // OpenFreeMap Vector Tile Endpoints
 export const OPENFREEMAP_LIBERTY_STYLE_URL = "https://tiles.openfreemap.org/styles/liberty";
 export const OPENFREEMAP_BRIGHT_STYLE_URL = "https://tiles.openfreemap.org/styles/bright";
 
+// OSM Raster Style for MapLibre
+export const OSM_RASTER_STYLE = {
+  version: 8,
+  sources: {
+    osm: {
+      type: "raster",
+      tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+      tileSize: 256,
+      attribution: "&copy; OpenStreetMap contributors",
+      maxzoom: 19,
+    },
+  },
+  layers: [
+    {
+      id: "osm",
+      type: "raster",
+      source: "osm",
+      minzoom: 0,
+      maxzoom: 22,
+    },
+  ],
+} as const;
+
 // High-fidelity 3D Architectural Extrusions for Mumbai BKC & Bandra Route Hubs
-export const BKC_3D_BUILDINGS_GEOJSON: GeoJSON.FeatureCollection = {
-  type: "FeatureCollection",
+export const BKC_3D_BUILDINGS_GEOJSON = {
+  type: "FeatureCollection" as const,
   features: [
     // 1. Jio World Convention Centre & Gate 2 South Complex
     {
@@ -261,7 +280,7 @@ export interface EntrancePortal3DData {
   beaconColor: string;
 }
 
-export const DEMO_3D_ENTRANCE_PORTALS: EntrancePortal3DData[] = [
+export const DEMO_3D_ENTRANCE_PORTALS = [
   {
     id: "ent-101",
     name: "Jio World Centre - Gate 2 South Accessible Entrance",
@@ -287,82 +306,180 @@ export const DEMO_3D_ENTRANCE_PORTALS: EntrancePortal3DData[] = [
 ];
 
 // Helper to inject 3D Building Extrusions & 3D Lighting into any MapLibre instance
-export function setup3DMapLayers(map: any) {
+export function setup3DMapLayers(map: MapLibreMap): void {
   if (!map) return;
 
-  // Add 3D building extrusions source from real OpenStreetMap BKC GeoJSON dataset
-  if (!map.getSource("bkc-3d-buildings")) {
-    map.addSource("bkc-3d-buildings", {
-      type: "geojson",
-      data: "/data/bkc_buildings.geojson",
+  try {
+    // Add 3D building extrusions source if not already present
+    if (!map.getSource("bkc-3d-buildings")) {
+      map.addSource("bkc-3d-buildings", {
+        type: "geojson",
+        data: "/api/v1/maps/buildings",
+      });
+    }
+
+    // Add 3D Extruded Buildings Layer with dynamic elevation
+    if (!map.getLayer("3d-buildings-extrusion")) {
+      map.addLayer({
+        id: "3d-buildings-extrusion",
+        type: "fill-extrusion",
+        source: "bkc-3d-buildings",
+        minzoom: 13,
+        paint: {
+          "fill-extrusion-color": ["get", "color"],
+          "fill-extrusion-height": ["get", "height"],
+          "fill-extrusion-base": ["get", "min_height"],
+          "fill-extrusion-opacity": 0.92,
+        },
+      });
+    }
+
+    // Add 3D Rooftop Highlight Outlines for architectural definition
+    if (!map.getLayer("3d-buildings-roof-line")) {
+      map.addLayer({
+        id: "3d-buildings-roof-line",
+        type: "line",
+        source: "bkc-3d-buildings",
+        minzoom: 13,
+        paint: {
+          "line-color": "#ffffff",
+          "line-width": 2,
+          "line-opacity": 0.6,
+        },
+      });
+    }
+
+    // Configure 3D lighting for better depth perception
+    map.setLight({
+      anchor: "viewport",
+      color: "#ffffff",
+      intensity: 0.4,
+      position: [1.5, 90, 80],
     });
+
+  } catch (error) {
+    console.warn("Failed to setup 3D map layers:", error);
   }
+}
 
-  // Add 3D Extruded Buildings Layer with dynamic architectural elevation & lighting
-  if (!map.getLayer("3d-buildings-extrusion")) {
-    map.addLayer({
-      id: "3d-buildings-extrusion",
-      type: "fill-extrusion",
-      source: "bkc-3d-buildings",
-      paint: {
-        "fill-extrusion-color": [
-          "coalesce",
-          ["get", "color"],
-          [
-            "interpolate",
-            ["linear"],
-            ["get", "height"],
-            15, "#cbd5e1",
-            30, "#94a3b8",
-            50, "#64748b",
-            70, "#334155"
-          ]
-        ],
-        "fill-extrusion-height": ["get", "height"],
-        "fill-extrusion-base": ["get", "min_height"],
-        "fill-extrusion-opacity": 0.88,
-      },
-    });
+/**
+ * Phase 4: 3D Micro-Segments
+ * Adds tactile 3D route ribbons, 3D entrance portals (Gateways), and 3D Hazard pylons.
+ */
+export function setup3DMicroSegments(
+  map: MapLibreMap,
+  routeCoordinates: [number, number][],
+  entranceCoordinates: [number, number],
+  hazardCoordinates: [number, number][]
+) {
+  try {
+    // 1. 3D Tactile Path Ribbon
+    if (!map.getSource("tactile-ribbon-source")) {
+      map.addSource("tactile-ribbon-source", {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          properties: { height: 0.3, base: 0 }, // 0.3m elevated
+          geometry: {
+            type: "LineString",
+            coordinates: routeCoordinates,
+          },
+        },
+      });
+
+      map.addLayer({
+        id: "tactile-ribbon-3d",
+        type: "line",
+        source: "tactile-ribbon-source",
+        paint: {
+          "line-color": "#10b981", // Emerald green for step-free
+          "line-width": 8,
+          "line-opacity": 0.8,
+        },
+      });
+    }
+
+    // 2. 3D Entrance Portals (Virtual Gateway arches)
+    if (!map.getSource("entrance-portal-source")) {
+      // Generate a small square polygon around entrance to extrude it
+      const lng = entranceCoordinates[0];
+      const lat = entranceCoordinates[1];
+      const s = 0.00005; // ~5 meters
+
+      map.addSource("entrance-portal-source", {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          properties: { height: 4, base: 0, color: "#0ea5e9" }, // 4m high blue glowing portal
+          geometry: {
+            type: "Polygon",
+            coordinates: [[
+              [lng - s, lat - s],
+              [lng + s, lat - s],
+              [lng + s, lat + s],
+              [lng - s, lat + s],
+              [lng - s, lat - s],
+            ]],
+          },
+        },
+      });
+
+      map.addLayer({
+        id: "entrance-portal-3d",
+        type: "fill-extrusion",
+        source: "entrance-portal-source",
+        paint: {
+          "fill-extrusion-color": ["get", "color"],
+          "fill-extrusion-height": ["get", "height"],
+          "fill-extrusion-base": ["get", "base"],
+          "fill-extrusion-opacity": 0.6,
+        },
+      });
+    }
+
+    // 3. 3D Hazard Warning Pylons
+    if (hazardCoordinates.length > 0) {
+      if (!map.getSource("hazard-pylon-source")) {
+        const hazardFeatures = hazardCoordinates.map((coord) => {
+          const lng = coord[0];
+          const lat = coord[1];
+          const s = 0.00003; // ~3 meters
+          return {
+            type: "Feature" as const,
+            properties: { height: 2, base: 0, color: "#ef4444" }, // Red barrier
+            geometry: {
+              type: "Polygon" as const,
+              coordinates: [[
+                [lng - s, lat - s],
+                [lng + s, lat - s],
+                [lng + s, lat + s],
+                [lng - s, lat + s],
+                [lng - s, lat - s],
+              ]],
+            },
+          };
+        });
+
+        map.addSource("hazard-pylon-source", {
+          type: "geojson",
+          data: { type: "FeatureCollection" as const, features: hazardFeatures },
+        });
+
+        map.addLayer({
+          id: "hazard-pylon-3d",
+          type: "fill-extrusion",
+          source: "hazard-pylon-source",
+          paint: {
+            "fill-extrusion-color": ["get", "color"],
+            "fill-extrusion-height": ["get", "height"],
+            "fill-extrusion-base": ["get", "base"],
+            "fill-extrusion-opacity": 0.9,
+          },
+        });
+      }
+    }
+
+  } catch (error) {
+    console.warn("Failed to setup 3D micro segments:", error);
   }
-
-  // Add 3D Rooftop Highlight Outlines for architectural definition
-  if (!map.getLayer("3d-buildings-roof-line")) {
-    map.addLayer({
-      id: "3d-buildings-roof-line",
-      type: "line",
-      source: "bkc-3d-buildings",
-      paint: {
-        "line-color": "#ffffff",
-        "line-width": 1.5,
-        "line-opacity": 0.5,
-      },
-    });
-  }
-
-  // Add interactive click tooltip for 3D buildings
-  map.on("click", "3d-buildings-extrusion", (e: any) => {
-    if (!e.features || !e.features[0]) return;
-    const feature = e.features[0];
-    const props = feature.properties || {};
-    const name = props.name || "BKC Commercial Building";
-    const height = props.height ? `${props.height}m` : "45m";
-    const levels = props.levels ? `${props.levels} floors` : "Commercial";
-
-    new (map.constructor as any).Popup({ offset: [0, -10] })
-      .setLngLat(e.lngLat)
-      .setHTML(`
-        <div style="font-family: inherit; padding: 4px 6px;">
-          <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 2px;">🏢 ${name}</div>
-          <div style="font-size: 10px; font-weight: 600; color: #059669;">Height: ${height} • ${levels}</div>
-        </div>
-      `)
-      .addTo(map);
-  });
-
-  map.on("mouseenter", "3d-buildings-extrusion", () => {
-    map.getCanvas().style.cursor = "pointer";
-  });
-  map.on("mouseleave", "3d-buildings-extrusion", () => {
-    map.getCanvas().style.cursor = "";
-  });
 }

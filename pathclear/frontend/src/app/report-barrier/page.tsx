@@ -8,16 +8,16 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { OSM_RASTER_STYLE, DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM } from "@/lib/map-config";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { 
-  MapPin, 
-  ChevronDown, 
-  Shield, 
-  AlertTriangle, 
-  Camera, 
-  Upload, 
-  Search, 
-  Crosshair, 
-  X, 
+import {
+  MapPin,
+  ChevronDown,
+  Shield,
+  AlertTriangle,
+  Camera,
+  Upload,
+  Search,
+  Crosshair,
+  X,
   Flag,
   HelpCircle,
   CheckCircle2,
@@ -39,9 +39,9 @@ interface BarrierTypeOption {
 const BARRIER_TYPES: BarrierTypeOption[] = [
   { value: "broken-elevator", label: "Broken Elevator", icon: <AlertTriangle size={16} strokeWidth={2.5} /> },
   { value: "steep-incline", label: "Steep Incline", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 10h-2a2 2 0 0 0-2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2h2"></path></svg> },
-  { value: "blocked-sidewalk", label: "Blocked Sidewalk", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg> },
-  { value: "missing-ramp", label: "Missing Ramp", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 10h-2a2 2 0 0 0-2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2h2"></path><line x1="3" y1="21" x2="21" y2="21"/></svg> },
-  { value: "continuous-steps", label: "Continuous Steps", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg> },
+  { value: "blocked-sidewalk", label: "Blocked Sidewalk", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="9" y1="9" x2="15" y2="15" /><line x1="15" y1="9" x2="9" y2="15" /></svg> },
+  { value: "missing-ramp", label: "Missing Ramp", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 10h-2a2 2 0 0 0-2-2V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2h2"></path><line x1="3" y1="21" x2="21" y2="21" /></svg> },
+  { value: "continuous-steps", label: "Continuous Steps", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg> },
   { value: "other", label: "Other", icon: <HelpCircle size={16} strokeWidth={2.5} /> },
 ];
 
@@ -141,18 +141,18 @@ export default function ReportBarrierPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedBarrierType || !selectedSeverity) return;
-    
+
     setIsSubmitting(true);
     setToastMessage("Submitting report...");
     setShowToast(true);
-    
+
     // Mock API call
     await new Promise(resolve => setTimeout(resolve, 1500));
-    
+
     setIsSubmitting(false);
     setToastMessage("Barrier reported successfully! Your report helps keep routes step-free.");
     setShowToast(true);
-    
+
     // Reset form after success
     setTimeout(() => {
       setSelectedBarrierType("broken-elevator");
@@ -212,11 +212,10 @@ export default function ReportBarrierPage() {
                     key={type.value}
                     type="button"
                     onClick={() => setSelectedBarrierType(type.value)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 focus-visible:outline-emerald-500 ${
-                      selectedBarrierType === type.value
-                        ? "bg-emerald-900 text-white shadow-lg shadow-emerald-900/30"
-                        : "bg-white text-slate-700 border border-slate-200 hover:border-emerald-500 hover:text-emerald-700 hover:bg-emerald-50"
-                    }`}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 focus-visible:outline-emerald-500 ${selectedBarrierType === type.value
+                      ? "bg-emerald-900 text-white shadow-lg shadow-emerald-900/30"
+                      : "bg-white text-slate-700 border border-slate-200 hover:border-emerald-500 hover:text-emerald-700 hover:bg-emerald-50"
+                      }`}
                   >
                     <span className="flex-shrink-0">{type.icon}</span>
                     {type.label}
@@ -270,7 +269,7 @@ export default function ReportBarrierPage() {
                   <h2 className="text-lg font-bold text-slate-900">Add Photo(s)</h2>
                   <span className="text-xs font-medium text-slate-500">Up to 5 photos</span>
                 </div>
-                
+
                 <div className="relative">
                   <input
                     type="file"
@@ -281,14 +280,13 @@ export default function ReportBarrierPage() {
                     id="photo-upload"
                     disabled={photos.length >= 5}
                   />
-                  
+
                   <label
                     htmlFor="photo-upload"
-                    className={`relative flex flex-col items-center justify-center min-h-[220px] border-2 border-dashed rounded-2xl transition-all duration-200 ${
-                      photos.length >= 5 
-                        ? "border-slate-300 bg-slate-50 cursor-not-allowed" 
-                        : "border-emerald-300 hover:border-emerald-500 hover:bg-emerald-50"
-                    }`}
+                    className={`relative flex flex-col items-center justify-center min-h-[220px] border-2 border-dashed rounded-2xl transition-all duration-200 ${photos.length >= 5
+                      ? "border-slate-300 bg-slate-50 cursor-not-allowed"
+                      : "border-emerald-300 hover:border-emerald-500 hover:bg-emerald-50"
+                      }`}
                   >
                     <div className="flex flex-col items-center gap-4">
                       <div className="w-18 h-18 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
@@ -340,30 +338,27 @@ export default function ReportBarrierPage() {
                   <h2 className="text-lg font-bold text-slate-900">Severity Matrix</h2>
                   <span className="text-xs font-medium text-slate-500">Select impact level</span>
                 </div>
-                
+
                 <div className="space-y-4 h-full">
                   {/* Card A: Complete Blockage - Critical */}
                   <button
                     type="button"
                     onClick={() => setSelectedSeverity("critical")}
-                    className={`w-full relative p-5 rounded-2xl border-2 text-left transition-all duration-200 focus-visible:outline-emerald-500 ${
-                      selectedSeverity === "critical"
-                        ? "border-red-500 bg-red-50 shadow-xl shadow-red-500/15"
-                        : "border-slate-200 hover:border-red-400 hover:bg-red-50"
-                    }`}
+                    className={`w-full relative p-5 rounded-2xl border-2 text-left transition-all duration-200 focus-visible:outline-emerald-500 ${selectedSeverity === "critical"
+                      ? "border-red-500 bg-red-50 shadow-xl shadow-red-500/15"
+                      : "border-slate-200 hover:border-red-400 hover:bg-red-50"
+                      }`}
                   >
                     <div className="flex items-start gap-4">
-                      <div className={`flex-shrink-0 w-14 h-14 rounded-xl flex items-center justify-center ${
-                        selectedSeverity === "critical" ? "bg-red-500" : "bg-red-100"
-                      }`}>
+                      <div className={`flex-shrink-0 w-14 h-14 rounded-xl flex items-center justify-center ${selectedSeverity === "critical" ? "bg-red-500" : "bg-red-100"
+                        }`}>
                         <AlertCircle size={28} strokeWidth={2.5} className={selectedSeverity === "critical" ? "text-white" : "text-red-500"} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2">
                           <h3 className="font-bold text-slate-900 text-lg">Complete Blockage</h3>
-                          <span className={`text-xs font-bold px-3 py-1 rounded-full ${
-                            selectedSeverity === "critical" ? "bg-red-500 text-white" : "bg-red-100 text-red-700"
-                          }`}>
+                          <span className={`text-xs font-bold px-3 py-1 rounded-full ${selectedSeverity === "critical" ? "bg-red-500 text-white" : "bg-red-100 text-red-700"
+                            }`}>
                             CRITICAL
                           </span>
                         </div>
@@ -383,24 +378,21 @@ export default function ReportBarrierPage() {
                   <button
                     type="button"
                     onClick={() => setSelectedSeverity("caution")}
-                    className={`w-full relative p-5 rounded-2xl border-2 text-left transition-all duration-200 focus-visible:outline-emerald-500 ${
-                      selectedSeverity === "caution"
-                        ? "border-amber-500 bg-amber-50 shadow-xl shadow-amber-500/15"
-                        : "border-slate-200 hover:border-amber-400 hover:bg-amber-50"
-                    }`}
+                    className={`w-full relative p-5 rounded-2xl border-2 text-left transition-all duration-200 focus-visible:outline-emerald-500 ${selectedSeverity === "caution"
+                      ? "border-amber-500 bg-amber-50 shadow-xl shadow-amber-500/15"
+                      : "border-slate-200 hover:border-amber-400 hover:bg-amber-50"
+                      }`}
                   >
                     <div className="flex items-start gap-4">
-                      <div className={`flex-shrink-0 w-14 h-14 rounded-xl flex items-center justify-center ${
-                        selectedSeverity === "caution" ? "bg-amber-500" : "bg-amber-100"
-                      }`}>
+                      <div className={`flex-shrink-0 w-14 h-14 rounded-xl flex items-center justify-center ${selectedSeverity === "caution" ? "bg-amber-500" : "bg-amber-100"
+                        }`}>
                         <AlertTriangle size={28} strokeWidth={2.5} className={selectedSeverity === "caution" ? "text-white" : "text-amber-500"} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2">
                           <h3 className="font-bold text-slate-900 text-lg">Passable with Caution</h3>
-                          <span className={`text-xs font-bold px-3 py-1 rounded-full ${
-                            selectedSeverity === "caution" ? "bg-amber-500 text-white" : "bg-amber-100 text-amber-700"
-                          }`}>
+                          <span className={`text-xs font-bold px-3 py-1 rounded-full ${selectedSeverity === "caution" ? "bg-amber-500 text-white" : "bg-amber-100 text-amber-700"
+                            }`}>
                             Assistance Needed
                           </span>
                         </div>
@@ -454,7 +446,7 @@ export default function ReportBarrierPage() {
                   >
                     Cancel
                   </button>
-                  
+
                   <button
                     type="submit"
                     disabled={isSubmitting}

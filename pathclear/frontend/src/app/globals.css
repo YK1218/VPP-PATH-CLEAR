@@ -55,3 +55,19 @@ textarea:focus-visible {
 .animate-wave-bar {
   animation: waveBar 1.4s ease-in-out infinite;
 }
+
+/* Accessibility Theme: Low Vision / Partially Blind */
+html.theme-low-vision {
+  /* Increase baseline font size to instantly scale all rem-based Tailwind spacing and typography */
+  font-size: 115% !important;
+  /* Apply global high contrast and saturation boost */
+  filter: contrast(1.25) saturate(1.1);
+}
+
+/* Force bolder text on interactive elements in low-vision mode */
+html.theme-low-vision button,
+html.theme-low-vision a,
+html.theme-low-vision input,
+html.theme-low-vision select {
+  font-weight: 800 !important;
+}

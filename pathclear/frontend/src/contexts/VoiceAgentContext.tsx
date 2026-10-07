@@ -74,6 +74,7 @@ export function VoiceAgentProvider({ children }: { children: React.ReactNode }) 
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const isMutedRef = useRef(false);
   const [agentState, setAgentState] = useState<AgentStatus>("idle");
   const [transcript, setTranscript] = useState("");
   const [interimTranscript, setInterimTranscript] = useState("");
@@ -109,7 +110,7 @@ export function VoiceAgentProvider({ children }: { children: React.ReactNode }) 
   const speak = useCallback(
     (text: string) => {
       // If muted, cancel and don't speak
-      if (isMuted) return;
+      if (isMutedRef.current) return;
 
       // If deaf profile, mute TTS and prefer visual banners
       if (profileMode === "deaf") {
@@ -137,7 +138,7 @@ export function VoiceAgentProvider({ children }: { children: React.ReactNode }) 
         }
       );
     },
-    [profileMode, isMuted]
+    [profileMode]
   );
 
   const stopSpeaking = useCallback(() => {
@@ -151,6 +152,7 @@ export function VoiceAgentProvider({ children }: { children: React.ReactNode }) 
   const toggleMute = useCallback(() => {
     setIsMuted((prev) => {
       const next = !prev;
+      isMutedRef.current = next;
       if (next) {
         stopSpeech();
         setIsSpeaking(false);
