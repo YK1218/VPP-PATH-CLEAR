@@ -5,7 +5,7 @@ import { submitVerification } from "@/lib/api";
 import NavHeader from "@/components/navigation/NavHeader";
 import NavMapOverlay from "@/components/navigation/NavMapOverlay";
 import TurnInstructionCard from "@/components/navigation/TurnInstructionCard";
-import RouteAlertCard from "@/components/navigation/RouteAlertCard";
+
 import MapControls from "@/components/navigation/MapControls";
 import NavFooter from "@/components/navigation/NavFooter";
 import Last50FeetCard from "@/components/navigation/Last50FeetCard";
@@ -71,11 +71,7 @@ export default function NavigationContent({ data }: NavigationContentProps) {
       {/* 3. Floating Left Card: Turn Instructions */}
       <TurnInstructionCard {...data.turnInstruction} />
 
-      {/* 4. Floating Right Card: Route Alert (1-Tap Verification) */}
-      <RouteAlertCard 
-        {...data.routeAlert} 
-        onVerify={handleVerify}
-      />
+
 
       {/* 5. Map Controls */}
       <MapControls />
