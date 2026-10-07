@@ -41,7 +41,7 @@ export async function fetchEntrances(): Promise<Entrance[]> {
         rampAvailable: true,
         rampSlopePercent: 3.5,
         widthCm: 95,
-        photoUrl: "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=600&q=80",
+        photoUrl: "/jio-world-entrance.jpg",
         notes: "Automated actuator on the left post. Wide threshold with zero curb.",
         confidenceScore: 0.98,
         lastVerifiedAt: new Date().toISOString(),

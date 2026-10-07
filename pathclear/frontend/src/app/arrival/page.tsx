@@ -79,8 +79,8 @@ const MOCK_ARRIVAL_DATA: ArrivalData = {
     elevationStatus: "Elevation Status: 100% Step-Free Verified",
   },
   entrancePhoto: {
-    src: "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=1200&q=80",
-    alt: "Jio World Centre South Accessible Entrance - modern glass convention center exterior with ramp",
+    src: "/jio-world-entrance.jpg",
+    alt: "Jio World Drive South Accessible Entrance - modern glass entrance with wide ramp and automated doors",
     hotspots: [
       { text: "South Pavilion Gate — Ground Level", position: "top-left" },
       { text: "Sensor Lock 0.4m Precision", position: "top-right" },
@@ -435,8 +435,7 @@ function ArrivalPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const destParam = searchParams.get("dest");
-
-  const [arrival] = useState(MOCK_ARRIVAL_DATA);
+  const arrival = MOCK_ARRIVAL_DATA;
   const [isCompletedModalOpen, setIsCompletedModalOpen] = useState(false);
 
   const handleCompleteTrip = () => {
