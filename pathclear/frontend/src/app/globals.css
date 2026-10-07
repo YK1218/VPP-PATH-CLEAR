@@ -71,3 +71,14 @@ html.theme-low-vision input,
 html.theme-low-vision select {
   font-weight: 800 !important;
 }
+
+/* Hide Google Translate UI */
+.skiptranslate iframe, .goog-te-banner-frame {
+  display: none !important;
+}
+body {
+  top: 0px !important;
+}
+#google_translate_element {
+  display: none !important;
+}

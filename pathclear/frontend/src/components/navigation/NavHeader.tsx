@@ -28,7 +28,7 @@ export default function NavHeader({ destination }: NavHeaderProps) {
         </div>
         <div className="hidden md:flex items-center gap-1.5 bg-green-50/70 text-pathclear-primary px-2.5 py-1 rounded-full text-xs font-bold border border-green-100">
           <CheckCircle2 size={14} />
-          Wheelchair - Step-Free Verified
+          Profile constraints sent to backend
         </div>
       </div>
 

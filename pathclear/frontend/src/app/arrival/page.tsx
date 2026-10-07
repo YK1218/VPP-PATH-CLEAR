@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { fetchEntrances } from "@/lib/api";
 import { 
   CheckCircle2, 
   Volume2, 
@@ -79,8 +80,8 @@ const MOCK_ARRIVAL_DATA: ArrivalData = {
     elevationStatus: "Elevation Status: 100% Step-Free Verified",
   },
   entrancePhoto: {
-    src: "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=1200&q=80",
-    alt: "Jio World Centre South Accessible Entrance - modern glass convention center exterior with ramp",
+    src: "/jio-world-entrance.jpg",
+    alt: "Jio World Drive South Accessible Entrance - modern glass entrance with wide ramp and automated doors",
     hotspots: [
       { text: "South Pavilion Gate — Ground Level", position: "top-left" },
       { text: "Sensor Lock 0.4m Precision", position: "top-right" },
@@ -194,7 +195,9 @@ function EntrancePhotoCard({ data }: { data: ArrivalData["entrancePhoto"] }) {
 
 function TelemetryStrip({ data }: { data: ArrivalData["telemetry"] }) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm">
+    <div>
+      <p className="text-[10px] text-slate-500 mb-2">Sample telemetry; the backend does not provide these measurements.</p>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm">
       {data.map((item, i) => (
         <div key={i} className="flex flex-col items-center text-center p-2 rounded-xl bg-slate-50/70">
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{item.label}</span>
@@ -202,6 +205,7 @@ function TelemetryStrip({ data }: { data: ArrivalData["telemetry"] }) {
           <span className="text-[10px] text-slate-500 font-medium truncate max-w-full">{item.subtitle}</span>
         </div>
       ))}
+      </div>
     </div>
   );
 }
@@ -299,6 +303,7 @@ function DestinationSpecsCard({
       </div>
 
       {/* POST-TRIP HAZARD VERIFICATION CARD */}
+      <p className="text-[10px] text-slate-500">Demo interaction only; the arrival screen does not load hazard IDs or submit these votes.</p>
       <div className="p-3.5 rounded-2xl bg-amber-50/90 border border-amber-200/90 space-y-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
@@ -435,9 +440,88 @@ function ArrivalPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const destParam = searchParams.get("dest");
+  const entranceIdParam = searchParams.get("id");
 
-  const [arrival] = useState(MOCK_ARRIVAL_DATA);
+  const [arrival, setArrival] = useState<ArrivalData>({
+    ...MOCK_ARRIVAL_DATA,
+    statusBanner: { ...MOCK_ARRIVAL_DATA.statusBanner, elevationStatus: "Loading backend entrance details…" },
+    destinationSpecs: { ...MOCK_ARRIVAL_DATA.destinationSpecs, verified: "Loading backend entrance details…" },
+  });
+  const [entranceNotice, setEntranceNotice] = useState("Loading entrance details from the backend…");
   const [isCompletedModalOpen, setIsCompletedModalOpen] = useState(false);
+
+  useEffect(() => {
+    let isCurrent = true;
+    fetchEntrances().then((entrances) => {
+      const normalizedDestination = (destParam || "").toLowerCase();
+      const entrance = entranceIdParam
+        ? entrances.find((item) => item.id === entranceIdParam)
+        : normalizedDestination
+          ? entrances.find((item) => `${item.buildingName} ${item.entranceName || ""}`.toLowerCase().includes(normalizedDestination)
+            || normalizedDestination.includes(item.buildingName.toLowerCase()))
+          : undefined;
+      if (!isCurrent) return;
+      if (!entrance) {
+        setArrival((current) => ({
+          ...current,
+          statusBanner: { ...current.statusBanner, elevationStatus: "Demo preview; access details not confirmed" },
+          destinationSpecs: { ...current.destinationSpecs, verified: "Demo content only; no matching backend entrance was found." },
+        }));
+        setEntranceNotice("No matching backend entrance was found. The page is showing its demo content.");
+        return;
+      }
+
+      const rampText = entrance.rampAvailable === undefined
+        ? "Ramp status not provided"
+        : entrance.rampAvailable ? `Ramp present${entrance.rampSlopePercent === undefined ? "; slope not provided" : `; ${entrance.rampSlopePercent}% slope`}` : "No ramp reported";
+      const doorText = entrance.doorType || "Door type not provided";
+      const instructions = entrance.last50FeetInstructions || "Approach instructions not provided";
+      setArrival((current) => ({
+        ...current,
+        statusBanner: {
+          ...current.statusBanner,
+          proximity: `Backend entrance record · ${entrance.id}`,
+          elevationStatus: entrance.stepCount === undefined ? "Step count not provided by backend" : `${entrance.stepCount} step(s) reported by backend`,
+        },
+        entrancePhoto: {
+          ...current.entrancePhoto,
+          src: entrance.photoUrl || current.entrancePhoto.src,
+          alt: entrance.photoUrl ? `Entrance photo returned by backend for ${entrance.buildingName}` : "Demo entrance photo; backend did not supply an image",
+          hotspots: [
+            { text: entrance.buildingName, position: "top-left" },
+            { text: entrance.photoUrl ? `Door: ${doorText}` : "Demo image · no backend photo", position: "top-right" },
+            { text: entrance.entranceName || "Entrance name not provided", position: "center" },
+            { text: rampText, position: "mid-left" },
+            { text: instructions, position: "bottom-center" },
+          ],
+        },
+        destinationSpecs: {
+          ...current.destinationSpecs,
+          portalTag: entrance.entranceName || "Backend entrance",
+          name: entrance.entranceName ? `${entrance.buildingName} — ${entrance.entranceName}` : entrance.buildingName,
+          verified: "Entrance details returned by the backend. Remaining measurements and community content are demo data.",
+          specs: [
+            { title: "Door type", description: doorText },
+            { title: "Ramp access", description: rampText },
+            { title: "Curb step height", description: entrance.curbStepHeight === undefined ? "Not provided by backend" : `${entrance.curbStepHeight}` },
+            { title: "Tactile paving", description: entrance.tactilePaving === undefined ? "Not provided by backend" : entrance.tactilePaving ? "Present" : "Not reported" },
+            { title: "Last 50 Feet instructions", description: instructions },
+          ],
+        },
+      }));
+      setEntranceNotice(`Entrance record loaded from FastAPI. ${entrance.photoUrl ? "Photo supplied by backend." : "Photo is a demo image."} Telemetry, audio guide, and community metrics remain demo content.`);
+    }).catch((error: unknown) => {
+      if (isCurrent) {
+        setArrival((current) => ({
+          ...current,
+          statusBanner: { ...current.statusBanner, elevationStatus: "Demo preview; access details not confirmed" },
+          destinationSpecs: { ...current.destinationSpecs, verified: "Demo content only; backend entrance details could not be loaded." },
+        }));
+        setEntranceNotice(`Backend entrance request failed. Showing demo content. ${error instanceof Error ? error.message : ""}`);
+      }
+    });
+    return () => { isCurrent = false; };
+  }, [destParam, entranceIdParam]);
 
   const handleCompleteTrip = () => {
     // Save to localStorage
@@ -448,7 +532,6 @@ function ArrivalPageContent() {
           id: `trip-${Date.now()}`,
           destination: destParam || arrival.destinationSpecs.name,
           timestamp: new Date().toISOString(),
-          stepFreeVerified: true,
         });
         localStorage.setItem("pathclear_completed_trips", JSON.stringify(history.slice(0, 10)));
       } catch (e) {
@@ -474,7 +557,8 @@ function ArrivalPageContent() {
 
       {/* Main Content */}
       <main className="relative z-10 flex-1 px-3 md:px-5 py-5">
-        <div className="max-w-[1400px] mx-auto p-5 md:p-6 bg-white/90 backdrop-blur-sm rounded-3xl border border-white/60 shadow-lg shadow-emerald-900/5">
+          <div className="max-w-[1400px] mx-auto p-5 md:p-6 bg-white/90 backdrop-blur-sm rounded-3xl border border-white/60 shadow-lg shadow-emerald-900/5">
+          <p role="status" className="text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 mb-4">{entranceNotice}</p>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Left Column: Entrance Photo with AR Hotspots & Telemetry */}
             <div className="lg:col-span-7 flex flex-col gap-4">
@@ -504,24 +588,24 @@ function ArrivalPageContent() {
 
             <div>
               <span className="text-[10px] font-mono uppercase tracking-widest font-extrabold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                100% Step-Free Verified
+                Trip marked complete
               </span>
               <h3 className="text-2xl font-black text-slate-900 mt-2">
                 Trip Completed!
               </h3>
               <p className="text-xs text-slate-500 mt-1">
-                You reached <strong className="text-slate-800">{destParam || arrival.destinationSpecs.name}</strong> successfully without encountering blockers.
+                You marked <strong className="text-slate-800">{destParam || arrival.destinationSpecs.name}</strong> as reached. This action does not verify route conditions.
               </p>
             </div>
 
             <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 text-left text-xs text-slate-600 space-y-1">
               <div className="flex justify-between font-semibold">
                 <span>Trip Saved:</span>
-                <span className="text-slate-900">Local History & Supabase Sync</span>
+                <span className="text-slate-900">Local History</span>
               </div>
               <div className="flex justify-between font-semibold">
                 <span>Steward Karma:</span>
-                <span className="text-emerald-700">+50 Points</span>
+                <span className="text-emerald-700">Demo points only</span>
               </div>
             </div>
 

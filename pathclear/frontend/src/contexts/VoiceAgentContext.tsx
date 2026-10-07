@@ -20,6 +20,7 @@ import {
   isSpeechRecognitionSupported,
   isSpeechSynthesisSupported,
 } from "@/lib/voice-agent";
+import { smartGeocodeLocation } from "@/lib/geocoding";
 import { useProfile } from "@/contexts/ProfileContext";
 
 export interface VoiceChatMessage {
@@ -163,7 +164,7 @@ export function VoiceAgentProvider({ children }: { children: React.ReactNode }) 
   }, []);
 
   const handleProcessIntent = useCallback(
-    (text: string) => {
+    async (text: string) => {
       const trimmed = text.trim();
       if (!trimmed) return;
 
@@ -183,7 +184,26 @@ export function VoiceAgentProvider({ children }: { children: React.ReactNode }) 
 
       // Execute side-effects if matched
       if (parsed.targetRoute) {
-        router.push(parsed.targetRoute);
+        // If this is a navigation intent with an extracted destination, do async geocoding
+        // to embed accurate lat/lng in the URL before navigating
+        if (parsed.intent === "navigate_planner" && parsed.extractedDestination) {
+          try {
+            const geoResult = await smartGeocodeLocation(parsed.extractedDestination, "Mumbai");
+            if (geoResult) {
+              const params = new URLSearchParams({ dest: geoResult.name || parsed.extractedDestination });
+              params.set("lat", geoResult.lat.toString());
+              params.set("lng", geoResult.lng.toString());
+              router.push(`/planner?${params.toString()}`);
+            } else {
+              router.push(parsed.targetRoute);
+            }
+          } catch {
+            // Fall back to the already-built route with preset lat/lng
+            router.push(parsed.targetRoute);
+          }
+        } else {
+          router.push(parsed.targetRoute);
+        }
       }
 
       if (parsed.targetProfileType) {
